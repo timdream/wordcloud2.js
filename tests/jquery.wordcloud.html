@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>$.wordCloud() tests</title>
+	<style type="text/css">
+	canvas {
+	position: fixed; top: 2em; right: 0;
+	font-family: monospace;
+	white-space: nowrap;
+	}
+	.support {
+		color: #080;
+	}
+	.not_support {
+		color: #800;
+	}
+	</style>
+</head>
+<body>
+<h2>Support</h2>
+<p id="wordCloudSupported">$.wordCloudSupported</p>
+<h2>$.wordCloud();</h2>
+<ul>
+	<li><label>中文 <input type="button" id="chinese" value="test" /></label></li>
+	<li><label>English<input type="button" id="english" value="test" /></label></li>
+	<li><label>Empty canvas <input type="button" id="empty" value="test" /></label></li>
+	<li><label>fontFamily = monospace <input type="button" id="fontFamily" value="test" /></label></li>
+	<li><label>gridSize = 3 <input type="button" id="gridSize" value="test" /></label></li>
+	<li><label>ellipticity = 1.5 <input type="button" id="ellipticity" value="test" /></label></li>
+	<li><label>drawMask <input type="button" id="drawMask" value="test" /></label></li>
+	<li><label>maskColor, maskGridWidth <input type="button" id="mask" value="test" /></label></li>
+	<li><label>wordColor, backgroundColor <input type="button" id="color" value="test" /></label></li>
+	<li><label>wait <input type="button" id="wait" value="test" /></label></li>
+	<li><label>abortThreshold = 100, abort <input type="button" id="abort" value="test" /></label></li>
+	<li><label>weightFactor = 0.5 <input type="button" id="weightFactor" value="test" /></label></li>
+	<li><label>weightFactor function <input type="button" id="weightFactor_function" value="test" /></label></li>
+	<li><label>With Image (clearCanvas = false)<input type="button" id="clearCanvas" value="test" /></label></li>
+</ul>
+
+<canvas id="result" width="580" height="400"></canvas>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+<script type="text/javascript" src="../jquery.wordcloud.js"></script>
+<script type="text/javascript">
+jQuery(function ($) {
+
+	var $r = $('#result');
+
+	$('#wordCloudSupported').addClass(($.wordCloudSupported?'':'not_') + 'support');
+
+	$('#chinese').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_chinese});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#english').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#empty').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud();
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#fontFamily').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, fontFamily: 'monospace'});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#gridSize').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, gridSize: 3});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#ellipticity').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, ellipticity: 1.5});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#drawMask').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, drawMask: true});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#drawMask').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, drawMask: true});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#mask').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, drawMask: true, maskColor: 'rgba(0,0,255,0.8)', maskGridWidth: 1});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#color').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, wordColor: 'rgba(255,128,128,0.8)', backgroundColor: 'rgba(0,0,255,0.3)'});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#wait').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, wait: 1000});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#abort').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, abortThreshold: 100, abort: function () { alert('aborted!');}});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#weightFactor').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, weightFactor: 0.5});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#weightFactor_function').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, weightFactor: function (w) { return Math.random()*w; }});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#clearCanvas').bind(
+		'click',
+		function () {
+			var im = new Image();
+			im.onload = function () {
+				var ctx = $r[0].getContext('2d');
+				ctx.fillStyle = '#ddf'; // Need to cover available area for text with backgroundColor first
+				ctx.fillRect(0, 0, 580, 400);
+				ctx.drawImage(im, 75, 200);
+				try {			
+					$r.wordCloud({wordList: list_english, backgroundColor: '#ddf', clearCanvas: false});
+				} catch (e) { alert(e); }
+			}
+			// image location is restricted by the same origin policy for getPixelData to work.
+			im.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAAABmJLR0QA/wD/AP+gvaeTAAAAB3RJTUUH2AsJCwIrqr4+WgAABI5JREFUeJzt3cuOVEUcx/HviBccjIkJq2m5+wreNjMHSCRxJ8YNC+JCV+hO38AH8bZT8B3YiQIbHgACLFkYTAgwqIvTFY5NX86l6l+33zfpZCYz3VXpz9TpTPXp7i1sexU41Pn+LePxa+gA8Mb86/tbhgPPgN+Adw3HrL3vXjIaaAZcQbjWPbMAdrjvGYylFgoNLNzIhQSeAZcRbtRCATvc9wPdvurX0xDAwk2nJ76BhZtYPoGFm2C+gGfArwg3uXwAO9wPPNyW8txUYOEm3hRg4WbQWGDhZtIY4BnwC8LNopcH/r5WbmYNWcHCzbC+wMLNtD7AOwg32zYB79BuPwo309YBa+UW0Cpgh/uh4VxUgJYBC7egFoGFW1hd4B3aHSrhFlR3J+sCcG1+eQbs054h/9qI230EvAkcHHHdx8D2/LpDT8zfB14BXqc9w39I/8zH21647mHg6MDbUpl0FrgL/Jvp5VurVzbk2Fnge+DtyPOYlICXVwQuCHhZZygEFwS82BngBwrBBQF3Kw4XBOwq6rDcTcDPcY9EnkeQagcuGhfqBi4eF+oFrgIX6gSuBhc4VBtwTbhAXSu4OlyoB7hKXKgDuFpcKB/4NBXjQtnAp2n3lqvFhXKBhTuvROAcDst/WQ1UGrDDTfkkuT+An43GOlAScC6454EHRuMdLAU4J9x7loOWACzcNeUOLNwN5QycM67Z/Z4rcM64MO4lPaPKETh3XNNyAy4Fd99oLlkBl4IL7SsoTcoFuCRcy7y/43uISsR9GnAu3fZTBy4RF+BJoLm8UMrApeKaliqwcD2VIrBwPZYasHA9lxKwcAOUCrBwA5UCsHADFhu4oU7coW/SNrqYwA3tqa214UIFTxc21ItrWgzghjoPy92s9qLNgRta3GPG4w7JYuWa7UUP/dykKTXosGye1QpuEG63op7wbxDuYman7IQ+RDfkgfsJcD/2REIUcgU3CDd6oYAbhJtEIYAbhJtMvoEbhJtUPoEb8tihqgYX/AE35LFDVRUu+AHeQ7hDM9tBnAq8R/uYK9xhjfmwsVFN+UvaA35Ej7lJN3YFC3daST9dKNzpJQss3MwaAixcfz2yGqgvsHD9ZvV04XYfYOFm3CbgXYSbdeuAd4GfEG6u/Q3cWvXDXeAO8T/Bet3lGjCbfDfE6SJh75uHwNerBt8FbgeeQM24EBZYuAkUCli4iRQC+CHw1aoBhWvblwi3WFyASxjhAlz1OJhw++ULeCMuwDvATU8DCrdfX2CE60oRuVRcgM+Zjntp6KApIZeMC9OAR+G6UkAuHRfgMyLguk4BN0ZOQLj9+pRIuK4YyLXgwnBgr7iuU8D1gRMRbr+GAAfBdVkg14YL/YGD4rpOEg65RlzoB2yC6wqBXCsubAY2xXWdBP7cMDHh9msdcBRclw/k36kbF1YDR8V1nWA8snDblgEnges6QXvCm3DHtQicFK7rOP1XsnD/Xxc4SVzXcTavZOG+2MdkgOs6xmpk4S7vHO15y8njupYh1/6v0Lo+Ar6JPYmhHeU5snDXtxV7AmM7AlxBuMn0H/K66ODcIItdAAAAAElFTkSuQmCC';
+
+		}
+	);
+
+	
+
+
+});
+
+var list_chinese = [["合眾",58],
+["合眾國",57],
+["議員",48],
+["不得",47],
+["總統",42],
+["任何",35],
+["國會",33],
+["參議",33],
+["法律",32],
+["議院",31],
+["選舉",30],
+["憲法",25],
+["眾議",24],
+["一州",21],
+["各州",20],
+["規定",19],
+["政府",18],
+["法案",17],
+["本憲法",17],
+["參議院",16],
+["參議員",16],
+["眾議員",15],
+["兩院",15],
+["制定",14],
+["分之",14],
+["州議會",13],
+["其它",13],
+["同意",13],
+["國政府",13],
+["一切",13],
+["第一",12],
+["合眾國政府",12],
+["以及",12],
+["有關",12],
+["公民",11],
+["院議",11],
+["法院",11],
+["該州",10],
+["三分之",10],
+["有權",10],
+["另一",10],
+["州之",10],
+["條例",9],
+["一個",9],
+["眾議院",9],
+["選舉人",9],
+["所有",9],
+["提出",9],
+["任期",9],
+["或其",9],
+["投票",9],
+["三分之二",9],
+["通過",9],
+["叛國",9],
+["批准",9],
+["之一",8],
+["院應",8],
+["人口",8],
+["一人",8],
+["行政",8],
+["官員",8],
+["副總統",8],
+["執行",8],
+["職務",8],
+["最高法",8],
+["對於",8],
+["必要",8],
+["聯邦",7],
+["修正",7],
+["在其",7],
+["第二",7],
+["會議",7],
+["任何一州",7],
+["該院",7],
+["彈劾",7],
+["權力",7],
+["合眾國總統",7],
+["均應",7],
+["為合眾國",7],
+["最高法院",7],
+["擔任",7],
+["俸給",7],
+["院議員",7],
+["依照",7],
+["該法案",7],
+["另一州",7],
+["得票",7],
+["成為",6],
+["修正案",6],
+["議院應",6],
+["應由",6],
+["州州議會",6],
+["人數",6],
+["未滿",6],
+["均不得",6],
+["其他",6],
+["舉行",6],
+["定之",6],
+["議長",6],
+["彈劾案",6],
+["第三",6],
+["第四",6],
+["休會",6],
+["期間",6],
+["任命",6],
+["票數",6],
+["出席",6],
+["地點",6],
+["議事",6],
+["記錄",6],
+["叛國罪",6],
+["案件",6],
+["訴訟",6],
+["之間",6],
+["所規定",5],
+["一次",5],
+["具有",5],
+["資格",5],
+["當選",5],
+["數目",5],
+["應在",5],
+["超過",5],
+["每州",5],
+["表決",5],
+["法官",5],
+["不得被",5],
+["職位",5],
+["國會得",5],
+["不在",5],
+["在此",5],
+["開會",5],
+["指定",5],
+["參眾兩院",5],
+["本院",5],
+["半數",5],
+["可以",5],
+["各該",5],
+["認為",5],
+["在合眾",5],
+["之前",5],
+["徵收",5],
+["頒發",5],
+["條約",5],
+["司法",5],
+["州公",5],
+["美利堅合眾國",4],
+["合眾國憲法",4],
+["組成",4],
+["證明",4],
+["人民",4],
+["保障",4],
+["第一款",4],
+["法權",4],
+["第二款",4],
+["眾議院應",4],
+["人應",4],
+["最多",4],
+["一院",4],
+["合眾國公民",4],
+["某州",4],
+["全體",4],
+["調查",4],
+["選出",4],
+["院議長",4],
+["只有",4],
+["第三款",4],
+["有一",4],
+["或其它",4],
+["議院議",4],
+["除非",4],
+["務時",4],
+["宣誓",4],
+["何人",4],
+["免職",4],
+["會應",4],
+["及眾議",4],
+["程序",4],
+["不在此",4],
+["他們",4],
+["過半數",4],
+["法定",4],
+["並且",4],
+["得以",4],
+["以三分之二",4],
+["議事記錄",4],
+["各該院",4],
+["兩院議員",4],
+["請求",4],
+["亦不得",4],
+["其服",4],
+["服務",4],
+["報酬",4],
+["重罪",4],
+["不受",4],
+["不得在",4],
+["在合眾國",4],
+["任職",4],
+["成為法律",4],
+["同樣",4],
+["之內",4],
+["用以",4],
+["外國",4],
+["貨幣",4],
+["該項",4],
+["召集",4],
+["由國會",4],
+["部門",4],
+["貨物",4],
+["未經",4],
+["接受",4],
+["締結",4],
+["其中",4],
+["被選",4],
+["為總統",4],
+["能力",4],
+["意見",4],
+["大使",4],
+["公使",4],
+["發生",4],
+["民之間",4],
+["州公民",4],
+["之州",4],
+["一州之",4],
+["根據",3],
+["國家",3],
+["不能",3],
+["之後",3],
+["增加",3],
+["其後",3],
+["我們",3],
+["為了",3],
+["組織",3],
+["這一",3],
+["一部",3],
+["本憲法所",3],
+["院和",3],
+["兩年",3],
+["選舉人應",3],
+["人所",3],
+["凡年齡未滿",3],
+["取得",3],
+["得合",3],
+["州居民",3],
+["民者",3],
+["得任",3],
+["包括",3],
+["契約",3],
+["課稅",3],
+["之外",3],
+["分之三",3],
+["人口調查",3],
+["應於",3],
+["合眾國國",3],
+["以法律",3],
+["不得超過",3],
+["有眾議",3],
+["至少",3],
+["以前",3],
+["五人",3],
+["缺額",3],
+["應選舉",3],
+["及其",3],
+["票表決",3],
+["到第",3],
+["年年終時屆滿",3],
+["四年",3],
+["第六",3],
+["會期間",3],
+["辭職或",3],
+["參議院議長",3],
+["相等",3],
+["總統職",3],
+["院有",3],
+["審理",3],
+["應宣誓或誓願",3],
+["則應",3],
+["人不",3],
+["被判",3],
+["有責任",3],
+["有俸給",3],
+["懲罰",3],
+["第四款",3],
+["各州州議會",3],
+["議員及",3],
+["及眾議員",3],
+["議員之",3],
+["時間",3],
+["國會應",3],
+["日期",3],
+["各自",3],
+["報告",3],
+["構成",3],
+["法定人數",3],
+["該議院",3],
+["經常",3],
+["部分",3],
+["除外",3],
+["反對",3],
+["在國會",3],
+["以上",3],
+["得因",3],
+["其服務",3],
+["國庫",3],
+["特權",3],
+["議或",3],
+["任期內",3],
+["在其任",3],
+["在合眾國政府",3],
+["異議",3],
+["退還",3],
+["復議",3],
+["將該",3],
+["多數",3],
+["情形",3],
+["各種",3],
+["國會有權",3],
+["和其它",3],
+["管理",3],
+["州與",3],
+["一致",3],
+["適用",3],
+["在一",3],
+["級法院",3],
+["罪行",3],
+["船隻",3],
+["海軍",3],
+["民兵",3],
+["全部",3],
+["會同意",3],
+["州政府",3],
+["賦予",3],
+["適當",3],
+["每人",3],
+["情況",3],
+["必要時",3],
+["不在此限",3],
+["褫奪公權",3],
+["或者",3],
+["除了",3],
+["爵位",3],
+["未經國會",3],
+["各州不得",3],
+["作為",3],
+["口貨物",3],
+["任何州",3],
+["時期",3],
+["州或",3],
+["二人",3],
+["選為總統",3],
+["其中一",3],
+["選舉總統",3],
+["全國",3],
+["在本憲法",3],
+["他應",3],
+["要求",3],
+["行政部門",3],
+["合眾國法律",3],
+["領事",3],
+["低級",3],
+["授予",3],
+["本人",3],
+["一切有關",3],
+["當事一方",3],
+["審判",3],
+["罪案",3],
+["在任何",3],
+["效力",3],
+["服役或",3],
+["勞役",3],
+["新州",3],
+["憲大會",3]];
+
+var list_english = [["shall",191],
+["stated",131],
+["United",54],
+["any",42],
+["preside",35],
+["which",34],
+["having",34],
+["Laws",34],
+["all",33],
+["may",33],
+["such",33],
+["Congress",29],
+["Senator",29],
+["Houses",28],
+["no",27],
+["He",25],
+["other",24],
+["Section",22],
+["person",22],
+["But",22],
+["Offices",22],
+["Years",21],
+["their",20],
+["Time",20],
+["Representative",19],
+["Each",19],
+["Case",19],
+["one",18],
+["two",17],
+["constitute",16],
+["power",16],
+["voted",16],
+["under",15],
+["Legislatures",13],
+["executed",13],
+["thirds",13],
+["Provided",12],
+["number",12],
+["They",12],
+["thereof",12],
+["Officer",12],
+["during",12],
+["Same",12],
+["Member",11],
+["Every",11],
+["Citizens",11],
+["If",11],
+["them",11],
+["make",10],
+["excepted",10],
+["Consent",10],
+["Bill",10],
+["Duty",10],
+["between",10],
+["Articles",9],
+["several",9],
+["respecting",9],
+["Services",9],
+["made",9],
+["first",9],
+["chusing",9],
+["Authors",9],
+["Courts",9],
+["Grants",8],
+["Elector",8],
+["been",8],
+["within",8],
+["three",8],
+["Manner",8],
+["into",8],
+["Vice",8],
+["presented",8],
+["Regulation",8],
+["Days",8],
+["enter",8],
+["against",8],
+["public",8],
+["Establishment",7],
+["directed",7],
+["unless",7],
+["without",7],
+["holding",7],
+["Place",7],
+["Treason",7],
+["Before",7],
+["both",7],
+["supreme",7],
+["more",6],
+["Union",6],
+["chosen",6],
+["second",6],
+["five",6],
+["elected",6],
+["Tax",6],
+["Thirty",6],
+["eight",6],
+["Impeachments",6],
+["equal",6],
+["removed",6],
+["appointed",6],
+["its",6],
+["Rule",6],
+["his",6],
+["necessary",6],
+["Money",6],
+["governing",6],
+["another",6],
+["vest",5],
+["Term",5],
+["after",5],
+["ten",5],
+["new",5],
+["Vacancies",5],
+["fourths",5],
+["then",5],
+["than",5],
+["Subjects",5],
+["punish",5],
+["judge",5],
+["Return",5],
+["Majority",5],
+["either",5],
+["receive",5],
+["being",5],
+["foreign",5],
+["Coin",5],
+["Acts",5],
+["Crime",5],
+["Jurisdiction",5],
+["Form",4],
+["according",4],
+["determine",4],
+["those",4],
+["bound",4],
+["meet",4],
+["thousand",4],
+["Elections",4],
+["Class",4],
+["Appointment",4],
+["Conviction",4],
+["Trust",4],
+["Party",4],
+["Trial",4],
+["prescribe",4],
+["Proceedings",4],
+["Journal",4],
+["part",4],
+["required",4],
+["nor",4],
+["proposed",4],
+["Amendment",4],
+["pass",4],
+["Imposts",4],
+["post",4],
+["inferior",4],
+["War",4],
+["Lands",4],
+["Militia",4],
+["proper",4],
+["Treaties",4],
+["Ambassadors",4],
+["Ministers",4],
+["judicial",4],
+["Conventions",4],
+["Words",4],
+["Line",4],
+["Page",4],
+["Justice",3],
+["general",3],
+["securing",3],
+["our",3],
+["do",3],
+["America",3],
+["herein",3],
+["consist",3],
+["Qualification",3],
+["attained",3],
+["Age",3],
+["seven",3],
+["Inhabitant",3],
+["whole",3],
+["actually",3],
+["enumeration",3],
+["least",3],
+["until",3],
+["entitled",3],
+["six",3],
+["happen",3],
+["fill",3],
+["Consequence",3],
+["Seat",3],
+["Expiration",3],
+["so",3],
+["Resignation",3],
+["exercise",3],
+["Purposes",3],
+["Oath",3],
+["Affirmation",3],
+["Concurrence",3],
+["Judgment",3],
+["Profit",3],
+["different",3],
+["adjourn",3],
+["questioned",3],
+["neither",3],
+["Session",3],
+["Compensation",3],
+["Treasury",3],
+["Felonies",3],
+["Privileges",3],
+["Emolument",3],
+["original",3],
+["become",3],
+["approved",3],
+["signed",3],
+["Objections",3],
+["him",3],
+["like",3],
+["Adjournment",3],
+["take",3],
+["lay",3],
+["Debts",3],
+["uniform",3],
+["throughout",3],
+["Credit",3],
+["committed",3],
+["declaring",3],
+["call",3],
+["Invasion",3],
+["over",3],
+["Departments",3],
+["think",3],
+["admitted",3],
+["hundred",3],
+["Attainder",3],
+["laid",3],
+["Exports",3],
+["Title",3],
+["Ballot",3],
+["List",3],
+["said",3],
+["giving",3],
+["Consuls",3],
+["up",3],
+["affect",3],
+["Claims",3],
+["Labour",3],
+["interlined",3]];
+
+</script>
+</body>
+</html>
