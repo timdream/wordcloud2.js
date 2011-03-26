@@ -123,11 +123,15 @@
 				if (rotate) {
 					var h = ctx.measureText(word).width/mu,
 						w = Math.max(fontSize*mu, ctx.measureText('m').width, ctx.measureText('\uFF37').width)/mu;
-					if (/[gpqy]/.test(word)) w *= 3/2;
+					if (/[Jgpqy]/.test(word)) w *= 3/2;
+					w += Math.floor(fontSize/6);
+					h += Math.floor(fontSize/6);
 				} else {
 					var w = ctx.measureText(word).width/mu,
 						h = Math.max(fontSize*mu, ctx.measureText('m').width, ctx.measureText('\uFF37').width)/mu;
-					if (/[gpqy]/.test(word)) h *= 3/2;
+					if (/[Jgpqy]/.test(word)) h *= 3/2;
+					h += Math.floor(fontSize/6);
+					w += Math.floor(fontSize/6);
 				}
 				w = Math.ceil(w);
 				h = Math.ceil(h);
@@ -162,7 +166,7 @@
 									fctx.translate(0, h*mu);
 									fctx.rotate(-Math.PI/2);
 								}
-								fctx.fillText(word, 0, 0);
+								fctx.fillText(word, Math.floor(fontSize/6), 0);
 								ctx.clearRect(gxy[0]*g, gxy[1]*g, w, h);
 								ctx.drawImage(fc, gxy[0]*g, gxy[1]*g, w, h);
 								updateGrid(gxy[0], gxy[1], gw, gh);
