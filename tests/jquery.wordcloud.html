@@ -27,6 +27,8 @@
 	<li><label>fontFamily = monospace <input type="button" id="fontFamily" value="test" /></label></li>
 	<li><label>gridSize = 3 <input type="button" id="gridSize" value="test" /></label></li>
 	<li><label>ellipticity = 1.5 <input type="button" id="ellipticity" value="test" /></label></li>
+	<li><label>rotateRatio = 1 <input type="button" id="rotateRatio_function" value="test" /></label></li>
+	<li><label>rotateRatio = 0 <input type="button" id="rotateRatio0_function" value="test" /></label></li>
 	<li><label>drawMask <input type="button" id="drawMask" value="test" /></label></li>
 	<li><label>maskColor, maskGridWidth <input type="button" id="mask" value="test" /></label></li>
 	<li><label>wordColor, backgroundColor <input type="button" id="color" value="test" /></label></li>
@@ -34,6 +36,7 @@
 	<li><label>abortThreshold = 100, abort <input type="button" id="abort" value="test" /></label></li>
 	<li><label>weightFactor = 0.5 <input type="button" id="weightFactor" value="test" /></label></li>
 	<li><label>weightFactor function <input type="button" id="weightFactor_function" value="test" /></label></li>
+	<li><label>rotateRatio = 1 <input type="button" id="rotateRatio_function" value="test" /></label></li>
 	<li><label>With Image (clearCanvas = false)<input type="button" id="clearCanvas" value="test" /></label></li>
 </ul>
 
@@ -97,6 +100,24 @@ jQuery(function ($) {
 		function () {
 			try {
 				$r.wordCloud({wordList: list_english, ellipticity: 1.5});
+			} catch (e) { alert(e); }
+		}
+	);
+	
+	$('#rotateRatio_function').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, rotateRatio: 1});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#rotateRatio0_function').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, rotateRatio: 0});
 			} catch (e) { alert(e); }
 		}
 	);

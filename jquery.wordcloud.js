@@ -63,6 +63,7 @@
 			abort: $.noop,
 			weightFactor: 1,
 			wordList: [],
+			rotateRatio: 0.1,
 			clearCanvas: true
 		};
 
@@ -113,13 +114,23 @@
 				}
 			},
 			putWord = function (word, weight) {
-				var fontSize = settings.weightFactor(weight);
-				ctx.font = fontSize.toString(10) + 'px ' + settings.fontFamily;				
-				var w = ctx.measureText(word).width,
-					h = Math.max(fontSize, ctx.measureText('m').width, ctx.measureText('\uFF37').width),
-					gw, gh;
-				if (fontSize < 4.5) return false; // Try not to fill the canvas with pixalized small text. Also fontSize === 0 means weightFactor wants the text skipped.
-				if (/[gpqy]/.test(word)) h *= 3/2;
+				var gw, gh, mu = 1,
+				rotate = (Math.random() < settings.rotateRatio),
+				fontSize = settings.weightFactor(weight);
+				if (fontSize <= 16) mu = Math.ceil(17/fontSize); // make sure fillText is not limited by min font size set by browser.
+				if (fontSize === 0) return false; // fontSize === 0 means weightFactor wants the text skipped.
+				ctx.font = (fontSize*mu).toString(10) + 'px ' + settings.fontFamily;
+				if (rotate) {
+					var h = ctx.measureText(word).width/mu,
+						w = Math.max(fontSize*mu, ctx.measureText('m').width, ctx.measureText('\uFF37').width)/mu;
+					if (/[gpqy]/.test(word)) w *= 3/2;
+				} else {
+					var w = ctx.measureText(word).width/mu,
+						h = Math.max(fontSize*mu, ctx.measureText('m').width, ctx.measureText('\uFF37').width)/mu;
+					if (/[gpqy]/.test(word)) h *= 3/2;
+				}
+				w = Math.ceil(w);
+				h = Math.ceil(h);
 				gw = Math.ceil(w/g),
 				gh = Math.ceil(h/g);
 				var R = Math.floor(Math.sqrt(ngx*ngx+ngy*ngy)), T = ngx+ngy, r, t, points, x, y;
@@ -138,8 +149,22 @@
 					if (points.shuffle().some(
 						function (gxy) {
 							if (canFitText(gxy[0], gxy[1], gw, gh)) {
-								ctx.fillStyle = settings.wordColor;
-								ctx.fillText(word, gxy[0]*g + (gw*g - w)/2, gxy[1]*g + (gh*g - h)/2);
+								var fc = document.createElement('canvas');
+								fc.setAttribute('width', w*mu);
+								fc.setAttribute('height', h*mu);
+								var fctx = fc.getContext('2d');
+								fctx.fillStyle = settings.backgroundColor;
+								fctx.fillRect(0, 0, w*mu, h*mu);
+								fctx.fillStyle = settings.wordColor;
+								fctx.font = (fontSize*mu).toString(10) + 'px ' + settings.fontFamily;				
+								fctx.textBaseline = 'top';
+								if (rotate) {
+									fctx.translate(0, h*mu);
+									fctx.rotate(-Math.PI/2);
+								}
+								fctx.fillText(word, 0, 0);
+								ctx.clearRect(gxy[0]*g, gxy[1]*g, w, h);
+								ctx.drawImage(fc, gxy[0]*g, gxy[1]*g, w, h);
 								updateGrid(gxy[0], gxy[1], gw, gh);
 								return true;
 							}
