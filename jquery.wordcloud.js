@@ -85,6 +85,11 @@
 		var g = settings.gridSize,
 			ctx, grid, ngx, ngy, diffChannel, bgChannelVal,
 			escapeTime, timer,
+			limitedByMinSize = (function() {
+				var lctx = document.getElementById('canvas').getContext('2d');
+				lctx.font = '0px sans-serif';
+				return (Math.max(lctx.measureText('\uFF37').width, lctx.measureText('m').width) > 2);
+			})(),
 			exceedTime = function () {
 				return (
 					settings.abortThreshold > 0
@@ -119,7 +124,7 @@
 				var gw, gh, mu = 1,
 				rotate = (Math.random() < settings.rotateRatio),
 				fontSize = settings.weightFactor(weight);
-				if (fontSize <= 16) mu = Math.ceil(17/fontSize); // make sure fillText is not limited by min font size set by browser.
+				if (limitedByMinSize && fontSize < 17) mu = Math.ceil(17/fontSize); // make sure fillText is not limited by min font size set by browser.
 				if (fontSize <= settings.minSize) return false; // fontSize === 0 means weightFactor wants the text skipped.
 				ctx.font = (fontSize*mu).toString(10) + 'px ' + settings.fontFamily;
 				if (rotate) {
