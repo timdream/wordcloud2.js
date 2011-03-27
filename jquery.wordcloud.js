@@ -63,7 +63,7 @@
 			abortThreshold: 0, // disabled
 			abort: $.noop,
 			weightFactor: 1,
-			minSize: 9,
+			minSize: 4.5, // 0 to disable
 			wordList: [],
 			rotateRatio: 0.1,
 			clearCanvas: true
@@ -124,7 +124,7 @@
 				var gw, gh, mu = 1,
 				rotate = (Math.random() < settings.rotateRatio),
 				fontSize = settings.weightFactor(weight);
-				if (limitedByMinSize && fontSize < 17) mu = Math.ceil(17/fontSize); // make sure fillText is not limited by min font size set by browser.
+				if ((limitedByMinSize && fontSize < 17) || fontSize < 4.5) mu = Math.ceil(17/fontSize); // make sure fillText is not limited by min font size set by browser.
 				if (fontSize <= settings.minSize) return false; // fontSize === 0 means weightFactor wants the text skipped.
 				ctx.font = (fontSize*mu).toString(10) + 'px ' + settings.fontFamily;
 				if (rotate) {
