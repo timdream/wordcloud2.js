@@ -155,22 +155,28 @@
 					if (points.shuffle().some(
 						function (gxy) {
 							if (canFitText(gxy[0], gxy[1], gw, gh)) {
-								var fc = document.createElement('canvas');
-								fc.setAttribute('width', w*mu);
-								fc.setAttribute('height', h*mu);
-								var fctx = fc.getContext('2d');
-								fctx.fillStyle = settings.backgroundColor;
-								fctx.fillRect(0, 0, w*mu, h*mu);
-								fctx.fillStyle = settings.wordColor;
-								fctx.font = (fontSize*mu).toString(10) + 'px ' + settings.fontFamily;				
-								fctx.textBaseline = 'top';
-								if (rotate) {
-									fctx.translate(0, h*mu);
-									fctx.rotate(-Math.PI/2);
+								if (mu !== 1 || rotate) {
+									var fc = document.createElement('canvas');
+									fc.setAttribute('width', w*mu);
+									fc.setAttribute('height', h*mu);
+									var fctx = fc.getContext('2d');
+									fctx.fillStyle = settings.backgroundColor;
+									fctx.fillRect(0, 0, w*mu, h*mu);
+									fctx.fillStyle = settings.wordColor;
+									fctx.font = (fontSize*mu).toString(10) + 'px ' + settings.fontFamily;				
+									fctx.textBaseline = 'top';
+									if (rotate) {
+										fctx.translate(0, h*mu);
+										fctx.rotate(-Math.PI/2);
+									}
+									fctx.fillText(word, Math.floor(fontSize*mu/6), 0);
+									ctx.clearRect(gxy[0]*g, gxy[1]*g, w, h);
+									ctx.drawImage(fc, gxy[0]*g + (gw*g - w)/2, gxy[1]*g + (gh*g - h)/2, w, h);
+								} else {
+									ctx.font = fontSize.toString(10) + 'px ' + settings.fontFamily;
+									ctx.fillStyle = settings.wordColor;
+									ctx.fillText(word, gxy[0]*g + (gw*g - w)/2, gxy[1]*g + (gh*g - h)/2);
 								}
-								fctx.fillText(word, Math.floor(fontSize/6), 0);
-								ctx.clearRect(gxy[0]*g, gxy[1]*g, w, h);
-								ctx.drawImage(fc, gxy[0]*g, gxy[1]*g, w, h);
 								updateGrid(gxy[0], gxy[1], gw, gh);
 								return true;
 							}
