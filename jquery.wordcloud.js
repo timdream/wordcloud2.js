@@ -175,8 +175,8 @@
 										fctx.rotate(-Math.PI/2);
 									}
 									fctx.fillText(word, Math.floor(fontSize*mu/6), 0);
-									ctx.clearRect(gxy[0]*g, gxy[1]*g, w, h);
-									ctx.drawImage(fc, gxy[0]*g + (gw*g - w)/2, gxy[1]*g + (gh*g - h)/2, w, h);
+									ctx.clearRect(Math.floor(gxy[0]*g + (gw*g - w)/2), Math.floor(gxy[1]*g + (gh*g - h)/2), w, h);
+									ctx.drawImage(fc, Math.floor(gxy[0]*g + (gw*g - w)/2), Math.floor(gxy[1]*g + (gh*g - h)/2), w, h);
 								} else {
 									ctx.font = fontSize.toString(10) + 'px ' + settings.fontFamily;
 									ctx.fillStyle = settings.wordColor;
