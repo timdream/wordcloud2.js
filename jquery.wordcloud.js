@@ -20,6 +20,7 @@
 	abortThreshold: abort and execute about() when the browser took more than N ms to draw a word. 0 to disable.
 	abort: abort handler.
 	weightFactor: 
+	minSize:
 	wordList: 2d array in for word list like [['w1', 12], ['w2', 6]]
 	clearCanvas: clear canvas before drawing. Faster than running detection on what's already on it.
  
@@ -62,6 +63,7 @@
 			abortThreshold: 0, // disabled
 			abort: $.noop,
 			weightFactor: 1,
+			minSize: 9,
 			wordList: [],
 			rotateRatio: 0.1,
 			clearCanvas: true
@@ -118,7 +120,7 @@
 				rotate = (Math.random() < settings.rotateRatio),
 				fontSize = settings.weightFactor(weight);
 				if (fontSize <= 16) mu = Math.ceil(17/fontSize); // make sure fillText is not limited by min font size set by browser.
-				if (fontSize === 0) return false; // fontSize === 0 means weightFactor wants the text skipped.
+				if (fontSize <= settings.minSize) return false; // fontSize === 0 means weightFactor wants the text skipped.
 				ctx.font = (fontSize*mu).toString(10) + 'px ' + settings.fontFamily;
 				if (rotate) {
 					var h = ctx.measureText(word).width/mu,
