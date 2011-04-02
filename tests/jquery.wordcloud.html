@@ -36,6 +36,8 @@
 	<li><label>abortThreshold = 100, abort <input type="button" id="abort" value="test" /></label></li>
 	<li><label>weightFactor = 0.5 <input type="button" id="weightFactor" value="test" /></label></li>
 	<li><label>weightFactor function <input type="button" id="weightFactor_function" value="test" /></label></li>
+	<li><label>wordColor random light <input type="button" id="wordColor_light" value="test" /></label></li>
+	<li><label>wordColor function <input type="button" id="wordColor_function" value="test" /></label></li>
 	<li><label>minSize = 10px <input type="button" id="minSize_function" value="test" /></label></li>
 	<li><label>With Image (clearCanvas = false)<input type="button" id="clearCanvas" value="test" /></label></li>
 </ul>
@@ -199,6 +201,41 @@ jQuery(function ($) {
 		function () {
 			try {
 				$r.wordCloud({wordList: list_english, weightFactor: function (w) { return Math.random()*w; }});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#wordColor_light').bind(
+		'click',
+		function () {
+			var ctx = $r[0].getContext('2d');
+			ctx.fillStyle = '#600';
+			ctx.fillRect(0, 0, 580, 400);
+			try {
+				$r.wordCloud({wordList: list_english, wordColor: 'random-light' });
+			} catch (e) { alert(e); }
+		}
+	);
+
+
+	$('#wordColor_function').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud(
+					{
+						wordList: list_english,
+						wordColor: function (word, weight, fontSize, radius, theta) {
+							if (theta < 2*Math.PI/3) {
+								return '#600';
+							} else if (theta < 2*Math.PI*2/3) {
+								return '#060';
+							} else {
+								return '#006';
+							}
+						}
+					}
+				);
 			} catch (e) { alert(e); }
 		}
 	);

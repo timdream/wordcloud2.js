@@ -14,7 +14,11 @@
 	drawMask: true to debug mask to show area covered by word.
 	maskColor: color of the debug mask.
 	maskGridWidth: width of the mask grid border.
-	wordColor: color for word.
+	wordColor: color for word, could be one of the following:
+		[CSS color value],
+		'random-dark', (default)
+		'random-light',
+		[function(word, weight, fontSize, radius, theta)]
 	backgroundColor: background to cover entire canvas or the detect against.
 	wait: wait N ms before drawing next word.
 	abortThreshold: abort and execute about() when the browser took more than N ms to draw a word. 0 to disable.
@@ -57,7 +61,7 @@
 			drawMask: false,
 			maskColor: 'rgba(255,0,0,0.3)',
 			maskGridWidth: 0.3,
-			wordColor: 'rgba(0,0,0,0.7)',
+			wordColor: 'random-dark',
 			backgroundColor: '#fff',  //opaque white = rgba(255, 255, 255, 1)
 			wait: 0,
 			abortThreshold: 0, // disabled
@@ -83,13 +87,35 @@
 		settings.gridSize = Math.max(settings.gridSize, 4);
 
 		var g = settings.gridSize,
-			ctx, grid, ngx, ngy, diffChannel, bgChannelVal,
+			ctx, grid, ngx, ngy, diffChannel, bgPixel,
 			escapeTime, timer,
 			limitedByMinSize = (function() {
 				var lctx = document.createElement('canvas').getContext('2d');
 				lctx.font = '0px sans-serif';
 				return (Math.max(lctx.measureText('\uFF37').width, lctx.measureText('m').width) > 2);
 			})(),
+			wordColor = function (word, weight, fontSize, radius, theta) {
+				switch (settings.wordColor) {
+					case 'random-dark':
+						return 'rgb('
+							+ Math.floor(Math.random()*128).toString(10) + ','
+							+ Math.floor(Math.random()*128).toString(10) + ','
+							+ Math.floor(Math.random()*128).toString(10) + ')';
+					break;
+					case 'random-light':
+						return 'rgb('
+							+ Math.floor(Math.random()*128 + 128).toString(10) + ','
+							+ Math.floor(Math.random()*128 + 128).toString(10) + ','
+							+ Math.floor(Math.random()*128 + 128).toString(10) + ')';
+					break;
+					default:
+					if (typeof settings.wordColor !== 'function') {
+						return settings.wordColor;
+					} else {
+						return settings.wordColor(word, weight, fontSize, radius, theta);
+					}
+				}
+			},
 			exceedTime = function () {
 				return (
 					settings.abortThreshold > 0
@@ -99,8 +125,14 @@
 			isGridEmpty = function (x, y) {
 				var i = g*g*4,
 					imgData = ctx.getImageData(x*g, y*g, g, g);
-				while (i -= 4) {
-					if (imgData.data[i+diffChannel] !== bgChannelVal) return false;
+				if (!isNaN(diffChannel)) {
+					while (i -= 4) {
+						if (imgData.data[i+diffChannel] !== bgPixel[diffChannel]) return false;
+					}
+				} else {
+					while (i --) {
+						if (imgData.data[i] !== bgPixel[i%4]) return false;
+					}					
 				}
 				return true;
 			},
@@ -152,8 +184,9 @@
 					while (t--) {
 						points.push(
 							[
-								Math.floor(ngx/2+(R-r)*Math.cos(t/T*2*Math.PI) - gw/2),
-								Math.floor(ngy/2+(R-r)*settings.ellipticity*Math.sin(t/T*2*Math.PI) - gh/2)
+								Math.floor(ngx/2+(R-r)*Math.cos(-t/T*2*Math.PI) - gw/2),
+								Math.floor(ngy/2+(R-r)*settings.ellipticity*Math.sin(-t/T*2*Math.PI) - gh/2),
+								t/T*2*Math.PI
 							]
 						);
 					}
@@ -167,7 +200,7 @@
 									var fctx = fc.getContext('2d');
 									fctx.fillStyle = settings.backgroundColor;
 									fctx.fillRect(0, 0, w*mu, h*mu);
-									fctx.fillStyle = settings.wordColor;
+									fctx.fillStyle = wordColor(word, weight, fontSize, R-r, gxy[2]);
 									fctx.font = (fontSize*mu).toString(10) + 'px ' + settings.fontFamily;				
 									fctx.textBaseline = 'top';
 									if (rotate) {
@@ -179,7 +212,7 @@
 									ctx.drawImage(fc, Math.floor(gxy[0]*g + (gw*g - w)/2), Math.floor(gxy[1]*g + (gh*g - h)/2), w, h);
 								} else {
 									ctx.font = fontSize.toString(10) + 'px ' + settings.fontFamily;
-									ctx.fillStyle = settings.wordColor;
+									ctx.fillStyle = wordColor(word, weight, fontSize, R-r, gxy[2]);
 									ctx.fillText(word, gxy[0]*g + (gw*g - w)/2, gxy[1]*g + (gh*g - h)/2);
 								}
 								updateGrid(gxy[0], gxy[1], gw, gh);
@@ -220,18 +253,23 @@
 			bctx.clearRect(0, 0, 1, 1);
 			bctx.fillStyle = settings.backgroundColor;
 			bctx.fillRect(0, 0, 1, 1);
-			var bgPixel = bctx.getImageData(0, 0, 1, 1).data;
-			bctx.fillStyle = settings.wordColor;
-			bctx.fillRect(0, 0, 1, 1);
-			var wdPixel = bctx.getImageData(0, 0, 1, 1).data;
-
-			var i = 4;
-			while (i--) {
-				if (Math.abs(wdPixel[i] - bgPixel[i]) > 10) {
-					diffChannel = i;
-					bgChannelVal = bgPixel[i];
-					break;
+			bgPixel = bctx.getImageData(0, 0, 1, 1).data;
+			
+			if (typeof settings.wordColor !== 'function'
+				&& settings.wordColor.substr(0,6) !== 'random') {
+				bctx.fillStyle = settings.wordColor;
+				bctx.fillRect(0, 0, 1, 1);
+				var wdPixel = bctx.getImageData(0, 0, 1, 1).data;
+	
+				var i = 4;
+				while (i--) {
+					if (Math.abs(wdPixel[i] - bgPixel[i]) > 10) {
+						diffChannel = i;
+						break;
+					}
 				}
+			} else {
+				diffChannel = NaN;
 			}
 			
 			//delete bctx; // break in strict mode
