@@ -86,7 +86,7 @@
 			ctx, grid, ngx, ngy, diffChannel, bgChannelVal,
 			escapeTime, timer,
 			limitedByMinSize = (function() {
-				var lctx = document.getElementById('canvas').getContext('2d');
+				var lctx = document.createElement('canvas').getContext('2d');
 				lctx.font = '0px sans-serif';
 				return (Math.max(lctx.measureText('\uFF37').width, lctx.measureText('m').width) > 2);
 			})(),
