@@ -11,6 +11,7 @@
 	fontFamily: font list for text.
 	gridSize: 8,
 	ellipticity: ellipticity of the circle formed by word.
+	center: [x,y] of the center of the circle. Set false to use center of canvas.
 	drawMask: true to debug mask to show area covered by word.
 	maskColor: color of the debug mask.
 	maskGridWidth: width of the mask grid border.
@@ -58,6 +59,7 @@
 			fontFamily: '"Trebuchet MS", "Heiti TC", "微軟正黑體", "Arial Unicode MS", "Droid Fallback Sans", sans-serif',
 			gridSize: 8,
 			ellipticity: 0.65,
+			center: false,
 			drawMask: false,
 			maskColor: 'rgba(255,0,0,0.3)',
 			maskGridWidth: 0.3,
@@ -176,6 +178,7 @@
 				h = Math.ceil(h);
 				gw = Math.ceil(w/g),
 				gh = Math.ceil(h/g);
+				var center = (settings.center)?[settings.center[0]/g, settings.center[1]/g]:[ngx/2, ngy/2];
 				var R = Math.floor(Math.sqrt(ngx*ngx+ngy*ngy)), T = ngx+ngy, r, t, points, x, y;
 				r = R;
 				while (r--) {
@@ -184,8 +187,8 @@
 					while (t--) {
 						points.push(
 							[
-								Math.floor(ngx/2+(R-r)*Math.cos(-t/T*2*Math.PI) - gw/2),
-								Math.floor(ngy/2+(R-r)*settings.ellipticity*Math.sin(-t/T*2*Math.PI) - gh/2),
+								Math.floor(center[0]+(R-r)*Math.cos(-t/T*2*Math.PI) - gw/2),
+								Math.floor(center[1]+(R-r)*settings.ellipticity*Math.sin(-t/T*2*Math.PI) - gh/2),
 								t/T*2*Math.PI
 							]
 						);

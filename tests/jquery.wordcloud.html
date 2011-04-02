@@ -27,6 +27,7 @@
 	<li><label>fontFamily = monospace <input type="button" id="fontFamily" value="test" /></label></li>
 	<li><label>gridSize = 3 <input type="button" id="gridSize" value="test" /></label></li>
 	<li><label>ellipticity = 1.5 <input type="button" id="ellipticity" value="test" /></label></li>
+	<li><label>start from top right (center) <input type="button" id="center" value="test" /></label></li>
 	<li><label>rotateRatio = 1 <input type="button" id="rotateRatio_function" value="test" /></label></li>
 	<li><label>rotateRatio = 0 <input type="button" id="rotateRatio0_function" value="test" /></label></li>
 	<li><label>drawMask <input type="button" id="drawMask" value="test" /></label></li>
@@ -105,6 +106,16 @@ jQuery(function ($) {
 			} catch (e) { alert(e); }
 		}
 	);
+	
+	$('#center').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, center: [580, 0]});
+			} catch (e) { alert(e); }
+		}
+	);
+
 	
 	$('#minSize_function').bind(
 		'click',
