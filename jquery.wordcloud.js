@@ -124,27 +124,50 @@
 					&& (new Date()).getTime() - escapeTime > settings.abortThreshold
 				);
 			},
-			isGridEmpty = function (x, y) {
-				var i = g*g*4,
-					imgData = ctx.getImageData(x*g, y*g, g, g);
+			isGridEmpty = function (imgData, x, y, w, h) {
+				var i = g, j;
 				if (!isNaN(diffChannel)) {
-					while (i -= 4) {
-						if (imgData.data[i+diffChannel] !== bgPixel[diffChannel]) return false;
+					while (i--) {
+						j = g;
+						while (j --) {
+							if (
+								imgData.data[
+									((y+j)*w+x+i)*4+diffChannel
+								] !== bgPixel[diffChannel]
+							) return false;
+						}
 					}
 				} else {
-					while (i --) {
-						if (imgData.data[i] !== bgPixel[i%4]) return false;
-					}					
+					var k;
+					while (i--) {
+						j = g;
+						while (j --) {
+							k = 4;
+							while (k--) {
+								if (
+									imgData.data[
+										((y+j)*w+x+i)*4+k
+									] !== bgPixel[k]
+								) return false;
+							}
+						}
+					}
 				}
 				return true;
 			},
 			updateGrid = function (gx, gy, gw, gh) {
 				var x = gw, y;
 				if (settings.drawMask) ctx.fillStyle = settings.maskColor;
+				/*
+				getImageData() is a super expensive function
+				(internally, extracting pixels of _entire canvas_ all the way from GPU),
+				call once here instead of every time in isGridEmpty
+				*/
+				var imgData = ctx.getImageData(gx*g, gy*g, gw*g, gh*g);
 				out: while (x--) {
 					y = gh;
 					while (y--) {
-						if (!isGridEmpty(gx + x, gy + y)) {
+						if (!isGridEmpty(imgData, x*g, y*g, gw*g, gh*g)) {
 							grid[gx + x][gy + y] = false;
 							if (settings.drawMask) {
 								ctx.fillRect((gx + x)*g, (gy + y)*g, g-settings.maskGridWidth, g-settings.maskGridWidth);
