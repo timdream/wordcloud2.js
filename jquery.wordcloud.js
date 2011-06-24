@@ -296,8 +296,11 @@
 
 		return this.each(function() {
 			if (this.nodeName.toLowerCase() !== 'canvas') return;
-			ngx = Math.floor($(this).attr('width')/g);
-			ngy = Math.floor($(this).attr('height')/g);
+
+			var $el = $(this);
+
+			ngx = Math.floor($el.attr('width')/g);
+			ngy = Math.floor($el.attr('height')/g);
 			ctx = this.getContext('2d'), 
 			grid = [];
 
@@ -351,8 +354,8 @@
 
 			ctx.textBaseline = 'top';
 
-			// cancel previous wordcloud action
-			($(this).data('wordCloud-break') || $.noop).call();
+			// cancel previous wordcloud action by trigger
+			$el.trigger('wordcloudstart');
 			
 			var i = 0;
 			//var d = new Date();
@@ -370,6 +373,7 @@
 					function () {
 						if (i >= settings.wordList.length) {
 							clearTimeout(timer);
+							$el.trigger('wordcloudstop');
 							// console.log(d.getTime() - (new Date()).getTime());
 							return;
 						}
@@ -378,14 +382,16 @@
 						if (exceedTime()) {
 							clearTimeout(timer);
 							settings.abort();
+							$el.trigger('wordcloudabort');
+							$el.trigger('wordcloudstop');
 						}
 						i++;
 					},
 					settings.wait
 				);
-				$(this).data(
-					'wordCloud-break',
-					function () {
+				$el.one(
+					'wordcloudstart',
+					function (ev) {
 						clearTimeout(timer);
 					}
 				);
@@ -395,22 +401,28 @@
 				var stop = false;
 				window.setZeroTimeout(
 					function loop() {
-						if (i >= settings.wordList.length || stop) {
+						if (i >= settings.wordList.length) {
 							// console.log(d.getTime() - (new Date()).getTime());
+							$el.trigger('wordcloudstop');
+							return;
+						}
+						if (stop) {
 							return;
 						}
 						escapeTime = (new Date()).getTime();
 						putWord(settings.wordList[i][0], settings.wordList[i][1]);
 						if (exceedTime()) {
 							settings.abort();
+							$el.trigger('wordcloudabort');
+							$el.trigger('wordcloudstop');
 							return;
 						}
 						i++;
 						window.setZeroTimeout(loop);
 					}
 				);
-				$(this).data(
-					'wordCloud-break',
+				$el.one(
+					'wordcloudstart',
 					function () {
 						stop = true;
 					}
@@ -425,20 +437,23 @@
 						if (i >= settings.wordList.length || stop) {
 							clearTimeout(timer);
 							// console.log(d.getTime() - (new Date()).getTime());
+							$el.trigger('wordcloudstop');
 							return;
 						}
 						escapeTime = (new Date()).getTime();
 						putWord(settings.wordList[i][0], settings.wordList[i][1]);
 						if (exceedTime()) {
 							settings.abort();
+							$el.trigger('wordcloudabort');
+							$el.trigger('wordcloudstop');
 							return;
 						}
 						i++;
 						reqFrame(loop);
 					}
 				);
-				$(this).data(
-					'wordCloud-break',
+				$el.one(
+					'wordcloudstart',
 					function () {
 						stop = true;
 					}
