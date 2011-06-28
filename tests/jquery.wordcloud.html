@@ -42,6 +42,7 @@
 	<li><label>wordColor function <input type="button" id="wordColor_function" value="test" /></label></li>
 	<li><label>minSize = 10px <input type="button" id="minSize_function" value="test" /></label></li>
 	<li><label>With Image (clearCanvas = false)<input type="button" id="clearCanvas" value="test" /></label></li>
+	<li><label>fillBox<input type="button" id="fillbox" value="test" /></label></li>
 </ul>
 
 <canvas id="result" width="580" height="400"></canvas>
@@ -271,7 +272,14 @@ jQuery(function ($) {
 		}
 	);
 
-	
+	$('#fillbox').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({wordList: list_english, fillBox: true});
+			} catch (e) { alert(e); }
+		}
+	);
 
 
 });

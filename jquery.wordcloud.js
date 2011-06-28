@@ -28,6 +28,7 @@
 	minSize:
 	wordList: 2d array in for word list like [['w1', 12], ['w2', 6]]
 	clearCanvas: clear canvas before drawing. Faster than running detection on what's already on it.
+	fillBox: true will mark the entire box containing the word as filled - no subsequent smaller words can be fit in the gap.
  
 */
 
@@ -103,7 +104,8 @@
 			minSize: 4.5, // 0 to disable
 			wordList: [],
 			rotateRatio: 0.1,
-			clearCanvas: true
+			clearCanvas: true,
+			fillBox: false
 		};
 
 		if (options) { 
@@ -185,6 +187,19 @@
 					}
 				}
 				return true;
+			},
+			fillGrid = function (gx, gy, gw, gh) {
+				var x = gw, y;
+				if (settings.drawMask) ctx.fillStyle = settings.maskColor;
+				while (x--) {
+					y = gh;
+					while (y--) {
+						grid[gx + x][gy + y] = false;
+						if (settings.drawMask) {
+							ctx.fillRect((gx + x)*g, (gy + y)*g, g-settings.maskGridWidth, g-settings.maskGridWidth);
+						}
+					}
+				}
 			},
 			updateGrid = function (gx, gy, gw, gh) {
 				var x = gw, y;
@@ -272,7 +287,11 @@
 									ctx.fillStyle = wordColor(word, weight, fontSize, R-r, gxy[2]);
 									ctx.fillText(word, gxy[0]*g + (gw*g - w)/2, gxy[1]*g + (gh*g - h)/2);
 								}
-								updateGrid(gxy[0], gxy[1], gw, gh);
+								if (settings.fillBox) {
+									fillGrid(gxy[0], gxy[1], gw, gh);
+								} else {
+									updateGrid(gxy[0], gxy[1], gw, gh);
+								}
 								return true;
 							}
 							return false;
