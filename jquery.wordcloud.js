@@ -249,7 +249,7 @@
 				gh = Math.ceil(h/g);
 				var center = (settings.center)?[settings.center[0]/g, settings.center[1]/g]:[ngx/2, ngy/2];
 				var R = Math.floor(Math.sqrt(ngx*ngx+ngy*ngy)), T = ngx+ngy, r, t, points, x, y;
-				r = R;
+				r = R + 1;
 				while (r--) {
 					t = T;
 					points = [];
