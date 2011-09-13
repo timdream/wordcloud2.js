@@ -34,44 +34,81 @@
 
 "use strict";
 
-(function ($) {
+// http://jsfromhell.com/array/shuffle
+Array.prototype.shuffle = function () { //v1.0
+	for(var j, x, i = this.length; i; j = parseInt(Math.random() * i), x = this[--i], this[i] = this[j], this[j] = x);
+	return this;
+};
 
-	// http://jsfromhell.com/array/shuffle
-	Array.prototype.shuffle = function () { //v1.0
-		for(var j, x, i = this.length; i; j = parseInt(Math.random() * i), x = this[--i], this[i] = this[j], this[j] = x);
-		return this;
-	};
+// setImmediate
+if (!window.setImmediate) {
+	window.setImmediate = (function () {
+		return window.msSetImmediate ||
+		window.webkitSetImmediate ||
+		window.mozSetImmediate ||
+		window.oSetImmediate ||
+		// setZeroTimeout: "hack" based on postMessage
+		// modified from http://dbaron.org/log/20100309-faster-timeouts
+		(function () {
+			if (window.postMessage && window.addEventListener) {
+				var timeouts = [],
+				timerPassed = -1,
+				timerIssued = -1,
+				messageName = "zero-timeout-message",
+				// Like setTimeout, but only takes a function argument.  There's
+				// no time argument (always zero) and no arguments (you have to
+				// use a closure).
+				setZeroTimeout = function (fn) {
+					timeouts.push(fn);
+					window.postMessage(messageName, "*");
+					return ++timerIssued;
+				},
+				handleMessage = function (event) {
+					// Skipping checking event source, retarded IE confused this window object with another in the presence of iframe
+					if (/*event.source == window && */event.data == messageName) {
+						event.stopPropagation();
+						if (timeouts.length > 0) {
+							var fn = timeouts.shift();
+							fn();
+							timerPassed++;
+						}
+					}
+				};
 
-	// http://dbaron.org/log/20100309-faster-timeouts
-	// Only add setZeroTimeout to the window object, and hide everything
-	// else in a closure.
-	(window.postMessage) && (function() {
-		var timeouts = [];
-		var messageName = "zero-timeout-message";
+				window.addEventListener("message", handleMessage, true);
+	
+				window.clearImmediate = function (timer) {
+					if (typeof timer !== 'number' || timer > timerIssued) return;
+					var fnId = timer - timerPassed - 1;
+					timeouts[fnId] = (function () {}); // overwrite the original fn
+				};
 
-		// Like setTimeout, but only takes a function argument.  There's
-		// no time argument (always zero) and no arguments (you have to
-		// use a closure).
-		function setZeroTimeout(fn) {
-			timeouts.push(fn);
-			window.postMessage(messageName, "*");
+				// Add the one thing we want added to the window object.
+				return setZeroTimeout;
+			};
+		})() ||
+		// fallback
+		function (fn) {
+			window.setTimeout(fn, 0);
 		}
-
-		function handleMessage(event) {
-			if (event.source == window && event.data == messageName) {
-				event.stopPropagation();
-				if (timeouts.length > 0) {
-					var fn = timeouts.shift();
-					fn();
-				}
-			}
-		}
-
-		window.addEventListener("message", handleMessage, true);
-
-		// Add the one thing we want added to the window object.
-		window.setZeroTimeout = setZeroTimeout;
 	})();
+}
+
+if (!window.clearImmediate) {
+	window.clearImmediate = (function () {
+		return window.msClearImmediate ||
+		window.webkitClearImmediate ||
+		window.mozClearImmediate ||
+		window.oClearImmediate ||
+		// "clearZeroTimeout" is implement on the previous block ||
+		// fallback
+		function (timer) {
+			window.clearTimeout(timer);
+		}
+	})();
+}
+
+(function ($) {
 
 	$.wordCloudSupported = (function () {
 		var $c = $('<canvas />'), ctx;
@@ -377,17 +414,7 @@
 			$el.trigger('wordcloudstart');
 			
 			var i = 0;
-			//var d = new Date();
-			if (
-				settings.wait !== 0 ||
-				(
-					!window.setZeroTimeout// &&
-					//!window.mozRequestAnimationFrame &&
-					//!window.webkitRequestAnimationFrame
-				)
-			) {
-				// console.log('setInterval');
-				// Use setInterval()
+			if (settings.wait !== 0) {
 				var timer = setInterval(
 					function () {
 						if (i >= settings.wordList.length) {
@@ -414,11 +441,9 @@
 						clearTimeout(timer);
 					}
 				);
-			} else /* if (window.setZeroTimeout) */ {
-				// console.log('setZeroTimeout');
-				// Use setZeroTimeout based on postMessage
+			} else {
 				var stop = false;
-				window.setZeroTimeout(
+				window.setImmediate(
 					function loop() {
 						if (i >= settings.wordList.length) {
 							// console.log(d.getTime() - (new Date()).getTime());
@@ -437,38 +462,7 @@
 							return;
 						}
 						i++;
-						window.setZeroTimeout(loop);
-					}
-				);
-				$el.one(
-					'wordcloudstart',
-					function () {
-						stop = true;
-					}
-				);
-			}/* // SLOW, not worthy doing
-			else if (window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame) {
-				// console.log('RequestAnimationFrame');
-				var reqFrame = window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame,
-				stop = false;
-				reqFrame(
-					function loop() {
-						if (i >= settings.wordList.length || stop) {
-							clearTimeout(timer);
-							// console.log(d.getTime() - (new Date()).getTime());
-							$el.trigger('wordcloudstop');
-							return;
-						}
-						escapeTime = (new Date()).getTime();
-						putWord(settings.wordList[i][0], settings.wordList[i][1]);
-						if (exceedTime()) {
-							settings.abort();
-							$el.trigger('wordcloudabort');
-							$el.trigger('wordcloudstop');
-							return;
-						}
-						i++;
-						reqFrame(loop);
+						window.setImmediate(loop);
 					}
 				);
 				$el.one(
@@ -478,7 +472,6 @@
 					}
 				);
 			}
-			*/
 		});
 	}
 })(jQuery);
