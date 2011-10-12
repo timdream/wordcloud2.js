@@ -6,6 +6,7 @@
  usage:
   $('#canvas').wordCloud(settings); // draw word cloud on #canvas.
   $.wordCloudSupported // return true if the browser checks out
+  $.miniumFontSize // return minium font size enforced by the browser
  
  available settings
 	fontFamily: font list for text.
@@ -25,7 +26,7 @@
 	abortThreshold: abort and execute about() when the browser took more than N ms to draw a word. 0 to disable.
 	abort: abort handler.
 	weightFactor: 
-	minSize:
+	minSize: minium font size in pixel to draw (default: $.miniumFontSize / 2, larger than that is still look good using bilinear sampling in browser)
 	wordList: 2d array in for word list like [['w1', 12], ['w2', 6]]
 	clearCanvas: clear canvas before drawing. Faster than running detection on what's already on it.
 	fillBox: true will mark the entire box containing the word as filled - no subsequent smaller words can be fit in the gap.
@@ -121,6 +122,27 @@ if (!window.clearImmediate) {
 		return true;
 	}());
 
+	$.miniumFontSize = (function() {
+		if (!$.wordCloudSupported) return;
+
+		var lctx = document.createElement('canvas').getContext('2d'),
+		size = 20,
+		hanWidth,
+		mWidth;
+		while (size) {
+			lctx.font = size.toString(10) + 'px sans-serif';
+			if (
+				lctx.measureText('\uFF37').width === hanWidth &&
+				lctx.measureText('m').width === mWidth
+			) return size+1;
+			hanWidth = lctx.measureText('\uFF37').width;
+			mWidth = lctx.measureText('m').width;
+
+			size--;
+		}
+		return 0;
+	})();
+
 	$.fn.wordCloud = function (options) {
 		if (!$.wordCloudSupported) return this;
 	
@@ -138,7 +160,7 @@ if (!window.clearImmediate) {
 			abortThreshold: 0, // disabled
 			abort: $.noop,
 			weightFactor: 1,
-			minSize: 4.5, // 0 to disable
+			minSize: $.miniumFontSize / 2, // 0 to disable
 			wordList: [],
 			rotateRatio: 0.1,
 			clearCanvas: true,
@@ -161,11 +183,6 @@ if (!window.clearImmediate) {
 		var g = settings.gridSize,
 			ctx, grid, ngx, ngy, diffChannel, bgPixel,
 			escapeTime,
-			limitedByMinSize = (function() {
-				var lctx = document.createElement('canvas').getContext('2d');
-				lctx.font = '0px sans-serif';
-				return (Math.max(lctx.measureText('\uFF37').width, lctx.measureText('m').width) > 2);
-			})(),
 			wordColor = function (word, weight, fontSize, radius, theta) {
 				switch (settings.wordColor) {
 					case 'random-dark':
@@ -194,17 +211,18 @@ if (!window.clearImmediate) {
 					&& (new Date()).getTime() - escapeTime > settings.abortThreshold
 				);
 			},
+			getChannelData = function (data, x, y, w, h, c) {
+				return data[
+					(y*w+x)*4+c
+				];
+			},
 			isGridEmpty = function (imgData, x, y, w, h) {
 				var i = g, j;
 				if (!isNaN(diffChannel)) {
 					while (i--) {
 						j = g;
 						while (j --) {
-							if (
-								imgData.data[
-									((y+j)*w+x+i)*4+diffChannel
-								] !== bgPixel[diffChannel]
-							) return false;
+							if (getChannelData(imgData.data, x+i, y+j, w, h, diffChannel) !== bgPixel[diffChannel]) return false;
 						}
 					}
 				} else {
@@ -264,8 +282,14 @@ if (!window.clearImmediate) {
 				var gw, gh, mu = 1,
 				rotate = (Math.random() < settings.rotateRatio),
 				fontSize = settings.weightFactor(weight);
-				if ((limitedByMinSize && fontSize < 17) || fontSize < 4.5) mu = Math.ceil(17/fontSize); // make sure fillText is not limited by min font size set by browser.
 				if (fontSize <= settings.minSize) return false; // fontSize === 0 means weightFactor wants the text skipped.
+				if (fontSize < $.miniumFontSize) mu = (function () {  // make sure fillText is not limited by min font size set by browser.
+					var mu = 2;
+					while (mu*fontSize < $.miniumFontSize) {
+						mu += 2; // TBD: should force the browser to do resampling 0.5x each time instead of this
+					}
+					return mu;
+				})();
 				ctx.font = (fontSize*mu).toString(10) + 'px ' + settings.fontFamily;
 				if (rotate) {
 					var h = ctx.measureText(word).width/mu,
