@@ -44,6 +44,17 @@
 	<li><label>With Image (clearCanvas = false)<input type="button" id="clearCanvas" value="test" /></label></li>
 	<li><label>fillBox<input type="button" id="fillbox" value="test" /></label></li>
 </ul>
+<h2>Polar equation shapes</h2>
+<ul>
+	<li><label>Circle <input type="button" id="shape_circle" value="test" /></label></li>
+	<li><label>Cardioid <input type="button" id="shape_cardioid" value="test" /></label></li>
+	<li><label>Diamond <input type="button" id="shape_diamond" value="test" /></label></li>
+	<li><label>Triangle <input type="button" id="shape_triangle" value="test" /></label></li>
+	<li><label>Triangle (forward) <input type="button" id="shape_triangle-forward" value="test" /></label></li>
+	<li><label>Pentagon <input type="button" id="shape_pentagon" value="test" /></label></li>
+	<li><label>Star <input type="button" id="shape_star" value="test" /></label></li>
+	<li><label>Equation function <input type="button" id="shape_function" value="test" /></label></li>
+</ul>
 
 <canvas id="result" width="580" height="400"></canvas>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
@@ -281,6 +292,84 @@ jQuery(function ($) {
 		}
 	);
 
+	$('#shape_circle').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({shape: 'circle', ellipticity: 1, wordList: list_chinese});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#shape_cardioid').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({shape: 'cardioid', ellipticity: 1, wordList: list_chinese});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#shape_diamond').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({shape: 'diamond', ellipticity: 1, wordList: list_chinese});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#shape_triangle').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({shape: 'triangle', ellipticity: 1, wordList: list_chinese});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#shape_triangle-forward').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({shape: 'triangle-forward', ellipticity: 1, wordList: list_chinese});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#shape_pentagon').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({shape: 'pentagon', ellipticity: 1, wordList: list_chinese});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#shape_star').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({shape: 'star', ellipticity: 1, wordList: list_chinese});
+			} catch (e) { alert(e); }
+		}
+	);
+
+	$('#shape_function').bind(
+		'click',
+		function () {
+			try {
+				$r.wordCloud({
+					shape: function (theta) {
+						return theta / (2 * Math.PI);
+					},
+					ellipticity: 1,
+					wordList: list_chinese
+				}
+			);
+			} catch (e) { alert(e); }
+		}
+	);
 
 });
 

@@ -30,7 +30,14 @@
 	wordList: 2d array in for word list like [['w1', 12], ['w2', 6]]
 	clearCanvas: clear canvas before drawing. Faster than running detection on what's already on it.
 	fillBox: true will mark the entire box containing the word as filled - no subsequent smaller words can be fit in the gap.
- 
+	shape: keyword or a function that represents polar equation r = fn(theta), available keywords:
+		'circle', (default)
+		'cardioid', (apple or heart shape curve, the most known polar equation)
+		'diamond', (alias: 'square'),
+		'triangle-forward',
+		'triangle', (alias: 'triangle-upright')
+		'pentagon',
+		'star'
 */
 
 "use strict";
@@ -164,7 +171,8 @@ if (!window.clearImmediate) {
 			wordList: [],
 			rotateRatio: 0.1,
 			clearCanvas: true,
-			fillBox: false
+			fillBox: false,
+			shape: 'circle'
 		};
 
 		if (options) { 
@@ -177,7 +185,68 @@ if (!window.clearImmediate) {
 				return pt*factor; //in px
 			};
 		}
-		
+
+		if (typeof settings.shape !== 'function') {
+			switch (settings.shape) {
+				case 'circle':
+				default:
+					settings.shape = function (theta) { return 1; };
+				break;
+				case 'cardioid':
+					settings.shape = function (theta) {
+						return 1 - Math.sin(theta);
+					};
+				break;
+				/*
+
+				To work out an X-gon, one has to calculate "m", where 1/(cos(2*PI/X)+m*sin(2*PI/X)) = 1/(cos(0)+m*sin(0))
+				http://www.wolframalpha.com/input/?i=1%2F%28cos%282*PI%2FX%29%2Bm*sin%282*PI%2FX%29%29+%3D+1%2F%28cos%280%29%2Bm*sin%280%29%29
+
+				Copy the solution into polar equation r = 1/(cos(t') + m*sin(t')) where t' equals to mod(t, 2PI/X);
+
+				*/
+				
+				case 'diamond':
+				case 'square':
+					// http://www.wolframalpha.com/input/?i=plot+r+%3D+1%2F%28cos%28mod+%28t%2C+PI%2F2%29%29%2Bsin%28mod+%28t%2C+PI%2F2%29%29%29%2C+t+%3D+0+..+2*PI
+					settings.shape = function (theta) {
+						var theta_dalta = theta % (2 * Math.PI / 4);
+						return 1/(Math.cos(theta_dalta) + Math.sin(theta_dalta));
+					};
+				break;
+				case 'triangle-forward':
+					// http://www.wolframalpha.com/input/?i=plot+r+%3D+1%2F%28cos%28mod+%28t%2C+2*PI%2F3%29%29%2Bsqrt%283%29sin%28mod+%28t%2C+2*PI%2F3%29%29%29%2C+t+%3D+0+..+2*PI
+					settings.shape = function (theta) {
+						var theta_dalta = theta % (2 * Math.PI / 3);
+						return 1/(Math.cos(theta_dalta) + Math.sqrt(3)*Math.sin(theta_dalta));
+					};
+				break;
+				case 'triangle':
+				case 'triangle-upright':
+					settings.shape = function (theta) {
+						var theta_dalta = (theta + Math.PI * 3 / 2) % (2 * Math.PI / 3);
+						return 1/(Math.cos(theta_dalta) + Math.sqrt(3)*Math.sin(theta_dalta));
+					};
+				break;
+				case 'pentagon':
+					settings.shape = function (theta) {
+						var theta_dalta = (theta + 0.955) % (2 * Math.PI / 5);
+						return 1/(Math.cos(theta_dalta) + 0.726543*Math.sin(theta_dalta));
+					};
+				break;
+				case 'star':
+					settings.shape = function (theta) {
+						var theta_dalta = (theta + 0.955) % (2 * Math.PI / 10);
+						if ((theta + 0.955) % (2 * Math.PI / 5) - (2 * Math.PI / 10) >= 0) {
+							return 1/(Math.cos((2 * Math.PI / 10) - theta_dalta) + 3.07768*Math.sin((2 * Math.PI / 10) - theta_dalta));
+						} else {
+							return 1/(Math.cos(theta_dalta) + 3.07768*Math.sin(theta_dalta));
+						}
+					};
+				break;
+			}
+		}
+
 		settings.gridSize = Math.max(settings.gridSize, 4);
 
 		var g = settings.gridSize,
@@ -311,10 +380,11 @@ if (!window.clearImmediate) {
 					t = T;
 					points = [];
 					while (t--) {
+						var rx = settings.shape(t/T*2*Math.PI); // 0 to 1
 						points.push(
 							[
-								Math.floor(center[0]+(R-r)*Math.cos(-t/T*2*Math.PI) - gw/2),
-								Math.floor(center[1]+(R-r)*settings.ellipticity*Math.sin(-t/T*2*Math.PI) - gh/2),
+								Math.floor(center[0]+(R-r)*rx*Math.cos(-t/T*2*Math.PI) - gw/2),
+								Math.floor(center[1]+(R-r)*rx*settings.ellipticity*Math.sin(-t/T*2*Math.PI) - gh/2),
 								t/T*2*Math.PI
 							]
 						);
