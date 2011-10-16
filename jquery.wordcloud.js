@@ -232,11 +232,7 @@ if (!window.clearImmediate) {
 						while (j --) {
 							k = 4;
 							while (k--) {
-								if (
-									imgData.data[
-										((y+j)*w+x+i)*4+k
-									] !== bgPixel[k]
-								) return false;
+								if (getChannelData(imgData.data, x+i, y+j, w, h, k) !== bgPixel[k]) return false;
 							}
 						}
 					}
