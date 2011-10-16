@@ -216,9 +216,9 @@ if (!window.clearImmediate) {
 					(y*w+x)*4+c
 				];
 			},
-			isGridEmpty = function (imgData, x, y, w, h) {
+			isGridEmpty = function (imgData, x, y, w, h, skipDiffChannel) {
 				var i = g, j;
-				if (!isNaN(diffChannel)) {
+				if (!isNaN(diffChannel) && !skipDiffChannel) {
 					while (i--) {
 						j = g;
 						while (j --) {
@@ -252,7 +252,7 @@ if (!window.clearImmediate) {
 					}
 				}
 			},
-			updateGrid = function (gx, gy, gw, gh) {
+			updateGrid = function (gx, gy, gw, gh, skipDiffChannel) {
 				var x = gw, y;
 				if (settings.drawMask) ctx.fillStyle = settings.maskColor;
 				/*
@@ -264,7 +264,7 @@ if (!window.clearImmediate) {
 				out: while (x--) {
 					y = gh;
 					while (y--) {
-						if (!isGridEmpty(imgData, x*g, y*g, gw*g, gh*g)) {
+						if (!isGridEmpty(imgData, x*g, y*g, gw*g, gh*g, skipDiffChannel)) {
 							grid[gx + x][gy + y] = false;
 							if (settings.drawMask) {
 								ctx.fillRect((gx + x)*g, (gy + y)*g, g-settings.maskGridWidth, g-settings.maskGridWidth);
@@ -424,7 +424,7 @@ if (!window.clearImmediate) {
 				ctx.clearRect(0, 0, ngx*(g+1), ngy*(g+1));
 				ctx.fillRect(0, 0, ngx*(g+1), ngy*(g+1));
 			} else {
-				updateGrid(0, 0, ngx, ngy);
+				updateGrid(0, 0, ngx, ngy, true);
 			}
 			
 
