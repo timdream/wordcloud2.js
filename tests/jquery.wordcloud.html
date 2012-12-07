@@ -1,59 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset=UTF-8>
-	<title>$.wordCloud() tests</title>
-	<style type="text/css">
-	canvas {
-	position: fixed; top: 2em; right: 0;
-	font-family: monospace;
-	white-space: nowrap;
-	}
-	.support {
-		color: #080;
-	}
-	.not_support {
-		color: #800;
-	}
-	</style>
+  <meta charset=UTF-8>
+  <title>$.wordCloud() tests</title>
+  <style type="text/css">
+  canvas {
+  position: fixed; top: 2em; right: 0;
+  font-family: monospace;
+  white-space: nowrap;
+  }
+  .support {
+    color: #080;
+  }
+  .not_support {
+    color: #800;
+  }
+  </style>
 </head>
 <body>
 <h2>Support</h2>
 <p id="wordCloudSupported">$.wordCloudSupported</p>
 <h2>$.wordCloud();</h2>
 <ul>
-	<li><label>中文 <input type="button" id="chinese" value="test" /></label></li>
-	<li><label>English<input type="button" id="english" value="test" /></label></li>
-	<li><label>Empty canvas <input type="button" id="empty" value="test" /></label></li>
-	<li><label>fontFamily = monospace <input type="button" id="fontFamily" value="test" /></label></li>
-	<li><label>gridSize = 3 <input type="button" id="gridSize" value="test" /></label></li>
-	<li><label>ellipticity = 1.5 <input type="button" id="ellipticity" value="test" /></label></li>
-	<li><label>start from top right (center) <input type="button" id="center" value="test" /></label></li>
-	<li><label>rotateRatio = 1 <input type="button" id="rotateRatio_function" value="test" /></label></li>
-	<li><label>rotateRatio = 0 <input type="button" id="rotateRatio0_function" value="test" /></label></li>
-	<li><label>drawMask <input type="button" id="drawMask" value="test" /></label></li>
-	<li><label>maskColor, maskGridWidth <input type="button" id="mask" value="test" /></label></li>
-	<li><label>wordColor, backgroundColor <input type="button" id="color" value="test" /></label></li>
-	<li><label>wait <input type="button" id="wait" value="test" /></label></li>
-	<li><label>abortThreshold = 100, abort <input type="button" id="abort" value="test" /></label></li>
-	<li><label>weightFactor = 0.5 <input type="button" id="weightFactor" value="test" /></label></li>
-	<li><label>weightFactor function <input type="button" id="weightFactor_function" value="test" /></label></li>
-	<li><label>wordColor random light <input type="button" id="wordColor_light" value="test" /></label></li>
-	<li><label>wordColor function <input type="button" id="wordColor_function" value="test" /></label></li>
-	<li><label>minSize = 10px <input type="button" id="minSize_function" value="test" /></label></li>
-	<li><label>With Image (clearCanvas = false)<input type="button" id="clearCanvas" value="test" /></label></li>
-	<li><label>fillBox<input type="button" id="fillbox" value="test" /></label></li>
+  <li><label>中文 <input type="button" id="chinese" value="test" /></label></li>
+  <li><label>English<input type="button" id="english" value="test" /></label></li>
+  <li><label>Empty canvas <input type="button" id="empty" value="test" /></label></li>
+  <li><label>fontFamily = monospace <input type="button" id="fontFamily" value="test" /></label></li>
+  <li><label>gridSize = 3 <input type="button" id="gridSize" value="test" /></label></li>
+  <li><label>ellipticity = 1.5 <input type="button" id="ellipticity" value="test" /></label></li>
+  <li><label>start from top right (center) <input type="button" id="center" value="test" /></label></li>
+  <li><label>rotateRatio = 1 <input type="button" id="rotateRatio_function" value="test" /></label></li>
+  <li><label>rotateRatio = 0 <input type="button" id="rotateRatio0_function" value="test" /></label></li>
+  <li><label>drawMask <input type="button" id="drawMask" value="test" /></label></li>
+  <li><label>maskColor, maskGridWidth <input type="button" id="mask" value="test" /></label></li>
+  <li><label>wordColor, backgroundColor <input type="button" id="color" value="test" /></label></li>
+  <li><label>wait <input type="button" id="wait" value="test" /></label></li>
+  <li><label>abortThreshold = 100, abort <input type="button" id="abort" value="test" /></label></li>
+  <li><label>weightFactor = 0.5 <input type="button" id="weightFactor" value="test" /></label></li>
+  <li><label>weightFactor function <input type="button" id="weightFactor_function" value="test" /></label></li>
+  <li><label>wordColor random light <input type="button" id="wordColor_light" value="test" /></label></li>
+  <li><label>wordColor function <input type="button" id="wordColor_function" value="test" /></label></li>
+  <li><label>minSize = 10px <input type="button" id="minSize_function" value="test" /></label></li>
+  <li><label>With Image (clearCanvas = false)<input type="button" id="clearCanvas" value="test" /></label></li>
+  <li><label>fillBox<input type="button" id="fillbox" value="test" /></label></li>
 </ul>
 <h2>Polar equation shapes</h2>
 <ul>
-	<li><label>Circle <input type="button" id="shape_circle" value="test" /></label></li>
-	<li><label>Cardioid <input type="button" id="shape_cardioid" value="test" /></label></li>
-	<li><label>Diamond <input type="button" id="shape_diamond" value="test" /></label></li>
-	<li><label>Triangle <input type="button" id="shape_triangle" value="test" /></label></li>
-	<li><label>Triangle (forward) <input type="button" id="shape_triangle-forward" value="test" /></label></li>
-	<li><label>Pentagon <input type="button" id="shape_pentagon" value="test" /></label></li>
-	<li><label>Star <input type="button" id="shape_star" value="test" /></label></li>
-	<li><label>Equation function <input type="button" id="shape_function" value="test" /></label></li>
+  <li><label>Circle <input type="button" id="shape_circle" value="test" /></label></li>
+  <li><label>Cardioid <input type="button" id="shape_cardioid" value="test" /></label></li>
+  <li><label>Diamond <input type="button" id="shape_diamond" value="test" /></label></li>
+  <li><label>Triangle <input type="button" id="shape_triangle" value="test" /></label></li>
+  <li><label>Triangle (forward) <input type="button" id="shape_triangle-forward" value="test" /></label></li>
+  <li><label>Pentagon <input type="button" id="shape_pentagon" value="test" /></label></li>
+  <li><label>Star <input type="button" id="shape_star" value="test" /></label></li>
+  <li><label>Equation function <input type="button" id="shape_function" value="test" /></label></li>
 </ul>
 
 <canvas id="result" width="580" height="400"></canvas>
@@ -62,314 +62,314 @@
 <script type="text/javascript">
 jQuery(function ($) {
 
-	var $r = $('#result');
+  var $r = $('#result');
 
-	$('#wordCloudSupported').addClass(($.wordCloudSupported?'':'not_') + 'support');
+  $('#wordCloudSupported').addClass(($.wordCloudSupported?'':'not_') + 'support');
 
-	$('#chinese').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_chinese});
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#chinese').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_chinese});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#english').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english});
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#english').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#empty').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud();
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#empty').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud();
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#fontFamily').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, fontFamily: 'monospace'});
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#fontFamily').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, fontFamily: 'monospace'});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#gridSize').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, gridSize: 3});
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#gridSize').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, gridSize: 3});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#ellipticity').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, ellipticity: 1.5});
-			} catch (e) { alert(e); }
-		}
-	);
-	
-	$('#center').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, center: [580, 0]});
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#ellipticity').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, ellipticity: 1.5});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	
-	$('#minSize_function').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, minSize: 20});
-			} catch (e) { alert(e); }
-		}
-	);
-	
-	$('#rotateRatio_function').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, rotateRatio: 1});
-			} catch (e) { alert(e); }
-		}
-	);
-
-	$('#rotateRatio0_function').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, rotateRatio: 0});
-			} catch (e) { alert(e); }
-		}
-	);
-
-	$('#drawMask').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, drawMask: true});
-			} catch (e) { alert(e); }
-		}
-	);
-
-	$('#drawMask').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, drawMask: true});
-			} catch (e) { alert(e); }
-		}
-	);
-
-	$('#mask').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, drawMask: true, maskColor: 'rgba(0,0,255,0.8)', maskGridWidth: 1});
-			} catch (e) { alert(e); }
-		}
-	);
-
-	$('#color').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, wordColor: 'rgba(255,128,128,0.8)', backgroundColor: 'rgba(0,0,255,0.3)'});
-			} catch (e) { alert(e); }
-		}
-	);
-
-	$('#wait').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, wait: 1000});
-			} catch (e) { alert(e); }
-		}
-	);
-
-	$('#abort').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, abortThreshold: 100, abort: function () { alert('aborted!');}});
-			} catch (e) { alert(e); }
-		}
-	);
-
-	$('#weightFactor').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, weightFactor: 0.5});
-			} catch (e) { alert(e); }
-		}
-	);
-
-	$('#weightFactor_function').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, weightFactor: function (w) { return Math.random()*w; }});
-			} catch (e) { alert(e); }
-		}
-	);
-
-	$('#wordColor_light').bind(
-		'click',
-		function () {
-			var ctx = $r[0].getContext('2d');
-			ctx.fillStyle = '#600';
-			ctx.fillRect(0, 0, 580, 400);
-			try {
-				$r.wordCloud({wordList: list_english, wordColor: 'random-light' });
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#center').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, center: [580, 0]});
+      } catch (e) { alert(e); }
+    }
+  );
 
 
-	$('#wordColor_function').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud(
-					{
-						wordList: list_english,
-						wordColor: function (word, weight, fontSize, radius, theta) {
-							if (theta < 2*Math.PI/3) {
-								return '#600';
-							} else if (theta < 2*Math.PI*2/3) {
-								return '#060';
-							} else {
-								return '#006';
-							}
-						}
-					}
-				);
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#minSize_function').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, minSize: 20});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#clearCanvas').bind(
-		'click',
-		function () {
-			var im = new Image();
-			im.onload = function () {
-				var ctx = $r[0].getContext('2d');
-				ctx.fillStyle = '#ddf'; // Need to cover available area for text with backgroundColor first
-				ctx.fillRect(0, 0, 580, 400);
-				ctx.drawImage(im, 75, 200);
-				try {			
-					$r.wordCloud({wordList: list_english, backgroundColor: '#ddf', clearCanvas: false});
-				} catch (e) { alert(e); }
-			}
-			// image location is restricted by the same origin policy for getPixelData to work.
-			im.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAAABmJLR0QA/wD/AP+gvaeTAAAAB3RJTUUH2AsJCwIrqr4+WgAABI5JREFUeJzt3cuOVEUcx/HviBccjIkJq2m5+wreNjMHSCRxJ8YNC+JCV+hO38AH8bZT8B3YiQIbHgACLFkYTAgwqIvTFY5NX86l6l+33zfpZCYz3VXpz9TpTPXp7i1sexU41Pn+LePxa+gA8Mb86/tbhgPPgN+Adw3HrL3vXjIaaAZcQbjWPbMAdrjvGYylFgoNLNzIhQSeAZcRbtRCATvc9wPdvurX0xDAwk2nJ76BhZtYPoGFm2C+gGfArwg3uXwAO9wPPNyW8txUYOEm3hRg4WbQWGDhZtIY4BnwC8LNopcH/r5WbmYNWcHCzbC+wMLNtD7AOwg32zYB79BuPwo309YBa+UW0Cpgh/uh4VxUgJYBC7egFoGFW1hd4B3aHSrhFlR3J+sCcG1+eQbs054h/9qI230EvAkcHHHdx8D2/LpDT8zfB14BXqc9w39I/8zH21647mHg6MDbUpl0FrgL/Jvp5VurVzbk2Fnge+DtyPOYlICXVwQuCHhZZygEFwS82BngBwrBBQF3Kw4XBOwq6rDcTcDPcY9EnkeQagcuGhfqBi4eF+oFrgIX6gSuBhc4VBtwTbhAXSu4OlyoB7hKXKgDuFpcKB/4NBXjQtnAp2n3lqvFhXKBhTuvROAcDst/WQ1UGrDDTfkkuT+An43GOlAScC6454EHRuMdLAU4J9x7loOWACzcNeUOLNwN5QycM67Z/Z4rcM64MO4lPaPKETh3XNNyAy4Fd99oLlkBl4IL7SsoTcoFuCRcy7y/43uISsR9GnAu3fZTBy4RF+BJoLm8UMrApeKaliqwcD2VIrBwPZYasHA9lxKwcAOUCrBwA5UCsHADFhu4oU7coW/SNrqYwA3tqa214UIFTxc21ItrWgzghjoPy92s9qLNgRta3GPG4w7JYuWa7UUP/dykKTXosGye1QpuEG63op7wbxDuYman7IQ+RDfkgfsJcD/2REIUcgU3CDd6oYAbhJtEIYAbhJtMvoEbhJtUPoEb8tihqgYX/AE35LFDVRUu+AHeQ7hDM9tBnAq8R/uYK9xhjfmwsVFN+UvaA35Ej7lJN3YFC3daST9dKNzpJQss3MwaAixcfz2yGqgvsHD9ZvV04XYfYOFm3CbgXYSbdeuAd4GfEG6u/Q3cWvXDXeAO8T/Bet3lGjCbfDfE6SJh75uHwNerBt8FbgeeQM24EBZYuAkUCli4iRQC+CHw1aoBhWvblwi3WFyASxjhAlz1OJhw++ULeCMuwDvATU8DCrdfX2CE60oRuVRcgM+Zjntp6KApIZeMC9OAR+G6UkAuHRfgMyLguk4BN0ZOQLj9+pRIuK4YyLXgwnBgr7iuU8D1gRMRbr+GAAfBdVkg14YL/YGD4rpOEg65RlzoB2yC6wqBXCsubAY2xXWdBP7cMDHh9msdcBRclw/k36kbF1YDR8V1nWA8snDblgEnges6QXvCm3DHtQicFK7rOP1XsnD/Xxc4SVzXcTavZOG+2MdkgOs6xmpk4S7vHO15y8njupYh1/6v0Lo+Ar6JPYmhHeU5snDXtxV7AmM7AlxBuMn0H/K66ODcIItdAAAAAElFTkSuQmCC';
+  $('#rotateRatio_function').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, rotateRatio: 1});
+      } catch (e) { alert(e); }
+    }
+  );
 
-		}
-	);
+  $('#rotateRatio0_function').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, rotateRatio: 0});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#fillbox').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({wordList: list_english, fillBox: true});
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#drawMask').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, drawMask: true});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#shape_circle').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({shape: 'circle', ellipticity: 1, wordList: list_chinese});
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#drawMask').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, drawMask: true});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#shape_cardioid').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({shape: 'cardioid', ellipticity: 1, wordList: list_chinese});
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#mask').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, drawMask: true, maskColor: 'rgba(0,0,255,0.8)', maskGridWidth: 1});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#shape_diamond').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({shape: 'diamond', ellipticity: 1, wordList: list_chinese});
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#color').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, wordColor: 'rgba(255,128,128,0.8)', backgroundColor: 'rgba(0,0,255,0.3)'});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#shape_triangle').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({shape: 'triangle', ellipticity: 1, wordList: list_chinese});
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#wait').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, wait: 1000});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#shape_triangle-forward').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({shape: 'triangle-forward', ellipticity: 1, wordList: list_chinese});
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#abort').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, abortThreshold: 100, abort: function () { alert('aborted!');}});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#shape_pentagon').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({shape: 'pentagon', ellipticity: 1, wordList: list_chinese});
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#weightFactor').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, weightFactor: 0.5});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#shape_star').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({shape: 'star', ellipticity: 1, wordList: list_chinese});
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#weightFactor_function').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, weightFactor: function (w) { return Math.random()*w; }});
+      } catch (e) { alert(e); }
+    }
+  );
 
-	$('#shape_function').bind(
-		'click',
-		function () {
-			try {
-				$r.wordCloud({
-					shape: function (theta) {
-						return theta / (2 * Math.PI);
-					},
-					ellipticity: 1,
-					wordList: list_chinese
-				}
-			);
-			} catch (e) { alert(e); }
-		}
-	);
+  $('#wordColor_light').bind(
+    'click',
+    function () {
+      var ctx = $r[0].getContext('2d');
+      ctx.fillStyle = '#600';
+      ctx.fillRect(0, 0, 580, 400);
+      try {
+        $r.wordCloud({wordList: list_english, wordColor: 'random-light' });
+      } catch (e) { alert(e); }
+    }
+  );
+
+
+  $('#wordColor_function').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud(
+          {
+            wordList: list_english,
+            wordColor: function (word, weight, fontSize, radius, theta) {
+              if (theta < 2*Math.PI/3) {
+                return '#600';
+              } else if (theta < 2*Math.PI*2/3) {
+                return '#060';
+              } else {
+                return '#006';
+              }
+            }
+          }
+        );
+      } catch (e) { alert(e); }
+    }
+  );
+
+  $('#clearCanvas').bind(
+    'click',
+    function () {
+      var im = new Image();
+      im.onload = function () {
+        var ctx = $r[0].getContext('2d');
+        ctx.fillStyle = '#ddf'; // Need to cover available area for text with backgroundColor first
+        ctx.fillRect(0, 0, 580, 400);
+        ctx.drawImage(im, 75, 200);
+        try {
+          $r.wordCloud({wordList: list_english, backgroundColor: '#ddf', clearCanvas: false});
+        } catch (e) { alert(e); }
+      }
+      // image location is restricted by the same origin policy for getPixelData to work.
+      im.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAAABmJLR0QA/wD/AP+gvaeTAAAAB3RJTUUH2AsJCwIrqr4+WgAABI5JREFUeJzt3cuOVEUcx/HviBccjIkJq2m5+wreNjMHSCRxJ8YNC+JCV+hO38AH8bZT8B3YiQIbHgACLFkYTAgwqIvTFY5NX86l6l+33zfpZCYz3VXpz9TpTPXp7i1sexU41Pn+LePxa+gA8Mb86/tbhgPPgN+Adw3HrL3vXjIaaAZcQbjWPbMAdrjvGYylFgoNLNzIhQSeAZcRbtRCATvc9wPdvurX0xDAwk2nJ76BhZtYPoGFm2C+gGfArwg3uXwAO9wPPNyW8txUYOEm3hRg4WbQWGDhZtIY4BnwC8LNopcH/r5WbmYNWcHCzbC+wMLNtD7AOwg32zYB79BuPwo309YBa+UW0Cpgh/uh4VxUgJYBC7egFoGFW1hd4B3aHSrhFlR3J+sCcG1+eQbs054h/9qI230EvAkcHHHdx8D2/LpDT8zfB14BXqc9w39I/8zH21647mHg6MDbUpl0FrgL/Jvp5VurVzbk2Fnge+DtyPOYlICXVwQuCHhZZygEFwS82BngBwrBBQF3Kw4XBOwq6rDcTcDPcY9EnkeQagcuGhfqBi4eF+oFrgIX6gSuBhc4VBtwTbhAXSu4OlyoB7hKXKgDuFpcKB/4NBXjQtnAp2n3lqvFhXKBhTuvROAcDst/WQ1UGrDDTfkkuT+An43GOlAScC6454EHRuMdLAU4J9x7loOWACzcNeUOLNwN5QycM67Z/Z4rcM64MO4lPaPKETh3XNNyAy4Fd99oLlkBl4IL7SsoTcoFuCRcy7y/43uISsR9GnAu3fZTBy4RF+BJoLm8UMrApeKaliqwcD2VIrBwPZYasHA9lxKwcAOUCrBwA5UCsHADFhu4oU7coW/SNrqYwA3tqa214UIFTxc21ItrWgzghjoPy92s9qLNgRta3GPG4w7JYuWa7UUP/dykKTXosGye1QpuEG63op7wbxDuYman7IQ+RDfkgfsJcD/2REIUcgU3CDd6oYAbhJtEIYAbhJtMvoEbhJtUPoEb8tihqgYX/AE35LFDVRUu+AHeQ7hDM9tBnAq8R/uYK9xhjfmwsVFN+UvaA35Ej7lJN3YFC3daST9dKNzpJQss3MwaAixcfz2yGqgvsHD9ZvV04XYfYOFm3CbgXYSbdeuAd4GfEG6u/Q3cWvXDXeAO8T/Bet3lGjCbfDfE6SJh75uHwNerBt8FbgeeQM24EBZYuAkUCli4iRQC+CHw1aoBhWvblwi3WFyASxjhAlz1OJhw++ULeCMuwDvATU8DCrdfX2CE60oRuVRcgM+Zjntp6KApIZeMC9OAR+G6UkAuHRfgMyLguk4BN0ZOQLj9+pRIuK4YyLXgwnBgr7iuU8D1gRMRbr+GAAfBdVkg14YL/YGD4rpOEg65RlzoB2yC6wqBXCsubAY2xXWdBP7cMDHh9msdcBRclw/k36kbF1YDR8V1nWA8snDblgEnges6QXvCm3DHtQicFK7rOP1XsnD/Xxc4SVzXcTavZOG+2MdkgOs6xmpk4S7vHO15y8njupYh1/6v0Lo+Ar6JPYmhHeU5snDXtxV7AmM7AlxBuMn0H/K66ODcIItdAAAAAElFTkSuQmCC';
+
+    }
+  );
+
+  $('#fillbox').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({wordList: list_english, fillBox: true});
+      } catch (e) { alert(e); }
+    }
+  );
+
+  $('#shape_circle').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({shape: 'circle', ellipticity: 1, wordList: list_chinese});
+      } catch (e) { alert(e); }
+    }
+  );
+
+  $('#shape_cardioid').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({shape: 'cardioid', ellipticity: 1, wordList: list_chinese});
+      } catch (e) { alert(e); }
+    }
+  );
+
+  $('#shape_diamond').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({shape: 'diamond', ellipticity: 1, wordList: list_chinese});
+      } catch (e) { alert(e); }
+    }
+  );
+
+  $('#shape_triangle').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({shape: 'triangle', ellipticity: 1, wordList: list_chinese});
+      } catch (e) { alert(e); }
+    }
+  );
+
+  $('#shape_triangle-forward').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({shape: 'triangle-forward', ellipticity: 1, wordList: list_chinese});
+      } catch (e) { alert(e); }
+    }
+  );
+
+  $('#shape_pentagon').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({shape: 'pentagon', ellipticity: 1, wordList: list_chinese});
+      } catch (e) { alert(e); }
+    }
+  );
+
+  $('#shape_star').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({shape: 'star', ellipticity: 1, wordList: list_chinese});
+      } catch (e) { alert(e); }
+    }
+  );
+
+  $('#shape_function').bind(
+    'click',
+    function () {
+      try {
+        $r.wordCloud({
+          shape: function (theta) {
+            return theta / (2 * Math.PI);
+          },
+          ellipticity: 1,
+          wordList: list_chinese
+        }
+      );
+      } catch (e) { alert(e); }
+    }
+  );
 
 });
 
