@@ -560,7 +560,7 @@ if (!window.clearImmediate) {
           }
         );
         canvas.addEventListener('wordcloudstart', function anotherWordCloudStart() {
-          canvas.stopEventListener('wordcloudstart', anotherWordCloudStart);
+          canvas.removeEventListener('wordcloudstart', anotherWordCloudStart);
           stop = true;
         });
       }
