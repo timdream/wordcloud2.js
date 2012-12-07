@@ -566,11 +566,15 @@ if (!window.clearImmediate) {
       }
     };
 
-    // if the |canvases| is a array-like object, run forEach on it.
-    // if not, start on it.
     if ('length' in canvases) {
+      // if the |canvases| is a array-like object, run forEach on it.
       Array.prototype.forEach.call(canvases, start);
+    } else if (typeof canvases === 'string') {
+      // if it's a string, it should be an id
+      var canvas = document.getElementById(canvases);
+      start(canvas);
     } else {
+      // if it's something else, send it to start() anyway
       start(canvases);
     }
   };
