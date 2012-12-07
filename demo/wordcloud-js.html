@@ -19,8 +19,8 @@
 </head>
 <body>
 <h2>Support</h2>
-<p id="wordCloudSupported">$.wordCloudSupported</p>
-<h2>$.wordCloud();</h2>
+<p id="wordCloudSupported">WordCloud.isSupported</p>
+<h2>WordCloud()</h2>
 <ul>
   <li><label>中文 <input type="button" id="chinese" value="test" /></label></li>
   <li><label>English<input type="button" id="english" value="test" /></label></li>
@@ -58,19 +58,20 @@
 
 <canvas id="result" width="580" height="400"></canvas>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
-<script type="text/javascript" src="../jquery.wordcloud.js"></script>
+<script type="text/javascript" src="../wordcloud.js"></script>
 <script type="text/javascript">
 jQuery(function ($) {
 
   var $r = $('#result');
+  var canvas = $r[0];
 
-  $('#wordCloudSupported').addClass(($.wordCloudSupported?'':'not_') + 'support');
+  $('#wordCloudSupported').addClass((WordCloud.isSupported?'':'not_') + 'support');
 
   $('#chinese').bind(
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_chinese});
+        WordCloud(canvas, {wordList: list_chinese});
       } catch (e) { alert(e); }
     }
   );
@@ -79,7 +80,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english});
+        WordCloud(canvas, {wordList: list_english});
       } catch (e) { alert(e); }
     }
   );
@@ -88,7 +89,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud();
+        WordCloud(canvas);
       } catch (e) { alert(e); }
     }
   );
@@ -97,7 +98,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, fontFamily: 'monospace'});
+        WordCloud(canvas, {wordList: list_english, fontFamily: 'monospace'});
       } catch (e) { alert(e); }
     }
   );
@@ -106,7 +107,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, gridSize: 3});
+        WordCloud(canvas, {wordList: list_english, gridSize: 3});
       } catch (e) { alert(e); }
     }
   );
@@ -115,7 +116,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, ellipticity: 1.5});
+        WordCloud(canvas, {wordList: list_english, ellipticity: 1.5});
       } catch (e) { alert(e); }
     }
   );
@@ -124,7 +125,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, center: [580, 0]});
+        WordCloud(canvas, {wordList: list_english, center: [580, 0]});
       } catch (e) { alert(e); }
     }
   );
@@ -134,7 +135,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, minSize: 20});
+        WordCloud(canvas, {wordList: list_english, minSize: 20});
       } catch (e) { alert(e); }
     }
   );
@@ -143,7 +144,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, rotateRatio: 1});
+        WordCloud(canvas, {wordList: list_english, rotateRatio: 1});
       } catch (e) { alert(e); }
     }
   );
@@ -152,7 +153,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, rotateRatio: 0});
+        WordCloud(canvas, {wordList: list_english, rotateRatio: 0});
       } catch (e) { alert(e); }
     }
   );
@@ -161,7 +162,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, drawMask: true});
+        WordCloud(canvas, {wordList: list_english, drawMask: true});
       } catch (e) { alert(e); }
     }
   );
@@ -170,7 +171,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, drawMask: true});
+        WordCloud(canvas, {wordList: list_english, drawMask: true});
       } catch (e) { alert(e); }
     }
   );
@@ -179,7 +180,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, drawMask: true, maskColor: 'rgba(0,0,255,0.8)', maskGridWidth: 1});
+        WordCloud(canvas, {wordList: list_english, drawMask: true, maskColor: 'rgba(0,0,255,0.8)', maskGridWidth: 1});
       } catch (e) { alert(e); }
     }
   );
@@ -188,7 +189,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, wordColor: 'rgba(255,128,128,0.8)', backgroundColor: 'rgba(0,0,255,0.3)'});
+        WordCloud(canvas, {wordList: list_english, wordColor: 'rgba(255,128,128,0.8)', backgroundColor: 'rgba(0,0,255,0.3)'});
       } catch (e) { alert(e); }
     }
   );
@@ -197,7 +198,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, wait: 1000});
+        WordCloud(canvas, {wordList: list_english, wait: 1000});
       } catch (e) { alert(e); }
     }
   );
@@ -206,7 +207,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, abortThreshold: 100, abort: function () { alert('aborted!');}});
+        WordCloud(canvas, {wordList: list_english, abortThreshold: 100, abort: function () { alert('aborted!');}});
       } catch (e) { alert(e); }
     }
   );
@@ -215,7 +216,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, weightFactor: 0.5});
+        WordCloud(canvas, {wordList: list_english, weightFactor: 0.5});
       } catch (e) { alert(e); }
     }
   );
@@ -224,7 +225,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, weightFactor: function (w) { return Math.random()*w; }});
+        WordCloud(canvas, {wordList: list_english, weightFactor: function (w) { return Math.random()*w; }});
       } catch (e) { alert(e); }
     }
   );
@@ -236,7 +237,7 @@ jQuery(function ($) {
       ctx.fillStyle = '#600';
       ctx.fillRect(0, 0, 580, 400);
       try {
-        $r.wordCloud({wordList: list_english, wordColor: 'random-light' });
+        WordCloud(canvas, {wordList: list_english, wordColor: 'random-light' });
       } catch (e) { alert(e); }
     }
   );
@@ -246,7 +247,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud(
+        WordCloud(canvas,
           {
             wordList: list_english,
             wordColor: function (word, weight, fontSize, radius, theta) {
@@ -274,7 +275,7 @@ jQuery(function ($) {
         ctx.fillRect(0, 0, 580, 400);
         ctx.drawImage(im, 75, 200);
         try {
-          $r.wordCloud({wordList: list_english, backgroundColor: '#ddf', clearCanvas: false});
+          WordCloud(canvas, {wordList: list_english, backgroundColor: '#ddf', clearCanvas: false});
         } catch (e) { alert(e); }
       }
       // image location is restricted by the same origin policy for getPixelData to work.
@@ -287,7 +288,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({wordList: list_english, fillBox: true});
+        WordCloud(canvas, {wordList: list_english, fillBox: true});
       } catch (e) { alert(e); }
     }
   );
@@ -296,7 +297,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({shape: 'circle', ellipticity: 1, wordList: list_chinese});
+        WordCloud(canvas, {shape: 'circle', ellipticity: 1, wordList: list_chinese});
       } catch (e) { alert(e); }
     }
   );
@@ -305,7 +306,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({shape: 'cardioid', ellipticity: 1, wordList: list_chinese});
+        WordCloud(canvas, {shape: 'cardioid', ellipticity: 1, wordList: list_chinese});
       } catch (e) { alert(e); }
     }
   );
@@ -314,7 +315,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({shape: 'diamond', ellipticity: 1, wordList: list_chinese});
+        WordCloud(canvas, {shape: 'diamond', ellipticity: 1, wordList: list_chinese});
       } catch (e) { alert(e); }
     }
   );
@@ -323,7 +324,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({shape: 'triangle', ellipticity: 1, wordList: list_chinese});
+        WordCloud(canvas, {shape: 'triangle', ellipticity: 1, wordList: list_chinese});
       } catch (e) { alert(e); }
     }
   );
@@ -332,7 +333,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({shape: 'triangle-forward', ellipticity: 1, wordList: list_chinese});
+        WordCloud(canvas, {shape: 'triangle-forward', ellipticity: 1, wordList: list_chinese});
       } catch (e) { alert(e); }
     }
   );
@@ -341,7 +342,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({shape: 'pentagon', ellipticity: 1, wordList: list_chinese});
+        WordCloud(canvas, {shape: 'pentagon', ellipticity: 1, wordList: list_chinese});
       } catch (e) { alert(e); }
     }
   );
@@ -350,7 +351,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({shape: 'star', ellipticity: 1, wordList: list_chinese});
+        WordCloud(canvas, {shape: 'star', ellipticity: 1, wordList: list_chinese});
       } catch (e) { alert(e); }
     }
   );
@@ -359,7 +360,7 @@ jQuery(function ($) {
     'click',
     function () {
       try {
-        $r.wordCloud({
+        WordCloud(canvas, {
           shape: function (theta) {
             return theta / (2 * Math.PI);
           },

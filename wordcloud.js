@@ -4,9 +4,9 @@
  by timdream
 
  usage:
-  $('#canvas').wordCloud(settings); // draw word cloud on #canvas.
-  $.wordCloudSupported // return true if the browser checks out
-  $.miniumFontSize // return minium font size enforced by the browser
+  WordCloud(canvases, settings); // draw word cloud on canvases or a canvas element.
+  WordCloud.isSupported // return true if the browser checks out
+  WordCloud.miniumFontSize // return minium font size enforced by the browser
 
  available settings
   fontFamily: font list for text.
@@ -26,7 +26,7 @@
   abortThreshold: abort and execute about() when the browser took more than N ms to draw a word. 0 to disable.
   abort: abort handler.
   weightFactor:
-  minSize: minium font size in pixel to draw (default: $.miniumFontSize / 2, larger than that is still look good using bilinear sampling in browser)
+  minSize: minium font size in pixel to draw (default: WordCloud.miniumFontSize / 2, larger than that is still look good using bilinear sampling in browser)
   wordList: 2d array in for word list like [['w1', 12], ['w2', 6]]
   clearCanvas: clear canvas before drawing. Faster than running detection on what's already on it.
   fillBox: true will mark the entire box containing the word as filled - no subsequent smaller words can be fit in the gap.
@@ -116,21 +116,23 @@ if (!window.clearImmediate) {
   })();
 }
 
-(function ($) {
+(function (global) {
 
-  $.wordCloudSupported = (function () {
-    var $c = $('<canvas />'), ctx;
-    if (!$c[0] || !$c[0].getContext) return false;
-    ctx = $c[0].getContext('2d');
+  var isSupported = (function () {
+    var canvas = document.createElement('canvas');
+    if (!canvas || !canvas.getContext) return false;
+    var ctx = canvas.getContext('2d');
     if (!ctx.getImageData) return false;
     if (!ctx.fillText) return false;
+    if (!Array.prototype.forEach) return false;
     if (!Array.prototype.some) return false;
     if (!Array.prototype.push) return false;
     return true;
   }());
 
-  $.miniumFontSize = (function() {
-    if (!$.wordCloudSupported) return;
+  var miniumFontSize = (function() {
+    if (!isSupported)
+      return;
 
     var lctx = document.createElement('canvas').getContext('2d'),
     size = 20,
@@ -150,8 +152,9 @@ if (!window.clearImmediate) {
     return 0;
   })();
 
-  $.fn.wordCloud = function (options) {
-    if (!$.wordCloudSupported) return this;
+  var WordCloud = function (canvases, options) {
+    if (!isSupported)
+      return;
 
     var settings = {
       fontFamily: '"Trebuchet MS", "Heiti TC", "微軟正黑體", "Arial Unicode MS", "Droid Fallback Sans", sans-serif',
@@ -165,9 +168,9 @@ if (!window.clearImmediate) {
       backgroundColor: '#fff',  //opaque white = rgba(255, 255, 255, 1)
       wait: 0,
       abortThreshold: 0, // disabled
-      abort: $.noop,
+      abort: function () {},
       weightFactor: 1,
-      minSize: $.miniumFontSize / 2, // 0 to disable
+      minSize: miniumFontSize / 2, // 0 to disable
       wordList: [],
       rotateRatio: 0.1,
       clearCanvas: true,
@@ -176,7 +179,10 @@ if (!window.clearImmediate) {
     };
 
     if (options) {
-      $.extend(settings, options);
+      for (var key in options) {
+        if (key in settings)
+          settings[key] = options[key];
+      }
     }
 
     if (typeof settings.weightFactor !== 'function') {
@@ -348,9 +354,9 @@ if (!window.clearImmediate) {
         rotate = (Math.random() < settings.rotateRatio),
         fontSize = settings.weightFactor(weight);
         if (fontSize <= settings.minSize) return false; // fontSize === 0 means weightFactor wants the text skipped.
-        if (fontSize < $.miniumFontSize) mu = (function () {  // make sure fillText is not limited by min font size set by browser.
+        if (fontSize < miniumFontSize) mu = (function () {  // make sure fillText is not limited by min font size set by browser.
           var mu = 2;
-          while (mu*fontSize < $.miniumFontSize) {
+          while (mu*fontSize < miniumFontSize) {
             mu += 2; // TBD: should force the browser to do resampling 0.5x each time instead of this
           }
           return mu;
@@ -437,17 +443,17 @@ if (!window.clearImmediate) {
           }
         }
         return true;
+      },
+      sendEvent = function (el, type) {
+        var evt = document.createEvent('CustomEvent');
+        evt.initCustomEvent(type, true, false, {});
+        el.dispatchEvent(evt);
       };
 
-
-    return this.each(function() {
-      if (this.nodeName.toLowerCase() !== 'canvas') return;
-
-      var $el = $(this);
-
-      ngx = Math.floor($el.attr('width')/g);
-      ngy = Math.floor($el.attr('height')/g);
-      ctx = this.getContext('2d'),
+    var start = function start(canvas) {
+      ngx = Math.floor(canvas.width/g);
+      ngy = Math.floor(canvas.height/g);
+      ctx = canvas.getContext('2d'),
       grid = [];
 
       /* in order to get more a correct reading on difference,
@@ -501,7 +507,7 @@ if (!window.clearImmediate) {
       ctx.textBaseline = 'top';
 
       // cancel previous wordcloud action by trigger
-      $el.trigger('wordcloudstart');
+      sendEvent(canvas, 'wordcloudstart');
 
       var i = 0;
       if (settings.wait !== 0) {
@@ -509,7 +515,7 @@ if (!window.clearImmediate) {
           function () {
             if (i >= settings.wordList.length) {
               clearTimeout(timer);
-              $el.trigger('wordcloudstop');
+              sendEvent(canvas, 'wordcloudstop');
               // console.log(d.getTime() - (new Date()).getTime());
               return;
             }
@@ -518,26 +524,24 @@ if (!window.clearImmediate) {
             if (exceedTime()) {
               clearTimeout(timer);
               settings.abort();
-              $el.trigger('wordcloudabort');
-              $el.trigger('wordcloudstop');
+              sendEvent(canvas, 'wordcloudabort');
+              sendEvent(canvas, 'wordcloudstop');
             }
             i++;
           },
           settings.wait
         );
-        $el.one(
-          'wordcloudstart',
-          function (ev) {
-            clearTimeout(timer);
-          }
-        );
+        canvas.addEventListener('wordcloudstart', function anotherWordCloudStart() {
+          canvas.removeEventListener('wordcloudstart', anotherWordCloudStart);
+          clearTimeout(timer);
+        });
       } else {
         var stop = false;
         window.setImmediate(
           function loop() {
             if (i >= settings.wordList.length) {
               // console.log(d.getTime() - (new Date()).getTime());
-              $el.trigger('wordcloudstop');
+              sendEvent(canvas, 'wordcloudstop');
               return;
             }
             if (stop) {
@@ -547,21 +551,38 @@ if (!window.clearImmediate) {
             putWord(settings.wordList[i][0], settings.wordList[i][1]);
             if (exceedTime()) {
               settings.abort();
-              $el.trigger('wordcloudabort');
-              $el.trigger('wordcloudstop');
+              sendEvent(canvas, 'wordcloudabort');
+              sendEvent(canvas, 'wordcloudstop');
               return;
             }
             i++;
             window.setImmediate(loop);
           }
         );
-        $el.one(
-          'wordcloudstart',
-          function () {
-            stop = true;
-          }
-        );
+        canvas.addEventListener('wordcloudstart', function anotherWordCloudStart() {
+          canvas.stopEventListener('wordcloudstart', anotherWordCloudStart);
+          stop = true;
+        });
       }
-    });
+    };
+
+    // if the |canvases| is a array-like object, run forEach on it.
+    // if not, start on it.
+    if ('length' in canvases) {
+      Array.prototype.forEach.call(canvases, start);
+    } else {
+      start(canvases);
+    }
+  };
+
+  WordCloud.isSupported = isSupported;
+  WordCloud.miniumFontSize = miniumFontSize;
+
+  // Expose the library as an AMD module
+  if (typeof define === 'function' && define.amd) {
+    define('wordcloud', [], function() { return WordCloud; });
+  } else {
+    global.WordCloud = WordCloud;
   }
-})(jQuery);
+
+})(this);
