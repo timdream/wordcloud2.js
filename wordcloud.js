@@ -3,8 +3,8 @@
   Author: timdream <http://timc.idv.tw/>
 
  Usage:
-  WordCloud(canvases, settings);
-  - draw word cloud on canvases or a canvas element.
+  WordCloud(canvas, settings);
+  - draw word cloud on canvas element.
   WordCloud.isSupported
   - return true if the browser checks out
   WordCloud.miniumFontSize
@@ -187,9 +187,13 @@ if (!window.clearImmediate) {
     return 0;
   })();
 
-  var WordCloud = function WordCloud(canvases, options) {
+  var WordCloud = function WordCloud(canvas, options) {
     if (!isSupported)
       return;
+
+    if (typeof canvas === 'string') {
+      canvas = document.getElementById(canvas);
+    }
 
     /* Default values to be overwritten by options object */
     var settings = {
@@ -720,17 +724,8 @@ if (!window.clearImmediate) {
       }, settings.wait);
     };
 
-    if ('length' in canvases) {
-      // if the |canvases| is a array-like object, run forEach on it.
-      Array.prototype.forEach.call(canvases, start);
-    } else if (typeof canvases === 'string') {
-      // if it's a string, it should be an id
-      var canvas = document.getElementById(canvases);
-      start(canvas);
-    } else {
-      // if it's something else, send it to start() anyway
-      start(canvases);
-    }
+    // All set, start the drawing
+    start(canvas);
   };
 
   WordCloud.isSupported = isSupported;
