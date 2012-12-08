@@ -239,7 +239,8 @@ if (!window.clearImmediate) {
       switch (settings.shape) {
         case 'circle':
         default:
-          settings.shape = function shapeCircle(theta) { return 1; };
+          // 'circle' is the default and a shortcut in the code loop.
+          settings.shape = 'circle';
           break;
 
         case 'cardioid':
@@ -355,10 +356,6 @@ if (!window.clearImmediate) {
       default:
         if (typeof settings.wordColor === 'function') {
           getTextColor = settings.wordColor;
-        } else {
-          getTextColor = function getFixedColor() {
-            return settings.wordColor;
-          };
         }
         break;
     }
@@ -541,7 +538,9 @@ if (!window.clearImmediate) {
         var points = [];
         while (t--) {
           // distort the radius to put the cloud in shape
-          var rx = settings.shape(t / T * 2 * Math.PI); // 0 to 1
+          var rx = 1;
+          if (settings.shape !== 'circle')
+            rx = settings.shape(t / T * 2 * Math.PI); // 0 to 1
 
           // Push [x, y, t]; t is used solely for getTextColor()
           points.push([
@@ -570,8 +569,12 @@ if (!window.clearImmediate) {
             var fctx = fc.getContext('2d');
             fctx.fillStyle = settings.backgroundColor;
             fctx.fillRect(0, 0, w * mu, h * mu);
-            fctx.fillStyle = getTextColor(word, weight,
-                                       fontSize, R - r, gxy[2]);
+            if (getTextColor) {
+              fctx.fillStyle = getTextColor(word, weight,
+                                            fontSize, R - r, gxy[2]);
+            } else {
+              fctx.fillStyle = settings.wordColor;
+            }
             fctx.font = (fontSize * mu).toString(10) + 'px ' +
                         settings.fontFamily;
             fctx.textBaseline = 'top';
@@ -587,8 +590,12 @@ if (!window.clearImmediate) {
                           Math.floor(gxy[1] * g + (gh * g - h) / 2), w, h);
           } else {
             ctx.font = fontSize.toString(10) + 'px ' + settings.fontFamily;
-            ctx.fillStyle = getTextColor(word, weight,
-                                      fontSize, R - r, gxy[2]);
+            if (getTextColor) {
+              ctx.fillStyle = getTextColor(word, weight,
+                                           fontSize, R - r, gxy[2]);
+            } else {
+              ctx.fillStyle = settings.wordColor;
+            }
             ctx.fillText(word, gxy[0] * g + (gw * g - w) / 2,
                          gxy[1] * g + (gh * g - h) / 2);
           }
