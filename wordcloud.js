@@ -50,10 +50,10 @@
 
 'use strict';
 
-// http://jsfromhell.com/array/shuffle
+// Based on http://jsfromhell.com/array/shuffle
 Array.prototype.shuffle = function shuffle() { //v1.0
   for (var j, x, i = this.length; i;
-    j = parseInt(Math.random() * i),
+    j = Math.floor(Math.random() * i),
     x = this[--i], this[i] = this[j],
     this[j] = x);
   return this;
