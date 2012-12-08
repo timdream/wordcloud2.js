@@ -66,46 +66,52 @@ if (!window.setImmediate) {
     window.webkitSetImmediate ||
     window.mozSetImmediate ||
     window.oSetImmediate ||
-    // setZeroTimeout: "hack" based on postMessage
-    // modified from http://dbaron.org/log/20100309-faster-timeouts
     (function setupSetZeroTimeout() {
-      if (window.postMessage && window.addEventListener) {
-        var timeouts = [],
-        timerPassed = -1,
-        timerIssued = -1,
-        messageName = 'zero-timeout-message',
-        // Like setTimeout, but only takes a function argument.  There's
-        // no time argument (always zero) and no arguments (you have to
-        // use a closure).
-        setZeroTimeout = function setZeroTimeout(fn) {
-          timeouts.push(fn);
-          window.postMessage(messageName, '*');
-          return ++timerIssued;
-        },
-        handleMessage = function handleMessage(event) {
-          // Skipping checking event source, retarded IE confused this window
-          // object with another in the presence of iframe
-          if (/*event.source == window && */event.data == messageName) {
-            event.stopPropagation();
-            if (timeouts.length > 0) {
-              var fn = timeouts.shift();
-              fn();
-              timerPassed++;
-            }
-          }
-        };
-
-        window.addEventListener('message', handleMessage, true);
-
-        window.clearImmediate = function clearZeroTimeout(timer) {
-          if (typeof timer !== 'number' || timer > timerIssued) return;
-          var fnId = timer - timerPassed - 1;
-          timeouts[fnId] = (function noop() {}); // overwrite the original fn
-        };
-
-        // Add the one thing we want added to the window object.
-        return setZeroTimeout;
+      if (!window.postMessage || !window.addEventListener) {
+        return null;
       }
+
+      var callbacks = [undefined];
+      var message = 'zero-timeout-message';
+
+      // Like setTimeout, but only takes a function argument.  There's
+      // no time argument (always zero) and no arguments (you have to
+      // use a closure).
+      var setZeroTimeout = function setZeroTimeout(callback) {
+        var id = callbacks.length;
+        callbacks.push(callback);
+        window.postMessage(message + id.toString(36), '*');
+
+        return id;
+      };
+
+      window.addEventListener('message', function setZeroTimeoutMessage(evt) {
+        // Skipping checking event source, retarded IE confused this window
+        // object with another in the presence of iframe
+        if (typeof evt.data !== 'string' ||
+            evt.data.substr(0, message.length) !== message/* ||
+            evt.source !== window */)
+          return;
+
+        evt.stopImmediatePropagation();
+
+        var id = parseInt(evt.data.substr(message.length), 36);
+        if (!callbacks[id])
+          return;
+
+        callbacks[id]();
+        callbacks[id] = undefined;
+      }, true);
+
+      /* specify clearImmediate() here since we need the scope */
+      window.clearImmediate = function clearZeroTimeout(id) {
+        if (!callbacks[id])
+          return;
+
+        callbacks[id] = undefined;
+      };
+
+      return setZeroTimeout;
     })() ||
     // fallback
     function setImmediateFallback(fn) {
