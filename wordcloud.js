@@ -332,30 +332,35 @@ if (!window.clearImmediate) {
     var escapeTime;
 
     /* function for getting the color of the text */
-    var wordColor = function wordColor(word, weight, fontSize, radius, theta) {
-      switch (settings.wordColor) {
-        case 'random-dark':
+    var getTextColor;
+    switch (settings.wordColor) {
+      case 'random-dark':
+        getTextColor = function getRandomDarkColor() {
           return 'rgb(' +
             Math.floor(Math.random() * 128).toString(10) + ',' +
             Math.floor(Math.random() * 128).toString(10) + ',' +
             Math.floor(Math.random() * 128).toString(10) + ')';
-          break;
+        };
+        break;
 
-        case 'random-light':
+      case 'random-light':
+        getTextColor = function getRandomLightColor() {
           return 'rgb(' +
             Math.floor(Math.random() * 128 + 128).toString(10) + ',' +
             Math.floor(Math.random() * 128 + 128).toString(10) + ',' +
             Math.floor(Math.random() * 128 + 128).toString(10) + ')';
-          break;
+        };
+        break;
 
-        default:
-          if (typeof settings.wordColor !== 'function') {
+      default:
+        if (typeof settings.wordColor === 'function') {
+          getTextColor = settings.wordColor;
+        } else {
+          getTextColor = function getFixedColor() {
             return settings.wordColor;
-          } else {
-            return settings.wordColor(word, weight, fontSize, radius, theta);
-          }
-          break;
-      }
+          };
+        }
+        break;
     }
 
     /* Return true if we had spent too much time */
@@ -538,7 +543,7 @@ if (!window.clearImmediate) {
           // distort the radius to put the cloud in shape
           var rx = settings.shape(t / T * 2 * Math.PI); // 0 to 1
 
-          // Push [x, y, t]; t is used solely for wordColor()
+          // Push [x, y, t]; t is used solely for getTextColor()
           points.push([
             Math.floor(center[0] +
             (R - r) * rx * Math.cos(-t / T * 2 * Math.PI) - gw / 2),
@@ -565,7 +570,7 @@ if (!window.clearImmediate) {
             var fctx = fc.getContext('2d');
             fctx.fillStyle = settings.backgroundColor;
             fctx.fillRect(0, 0, w * mu, h * mu);
-            fctx.fillStyle = wordColor(word, weight,
+            fctx.fillStyle = getTextColor(word, weight,
                                        fontSize, R - r, gxy[2]);
             fctx.font = (fontSize * mu).toString(10) + 'px ' +
                         settings.fontFamily;
@@ -582,7 +587,7 @@ if (!window.clearImmediate) {
                           Math.floor(gxy[1] * g + (gh * g - h) / 2), w, h);
           } else {
             ctx.font = fontSize.toString(10) + 'px ' + settings.fontFamily;
-            ctx.fillStyle = wordColor(word, weight,
+            ctx.fillStyle = getTextColor(word, weight,
                                       fontSize, R - r, gxy[2]);
             ctx.fillText(word, gxy[0] * g + (gw * g - w) / 2,
                          gxy[1] * g + (gh * g - h) / 2);
