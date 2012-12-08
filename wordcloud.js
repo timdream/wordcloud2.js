@@ -498,7 +498,12 @@ if (!window.clearImmediate) {
        put it on the canvas. */
     var putWord = function putWord(word, weight) {
       // This decides whether we should rotate the word or not
-      var rotate = (Math.random() < settings.rotateRatio);
+      var rotate = false;
+      if (settings.rotateRatio === 1) {
+        rotate = true;
+      } else if (settings.rotateRatio !== 0) {
+        rotate = (Math.random() < settings.rotateRatio);
+      }
 
       // calculate the acutal font size
       // fontSize === 0 means weightFactor wants the text skipped,
