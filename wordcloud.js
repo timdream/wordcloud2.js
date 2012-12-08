@@ -685,61 +685,39 @@ if (!window.clearImmediate) {
       sendEvent(canvas, 'wordcloudstart');
 
       var i = 0;
+      var loopingFunction, stoppingFunction;
       if (settings.wait !== 0) {
-        var timer = setInterval(
-          function loop() {
-            if (i >= settings.wordList.length) {
-              clearTimeout(timer);
-              sendEvent(canvas, 'wordcloudstop');
-              return;
-            }
-            escapeTime = (new Date()).getTime();
-            putWord(settings.wordList[i][0], settings.wordList[i][1]);
-            if (exceedTime()) {
-              clearTimeout(timer);
-              settings.abort();
-              sendEvent(canvas, 'wordcloudabort');
-              sendEvent(canvas, 'wordcloudstop');
-            }
-            i++;
-          },
-          settings.wait
-        );
-        canvas.addEventListener('wordcloudstart',
-          function anotherWordCloudStart() {
-            canvas.removeEventListener('wordcloudstart', anotherWordCloudStart);
-            clearTimeout(timer);
-          });
+        loopingFunction = window.setTimeout;
+        stoppingFunction = window.clearTimeout;
       } else {
-        var stop = false;
-        window.setImmediate(
-          function loop() {
-            if (i >= settings.wordList.length) {
-              // console.log(d.getTime() - (new Date()).getTime());
-              sendEvent(canvas, 'wordcloudstop');
-              return;
-            }
-            if (stop) {
-              return;
-            }
-            escapeTime = (new Date()).getTime();
-            putWord(settings.wordList[i][0], settings.wordList[i][1]);
-            if (exceedTime()) {
-              settings.abort();
-              sendEvent(canvas, 'wordcloudabort');
-              sendEvent(canvas, 'wordcloudstop');
-              return;
-            }
-            i++;
-            window.setImmediate(loop);
-          }
-        );
-        canvas.addEventListener('wordcloudstart',
-          function anotherWordCloudStart() {
-            canvas.removeEventListener('wordcloudstart', anotherWordCloudStart);
-            stop = true;
-          });
+        loopingFunction = window.setImmediate;
+        stoppingFunction = window.clearImmediate;
       }
+
+      canvas.addEventListener('wordcloudstart',
+        function anotherWordCloudStart() {
+          canvas.removeEventListener('wordcloudstart', anotherWordCloudStart);
+          stoppingFunction(timer);
+        });
+
+      var timer = loopingFunction(function loop() {
+        if (i >= settings.wordList.length) {
+          stoppingFunction(timer);
+          sendEvent(canvas, 'wordcloudstop');
+          return;
+        }
+        escapeTime = (new Date()).getTime();
+        putWord(settings.wordList[i][0], settings.wordList[i][1]);
+        if (exceedTime()) {
+          stoppingFunction(timer);
+          settings.abort();
+          sendEvent(canvas, 'wordcloudabort');
+          sendEvent(canvas, 'wordcloudstop');
+          return;
+        }
+        i++;
+        timer = loopingFunction(loop, settings.wait);
+      }, settings.wait);
     };
 
     if ('length' in canvases) {
