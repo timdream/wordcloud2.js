@@ -324,7 +324,9 @@ if (!window.clearImmediate) {
     /* information/object available to all functions, set when start() */
     var ctx, // canvas context
       grid, // 2d array containing filling information
-      ngx, ngy; // width and height of the grid
+      ngx, ngy, // width and height of the grid
+      center, // position of the center of the cloud
+      maxRadius;
 
     /* information needed for determining empty status of a pixel */
     var diffChannel, bgPixel;
@@ -358,6 +360,41 @@ if (!window.clearImmediate) {
           getTextColor = settings.wordColor;
         }
         break;
+    }
+
+    /* Get points on the grid for a given radius away from the center */
+    var pointsAtRadius = [];
+    var getPointsAtRadius = function getPointsAtRadius(radius) {
+      if (pointsAtRadius[radius])
+        return pointsAtRadius[radius];
+
+      // Look for these number of points on each radius
+      var T = radius * 8;
+
+      // Getting all the points at this radius
+      var t = T;
+      var points = [];
+
+      if (radius === 0) {
+        points.push([center[0], center[1], 0]);
+      }
+
+      while (t--) {
+        // distort the radius to put the cloud in shape
+        var rx = 1;
+        if (settings.shape !== 'circle')
+          rx = settings.shape(t / T * 2 * Math.PI); // 0 to 1
+
+        // Push [x, y, t]; t is used solely for getTextColor()
+        points.push([
+          center[0] + radius * rx * Math.cos(-t / T * 2 * Math.PI),
+          center[1] + radius * rx * Math.sin(-t / T * 2 * Math.PI) *
+            settings.ellipticity,
+          t / T * 2 * Math.PI]);
+      }
+
+      pointsAtRadius[radius] = points;
+      return points;
     }
 
     /* Return true if we had spent too much time */
@@ -516,48 +553,21 @@ if (!window.clearImmediate) {
       gw = Math.ceil(w / g),
       gh = Math.ceil(h / g);
 
-      // Determine the center of the word cloud
-      var center =
-        (settings.center) ?
-          [settings.center[0]/g, settings.center[1]/g] :
-          [ngx / 2, ngy / 2];
+      // Determine the position to put the text by
+      // start looking for the nearest points
+      var r = maxRadius + 1;
 
-      // Determine the position to put the text
-
-      // Maxium radius to look for space
-      var R = Math.floor(Math.sqrt(ngx * ngx + ngy * ngy));
-
-      // Look for these number of points on each radius
-      var T = ngx + ngy;
-
-      // Start looking for the nearest points
-      var r = R + 1;
       while (r--) {
-        // Getting all the points at this radius
-        var t = T;
-        var points = [];
-        while (t--) {
-          // distort the radius to put the cloud in shape
-          var rx = 1;
-          if (settings.shape !== 'circle')
-            rx = settings.shape(t / T * 2 * Math.PI); // 0 to 1
-
-          // Push [x, y, t]; t is used solely for getTextColor()
-          points.push([
-            Math.floor(center[0] +
-            (R - r) * rx * Math.cos(-t / T * 2 * Math.PI) - gw / 2),
-            Math.floor(center[1] +
-            (R - r) * rx * settings.ellipticity *
-              Math.sin(-t / T * 2 * Math.PI) - gh / 2),
-            t / T * 2 * Math.PI]);
-        }
+        var points = getPointsAtRadius(maxRadius - r);
 
         // Shuffle the points and try to fit the words
         // array.some() will stop and return true
         // when putWordAtPoint() returns true.
         // If all the points returns false, array.some() returns false.
         var drawn = points.shuffle().some(function putWordAtPoint(gxy) {
-          if (!canFitText(gxy[0], gxy[1], gw, gh))
+          var gx = Math.floor(gxy[0] - gw / 2);
+          var gy = Math.floor(gxy[1] - gh / 2);
+          if (!canFitText(gx, gy, gw, gh))
             return false;
 
           if (mu !== 1 || rotate) {
@@ -571,7 +581,7 @@ if (!window.clearImmediate) {
             fctx.fillRect(0, 0, w * mu, h * mu);
             if (getTextColor) {
               fctx.fillStyle = getTextColor(word, weight,
-                                            fontSize, R - r, gxy[2]);
+                                            fontSize, maxRadius - r, gxy[2]);
             } else {
               fctx.fillStyle = settings.wordColor;
             }
@@ -583,26 +593,26 @@ if (!window.clearImmediate) {
               fctx.rotate(-Math.PI / 2);
             }
             fctx.fillText(word, Math.floor(fontSize * mu / 6), 0);
-            ctx.clearRect(Math.floor(gxy[0] * g + (gw * g - w) / 2),
-                          Math.floor(gxy[1] * g + (gh * g - h) / 2), w, h);
+            ctx.clearRect(Math.floor(gx * g + (gw * g - w) / 2),
+                          Math.floor(gy * g + (gh * g - h) / 2), w, h);
             ctx.drawImage(fc,
-                          Math.floor(gxy[0] * g + (gw * g - w) / 2),
-                          Math.floor(gxy[1] * g + (gh * g - h) / 2), w, h);
+                          Math.floor(gx * g + (gw * g - w) / 2),
+                          Math.floor(gy * g + (gh * g - h) / 2), w, h);
           } else {
             ctx.font = fontSize.toString(10) + 'px ' + settings.fontFamily;
             if (getTextColor) {
               ctx.fillStyle = getTextColor(word, weight,
-                                           fontSize, R - r, gxy[2]);
+                                           fontSize, maxRadius - r, gxy[2]);
             } else {
               ctx.fillStyle = settings.wordColor;
             }
-            ctx.fillText(word, gxy[0] * g + (gw * g - w) / 2,
-                         gxy[1] * g + (gh * g - h) / 2);
+            ctx.fillText(word, gx * g + (gw * g - w) / 2,
+                         gy * g + (gh * g - h) / 2);
           }
           if (settings.fillBox) {
-            fillGrid(gxy[0], gxy[1], gw, gh);
+            fillGrid(gx, gy, gw, gh);
           } else {
-            updateGrid(gxy[0], gxy[1], gw, gh);
+            updateGrid(gx, gy, gw, gh);
           }
           return true;
         });
@@ -645,6 +655,14 @@ if (!window.clearImmediate) {
       ngy = Math.floor(canvas.height / g);
       ctx = canvas.getContext('2d');
       grid = [];
+
+      // Determine the center of the word cloud
+      center = (settings.center) ?
+          [settings.center[0]/g, settings.center[1]/g] :
+          [ngx / 2, ngy / 2];
+
+      // Maxium radius to look for space
+      maxRadius = Math.floor(Math.sqrt(ngx * ngx + ngy * ngy));
 
       /* Determine diffChannel and bgPixel by creating
          another canvas and fill the specified background color */
