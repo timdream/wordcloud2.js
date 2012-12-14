@@ -49,6 +49,7 @@
   <li><label>rotateRatio = 0 <input type="button" id="rotateRatio0_function" value="test" /></label></li>
   <li><label>drawMask <input type="button" id="drawMask" value="test" /></label></li>
   <li><label>maskColor, maskGridWidth <input type="button" id="mask" value="test" /></label></li>
+  <li><label>shuffle = false, rotateRatio = 0<input type="button" id="shuffle" value="test" /></label></li>
   <li><label>wordColor, backgroundColor <input type="button" id="color" value="test" /></label></li>
   <li><label>wait <input type="button" id="wait" value="test" /></label></li>
   <li><label>abortThreshold = 100, abort <input type="button" id="abort" value="test" /></label></li>
@@ -197,6 +198,15 @@ jQuery(function ($) {
     function () {
       try {
         WordCloud(canvas, {wordList: list_english, drawMask: true, maskColor: 'rgba(0,0,255,0.8)', maskGridWidth: 1});
+      } catch (e) { alert(e); }
+    }
+  );
+
+  $('#shuffle').bind(
+    'click',
+    function () {
+      try {
+        WordCloud(canvas, {wordList: list_english, shuffle: false, rotateRatio: 0});
       } catch (e) { alert(e); }
     }
   );

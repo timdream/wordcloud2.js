@@ -18,6 +18,7 @@
   drawMask: true to debug mask to show area covered by word.
   maskColor: color of the debug mask.
   maskGridWidth: width of the mask grid border.
+  shuffle: introduce randomness when looking for place to put the word.
   wordColor: color for word, could be one of the following:
     [CSS color value],
     'random-dark', (default)
@@ -49,15 +50,6 @@
 */
 
 'use strict';
-
-// Based on http://jsfromhell.com/array/shuffle
-Array.prototype.shuffle = function shuffle() { //v1.0
-  for (var j, x, i = this.length; i;
-    j = Math.floor(Math.random() * i),
-    x = this[--i], this[i] = this[j],
-    this[j] = x);
-  return this;
-};
 
 // setImmediate
 if (!window.setImmediate) {
@@ -187,6 +179,15 @@ if (!window.clearImmediate) {
     return 0;
   })();
 
+  // Based on http://jsfromhell.com/array/shuffle
+  var shuffleArray = function shuffleArray(arr) {
+    for (var j, x, i = arr.length; i;
+      j = Math.floor(Math.random() * i),
+      x = arr[--i], arr[i] = arr[j],
+      arr[j] = x);
+    return arr;
+  };
+
   var WordCloud = function WordCloud(canvas, options) {
     if (!isSupported)
       return;
@@ -208,6 +209,7 @@ if (!window.clearImmediate) {
       wordColor: 'random-dark',
       backgroundColor: '#fff',  // opaque white = rgba(255, 255, 255, 1)
       wait: 0,
+      shuffle: true,
       abortThreshold: 0, // disabled
       abort: function noop() {},
       weightFactor: 1,
@@ -565,11 +567,15 @@ if (!window.clearImmediate) {
       while (r--) {
         var points = getPointsAtRadius(maxRadius - r);
 
-        // Shuffle the points and try to fit the words
+        if (settings.shuffle) {
+          shuffleArray(points);
+        }
+
+        // Try to fit the words by looking at each point.
         // array.some() will stop and return true
         // when putWordAtPoint() returns true.
         // If all the points returns false, array.some() returns false.
-        var drawn = points.shuffle().some(function putWordAtPoint(gxy) {
+        var drawn = points.some(function putWordAtPoint(gxy) {
           var gx = Math.floor(gxy[0] - gw / 2);
           var gy = Math.floor(gxy[1] - gh / 2);
           if (!canFitText(gx, gy, gw, gh))
