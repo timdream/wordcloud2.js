@@ -20,6 +20,11 @@ wordcloud.js reads back the pixels of the canvas every time it draw a new word, 
 
 ## Testing
 
-I have no idea how to automate the tests since the result a image.
-A demo page is written for manual testing and demo available configurations.
-It might be possible to create indentical images by turning off all the randomness stuff and compare the image pixel by pixel.
+Semi-automatic tests are available with [QUnit](http://qunitjs.com/).
+
+Unfortunately, even with all the randomness options disabled,
+the output will still depend on the browser and the font rendering of the OS
+(and ClearType settings!). Hence, I cannot supply a set of reference images.
+The tests won't pass unless you manually confirm them in your environment first --
+subsequent tests are considered passed if the reference image exists
+(saved when you confirm the output) and the output is identical to it pixel-by-pixel.

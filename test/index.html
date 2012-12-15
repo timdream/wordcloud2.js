@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>wordcloud.js tests</title>
+  <link rel="stylesheet" href="//code.jquery.com/qunit/qunit-1.10.0.css">
+  <style>
+  #qunit-tests > li::after {
+    content: '';
+    display: block;
+    clear: both;
+  }
+
+  #qunit-tests > li > canvas {
+    float: right;
+    margin-left: 20px;
+    border: 4px solid #ccc;
+    width: 150px;
+
+    /* http://lea.verou.me/css3patterns/#checkerboard */
+    background-color: #eee;
+    background-image: linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc),
+      linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc);
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
+  }
+  #qunit-tests > li:hover > canvas {
+    width: 300px;
+  }
+  #qunit-tests > li > canvas:not(.reference) {
+    cursor: pointer;
+  }
+  #qunit-tests > li.fail > canvas:not(.reference) {
+    border-color: #EE5757;
+  }
+
+  #qunit-tests > li.pass > canvas:not(.reference) {
+    border-color: #C6E746;
+  }
+  </style>
+  </head>
+<body>
+  <div id="qunit"></div>
+  <script src="http://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js"></script>
+  <script src="//code.jquery.com/qunit/qunit-1.10.0.js"></script>
+  <script src="./util.js"></script>
+
+  <!-- script to test -->
+  <script src="../wordcloud.js"></script>
+
+  <!-- test scripts -->
+  <script src="unit/basics.js"></script>
+  <script src="unit/options.js"></script>
+</body>
+</html>
