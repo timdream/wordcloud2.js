@@ -140,8 +140,6 @@ if (!window.clearImmediate) {
     if (!ctx.fillText)
       return false;
 
-    if (!Array.prototype.forEach)
-      return false;
     if (!Array.prototype.some)
       return false;
     if (!Array.prototype.push)
