@@ -16,7 +16,8 @@ Options available, see the source code for information for now.
 
 ## Algorithm
 
-wordcloud.js reads back the pixels of the canvas every time it draw a new word, and try to find a place to fit the next word that is closest to the start point.
+Before putting each word on the canvas, it is drawn on a separate canvas to read back the pixels to record is drawn spaces.
+With the information, wordcloud.js will then try to find a place to fit the word that is closest to the start point.
 
 ## Testing
 

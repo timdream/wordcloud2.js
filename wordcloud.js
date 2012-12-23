@@ -211,7 +211,7 @@ if (!window.clearImmediate) {
       abortThreshold: 0, // disabled
       abort: function noop() {},
       weightFactor: 1,
-      minSize: miniumFontSize / 2, // 0 to disable
+      minSize: 0, // 0 to disable
       wordList: [],
       rotateRatio: 0.1,
       clearCanvas: true,
@@ -320,6 +320,7 @@ if (!window.clearImmediate) {
 
     /* shorthand */
     var g = settings.gridSize;
+    var maskRectWidth = g - settings.maskGridWidth;
 
     /* information/object available to all functions, set when start() */
     var ctx, // canvas context
@@ -327,9 +328,6 @@ if (!window.clearImmediate) {
       ngx, ngy, // width and height of the grid
       center, // position of the center of the cloud
       maxRadius;
-
-    /* information needed for determining empty status of a pixel */
-    var diffChannel, bgPixel;
 
     /* timestamp for measuring each putWord() action */
     var escapeTime;
@@ -403,111 +401,11 @@ if (!window.clearImmediate) {
         ((new Date()).getTime() - escapeTime > settings.abortThreshold));
     };
 
-    /* With given data and dimension information, return the value of
-       of the channel of the pixel */
-    var getChannelData = function getChannelData(data, x, y, w, h, c) {
-      return data[(y * w + x) * 4 + c];
-    };
-
-
-    /* See if the given space in the grid is empty or not */
-    var isGridEmpty = function isGridEmpty(imgData,
-                                           x, y, w, h, skipDiffChannel) {
-      var i = g, j;
-      if (!isNaN(diffChannel) && !skipDiffChannel) {
-        while (i--) {
-          j = g;
-          while (j--) {
-            if (getChannelData(imgData.data,
-                               x + i, y + j, w, h, diffChannel) !==
-                bgPixel[diffChannel])
-              return false;
-          }
-        }
-      } else {
-        var k;
-        while (i--) {
-          j = g;
-          while (j--) {
-            k = 4;
-            while (k--) {
-              if (getChannelData(imgData.data, x + i, y + j, w, h, k) !==
-                  bgPixel[k])
-                return false;
-            }
-          }
-        }
-      }
-      return true;
-    };
-
-    /* Mark the given space in the grid filled,
-       and draw the mask on the canvas if necessary */
-    var fillGrid = function fillGrid(gx, gy, gw, gh) {
-      var x = gw, y;
-      if (settings.drawMask)
-        ctx.fillStyle = settings.maskColor;
-
-      while (x--) {
-        y = gh;
-        while (y--) {
-          grid[gx + x][gy + y] = false;
-          if (settings.drawMask) {
-            ctx.fillRect((gx + x) * g,
-                         (gy + y) * g,
-                         g - settings.maskGridWidth,
-                         g - settings.maskGridWidth);
-          }
-        }
-      }
-    };
-
-    /* Update the filling information of the given space by read out the pixels
-       and compare it's values. Draw the mask on the canvas if necessary. */
-    var updateGrid = function updateGrid(gx, gy, gw, gh, skipDiffChannel) {
-      var x = gw, y;
-      if (settings.drawMask) ctx.fillStyle = settings.maskColor;
-      /*
-      getImageData() is a super expensive function
-      (internally, extracting pixels of _entire canvas_ all the way from GPU),
-      call once here instead of every time in isGridEmpty
-      */
-      var imgData = ctx.getImageData(gx * g, gy * g, gw * g, gh * g);
-      out: while (x--) {
-        y = gh;
-        while (y--) {
-          if (!isGridEmpty(imgData, x * g, y * g, gw * g, gh * g,
-                           skipDiffChannel)) {
-            grid[gx + x][gy + y] = false;
-            if (settings.drawMask) {
-              ctx.fillRect((gx + x) * g,
-                           (gy + y) * g,
-                           g - settings.maskGridWidth,
-                           g - settings.maskGridWidth);
-            }
-          }
-          if (exceedTime())
-            break out;
-        }
-      }
-    };
-
-
-    /* putWord() processes each item on the wordList,
-       calculate it's size and determine it's position, and actually
-       put it on the canvas. */
-    var putWord = function putWord(word, weight) {
-      // This decides whether we should rotate the word or not
-      var rotate = false;
-      if (settings.rotateRatio === 1) {
-        rotate = true;
-      } else if (settings.rotateRatio !== 0) {
-        rotate = (Math.random() < settings.rotateRatio);
-      }
-
+    var getTextInfo = function getTextInfo(word, weight) {
       // calculate the acutal font size
-      // fontSize === 0 means weightFactor wants the text skipped,
+      // fontSize === 0 means weightFactor function wants the text skipped,
       // and size < minSize means we cannot draw the text.
+      var debug = false;
       var fontSize = settings.weightFactor(weight);
       if (fontSize <= settings.minSize)
         return false;
@@ -520,43 +418,285 @@ if (!window.clearImmediate) {
         mu = (function calculateScaleFactor() {
           var mu = 2;
           while (mu * fontSize < miniumFontSize) {
-            // TBD: should force the browser to do
-            // resampling 0.5x each time instead of this
             mu += 2;
           }
           return mu;
         })();
       }
 
-      // Determine size of the word on canvas
-      ctx.font = (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
-      var gw, gh, w, h;
-      if (rotate) {
-        h = ctx.measureText(word).width / mu;
-        w = Math.max(fontSize * mu,
-                     ctx.measureText('m').width,
-                     ctx.measureText('\uFF37').width) / mu;
+      var fcanvas = document.createElement('canvas');
+      var fctx = fcanvas.getContext('2d');
 
-        if (/[Jgpqy]/.test(word))
-          w *= 3 / 2;
-        w += Math.floor(fontSize / 6);
-        h += Math.floor(fontSize / 6);
-      } else {
-        w = ctx.measureText(word).width / mu;
-        h = Math.max(fontSize * mu,
-                     ctx.measureText('m').width,
-                     ctx.measureText('\uFF37').width) / mu;
+      fctx.font = (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
 
-        if (/[Jgpqy]/.test(word))
-          h *= 3 / 2;
-        h += Math.floor(fontSize / 6);
-        w += Math.floor(fontSize / 6);
+      // Estimate the dimension of the text with measureText().
+      var fw = fctx.measureText(word).width / mu;
+      var fh = Math.max(fontSize * mu,
+                        fctx.measureText('m').width,
+                        fctx.measureText('\uFF37').width) / mu;
+
+      // Create a boundary box that is larger than our estimates,
+      // so text don't get cut of (it sill might)
+      var fgh = Math.ceil(fh / g) * 3;
+      var fgw = Math.ceil(fw / g) + fgh / 3 * 2;
+      var width = fgw * g;
+      var height = fgh * g;
+
+      // The 0.7 here is to lower the alphabetic baseline
+      // so that ideographic characters can fit into the height defined by |fh|.
+      var fillTextOffsetX = (fgw * g - fw) / 2;
+      var fillTextOffsetY = (fgh * g + 0.7 * fh) / 2;
+
+      fcanvas.setAttribute('width', width);
+      fcanvas.setAttribute('height', height);
+
+      if (debug)
+        document.body.appendChild(fcanvas);
+
+      // Scale the canvas with |mu|.
+      fctx.save();
+      fctx.scale(1 / mu, 1 / mu);
+
+      // Once the width/height is set, ctx info will be reset.
+      // Set it again here.
+      fctx.font = (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
+
+      // Fill the text into the fcanvas.
+      fctx.fillStyle = '#000';
+      fctx.textBaseline = 'alphabetic';
+      fctx.fillText(word, fillTextOffsetX * mu, fillTextOffsetY * mu);
+
+      // Restore the transform.
+      fctx.restore();
+
+      // Get the pixels of the text
+      var imageData = fctx.getImageData(0, 0, width, height).data;
+
+      if (exceedTime())
+        return false;
+
+      // Read the pixels and save the information to the grid
+      var grid = [];
+      var gx = fgw, gy, x, y;
+      out: while (gx--) {
+        grid[gx] = [];
+        gy = fgh;
+        while (gy--) {
+          y = g;
+          singleGridLoop: while (y--) {
+            x = g;
+            while (x--) {
+              if (imageData[((gy * g + y) * width +
+                             (gx * g + x)) * 4 + 3]) {
+                grid[gx][gy] = false;
+                if (debug) {
+                  fctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                  fctx.fillRect(gx * g, gy * g, g - 0.5, g - 0.5);
+                }
+                break singleGridLoop;
+              }
+              if (exceedTime())
+                break out;
+            }
+          }
+          if (grid[gx][gy] !== false) {
+            if (debug){
+              fctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+              fctx.fillRect(gx * g, gy * g, g - 0.5, g - 0.5);
+            }
+            grid[gx][gy] = true;
+          }
+        }
       }
 
-      w = Math.ceil(w);
-      h = Math.ceil(h);
-      gw = Math.ceil(w / g),
-      gh = Math.ceil(h / g);
+      // Return information needed to create the text on the real canvas
+      return {
+        mu: mu,
+        grid: grid,
+        gw: fgw,
+        gh: fgh,
+        fillTextOffsetX: fillTextOffsetX,
+        fillTextOffsetY: fillTextOffsetY,
+        fontSize: fontSize
+      };
+    };
+
+    /* Determine if there is room available in the given dimension */
+    var canFitText = function canFitText(gx, gy, gw, gh, fgrid, rotate) {
+      // Go through the grid, return false if the space is not available
+      // and fgrid is marked as occopied.
+      var x, y, px, py;
+      if (!rotate) {
+        x = gw;
+        while (x--) {
+          y = gh;
+          while (y--) {
+            if (!fgrid[x][y]) {
+              px = gx + x;
+              py = gy + y;
+              if (px >= ngx || py >= ngy || px < 0 || py < 0 || !grid[px][py]) {
+                return false;
+              }
+            }
+          }
+        }
+      } else {
+        x = gh;
+        while (x--) {
+          y = gw;
+          while (y--) {
+            if (!fgrid[gw - y - 1][x]) {
+              px = gx + x;
+              py = gy + y;
+              if (px >= ngx || py >= ngy || px < 0 || py < 0 || !grid[px][py]) {
+                return false;
+              }
+            }
+          }
+        }
+      }
+      return true;
+    };
+
+    /* Actually draw the text on the grid */
+    var fillText = function fillText(gx, gy, info, word, weight,
+                                     distance, theta, rotate) {
+      var fontSize = info.fontSize;
+      var mu = info.mu;
+
+      // Save the current state before messing it
+      ctx.save();
+      ctx.scale(1 / mu, 1 / mu);
+
+      ctx.font = (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
+      if (getTextColor) {
+        ctx.fillStyle = getTextColor(word, weight, fontSize, distance, theta);
+      } else {
+        ctx.fillStyle = settings.wordColor;
+      }
+      ctx.textBaseline = 'alphabetic';
+
+      // Translate the canvas position to the origin coordinate of where
+      // the text should be put.
+      ctx.translate(gx * g * mu, gy * g * mu);
+
+      if (rotate) {
+        // Rotate -90 deg to honor |rotate|. Also reprosition the origin.
+        ctx.rotate(- Math.PI / 2);
+        ctx.translate(- info.gw * g * mu, 0);
+      }
+
+      // Finally, fill the text.
+      ctx.fillText(word, info.fillTextOffsetX * mu,
+                         info.fillTextOffsetY * mu);
+
+      // Restore the state.
+      ctx.restore();
+    };
+
+    /* Help function to fillGrid and updateGrid */
+    var fillGridAt = function fillGridAt(x, y, drawMask) {
+      if (x >= ngx || y >= ngy || x < 0 || y < 0)
+        return;
+
+      grid[x][y] = false;
+
+      if (drawMask)
+        ctx.fillRect(x * g, y * g, maskRectWidth, maskRectWidth);
+    };
+
+    /* Mark the entire given space in the grid as filled,
+       and draw the mask on the canvas if necessary */
+    var fillGrid = function fillGrid(gx, gy, gw, gh, rotate) {
+      var drawMask = settings.drawMask;
+      if (drawMask) {
+        ctx.save();
+        ctx.fillStyle = settings.maskColor;
+      }
+
+      var x, y, px, py;
+      if (!rotate) {
+        x = gw;
+        out: while (x--) {
+          y = gh;
+          while (y--) {
+            fillGridAt(gx + x, gy + y, drawMask);
+          }
+        }
+      } else {
+        x = gh;
+        out: while (x--) {
+          y = gw;
+          while (y--) {
+            fillGridAt(gx + x, gy + y, drawMask);
+          }
+        }
+      }
+
+      if (drawMask)
+        ctx.restore();
+    };
+
+    /* Update the filling information of the given space by
+       with information in fgrid. Draw the mask on the canvas if necessary. */
+    var updateGrid = function updateGrid(gx, gy, gw, gh, fgrid, rotate) {
+      var maskRectWidth = g - settings.maskGridWidth;
+      var drawMask = settings.drawMask;
+      if (drawMask) {
+        ctx.save();
+        ctx.fillStyle = settings.maskColor;
+      }
+
+      var x, y, px, py;
+      if (!rotate) {
+        x = gw;
+        while (x--) {
+          y = gh;
+          while (y--) {
+            if (fgrid[x][y])
+              continue;
+
+            fillGridAt(gx + x, gy + y, drawMask);
+          }
+        }
+      } else {
+        x = gh;
+        while (x--) {
+          y = gw;
+          while (y--) {
+            if (fgrid[gw - y - 1][x])
+              continue;
+
+            fillGridAt(gx + x, gy + y, drawMask);
+          }
+        }
+      }
+
+      if (drawMask)
+        ctx.restore();
+    };
+
+    /* putWord() processes each item on the wordList,
+       calculate it's size and determine it's position, and actually
+       put it on the canvas. */
+    var putWord = function putWord(word, weight) {
+      // get info needed to put the text onto the canvas
+      var info = getTextInfo(word, weight);
+
+      // not getting the info means we shouldn't be drawing this one.
+      if (!info)
+        return false;
+
+      if (exceedTime())
+        return false;
+
+      // This decides whether we should rotate the word or not
+      var rotate = false;
+      if (settings.rotateRatio === 1) {
+        rotate = true;
+      } else if (settings.rotateRatio !== 0) {
+        rotate = (Math.random() < settings.rotateRatio);
+      }
 
       // Determine the position to put the text by
       // start looking for the nearest points
@@ -566,6 +706,7 @@ if (!window.clearImmediate) {
         var points = getPointsAtRadius(maxRadius - r);
 
         if (settings.shuffle) {
+          points = [].concat(points);
           shuffleArray(points);
         }
 
@@ -574,55 +715,34 @@ if (!window.clearImmediate) {
         // when putWordAtPoint() returns true.
         // If all the points returns false, array.some() returns false.
         var drawn = points.some(function putWordAtPoint(gxy) {
-          var gx = Math.floor(gxy[0] - gw / 2);
-          var gy = Math.floor(gxy[1] - gh / 2);
-          if (!canFitText(gx, gy, gw, gh))
+          var gx, gy;
+          if (!rotate) {
+            gx = Math.floor(gxy[0] - info.gw / 2);
+            gy = Math.floor(gxy[1] - info.gh / 2);
+          } else {
+            gx = Math.floor(gxy[0] - info.gh / 2);
+            gy = Math.floor(gxy[1] - info.gw / 2);
+          }
+          var gw = info.gw;
+          var gh = info.gh;
+
+          // If we cannot fit the text at this position, return false
+          // and go to the next position.
+          if (!canFitText(gx, gy, gw, gh, info.grid, rotate))
             return false;
 
-          if (mu !== 1 || rotate) {
-            // Put the text on another canvas and fit/rotate it
-            // and stick it onto the real canvas.
-            var fc = document.createElement('canvas');
-            fc.setAttribute('width', w * mu);
-            fc.setAttribute('height', h * mu);
-            var fctx = fc.getContext('2d');
-            fctx.fillStyle = settings.backgroundColor;
-            fctx.fillRect(0, 0, w * mu, h * mu);
-            if (getTextColor) {
-              fctx.fillStyle = getTextColor(word, weight,
-                                            fontSize, maxRadius - r, gxy[2]);
-            } else {
-              fctx.fillStyle = settings.wordColor;
-            }
-            fctx.font = (fontSize * mu).toString(10) + 'px ' +
-                        settings.fontFamily;
-            fctx.textBaseline = 'top';
-            if (rotate) {
-              fctx.translate(0, h * mu);
-              fctx.rotate(-Math.PI / 2);
-            }
-            fctx.fillText(word, Math.floor(fontSize * mu / 6), 0);
-            ctx.clearRect(Math.floor(gx * g + (gw * g - w) / 2),
-                          Math.floor(gy * g + (gh * g - h) / 2), w, h);
-            ctx.drawImage(fc,
-                          Math.floor(gx * g + (gw * g - w) / 2),
-                          Math.floor(gy * g + (gh * g - h) / 2), w, h);
-          } else {
-            ctx.font = fontSize.toString(10) + 'px ' + settings.fontFamily;
-            if (getTextColor) {
-              ctx.fillStyle = getTextColor(word, weight,
-                                           fontSize, maxRadius - r, gxy[2]);
-            } else {
-              ctx.fillStyle = settings.wordColor;
-            }
-            ctx.fillText(word, gx * g + (gw * g - w) / 2,
-                         gy * g + (gh * g - h) / 2);
-          }
+          // Actually put the text on the canvas
+          fillText(gx, gy, info, word, weight,
+                   (maxRadius - r), gxy[2], rotate);
+
+          // Mark the spaces on the grid as filled
           if (settings.fillBox) {
-            fillGrid(gx, gy, gw, gh);
+            fillGrid(gx, gy, gw, gh, rotate);
           } else {
-            updateGrid(gx, gy, gw, gh);
+            updateGrid(gx, gy, gw, gh, info.grid, rotate);
           }
+
+          // Return true so some() will stop and also return true.
           return true;
         });
 
@@ -633,22 +753,6 @@ if (!window.clearImmediate) {
       }
       // we tried all distances but text won't fit, return false
       return false;
-    };
-
-    /* Determine if there is room available in the given dimension */
-    var canFitText = function canFitText(gx, gy, gw, gh) {
-      if (gx < 0 || gy < 0 || gx + gw > ngx || gy + gh > ngy)
-        return false;
-
-      var x = gw, y;
-      while (x--) {
-        y = gh;
-        while (y--) {
-          if (!grid[gx + x][gy + y])
-            return false;
-        }
-      }
-      return true;
     };
 
     /* Send DOM event */
@@ -663,66 +767,73 @@ if (!window.clearImmediate) {
       ngx = Math.floor(canvas.width / g);
       ngy = Math.floor(canvas.height / g);
       ctx = canvas.getContext('2d');
-      grid = [];
 
       // Determine the center of the word cloud
       center = (settings.center) ?
-          [settings.center[0]/g, settings.center[1]/g] :
-          [ngx / 2, ngy / 2];
+        [settings.center[0]/g, settings.center[1]/g] :
+        [ngx / 2, ngy / 2];
 
       // Maxium radius to look for space
       maxRadius = Math.floor(Math.sqrt(ngx * ngx + ngy * ngy));
 
-      /* Determine diffChannel and bgPixel by creating
-         another canvas and fill the specified background color */
-
-      var bctx = document.createElement('canvas').getContext('2d');
-
-      bctx.fillStyle = settings.backgroundColor;
-      bctx.fillRect(0, 0, 1, 1);
-      bgPixel = bctx.getImageData(0, 0, 1, 1).data;
-
-      if (typeof settings.wordColor !== 'function' &&
-          settings.wordColor.substr(0, 6) !== 'random') {
-        bctx.fillStyle = settings.wordColor;
-        bctx.fillRect(0, 0, 1, 1);
-        var wdPixel = bctx.getImageData(0, 0, 1, 1).data;
-
-        var i = 4;
-        while (i--) {
-          if (Math.abs(wdPixel[i] - bgPixel[i]) > 10) {
-            diffChannel = i;
-            break;
-          }
-        }
-      } else {
-        diffChannel = NaN;
-      }
-
-      bctx = undefined;
-
-      /* fill the grid with empty state */
-      var x = ngx, y;
-      while (x--) {
-        grid[x] = [];
-        y = ngy;
-        while (y--) {
-          grid[x][y] = true;
-        }
-      }
-
       /* Clear the canvas only if the clearCanvas is set,
          if not, update the grid to the current canvas state */
+      grid = [];
+
       if (settings.clearCanvas) {
         ctx.fillStyle = settings.backgroundColor;
         ctx.clearRect(0, 0, ngx * (g + 1), ngy * (g + 1));
         ctx.fillRect(0, 0, ngx * (g + 1), ngy * (g + 1));
-      } else {
-        updateGrid(0, 0, ngx, ngy, true);
-      }
 
-      /* Set the text baseline to top */
-      ctx.textBaseline = 'top';
+        /* fill the grid with empty state */
+        var gx = ngx, gy;
+        while (gx--) {
+          grid[gx] = [];
+          gy = ngy;
+          while (gy--) {
+            grid[gx][gy] = true;
+          }
+        }
+      } else {
+        /* Determine bgPixel by creating
+           another canvas and fill the specified background color */
+        var bctx = document.createElement('canvas').getContext('2d');
+
+        bctx.fillStyle = settings.backgroundColor;
+        bctx.fillRect(0, 0, 1, 1);
+        var bgPixel = bctx.getImageData(0, 0, 1, 1).data;
+
+        /* Read back the pixels of the canvas we got to tell which part of the
+           canvas is empty. */
+        var imageData = ctx.getImageData(0, 0, ngx * g, ngy * g).data;
+
+        var gx = ngx, gy, x, y, i;
+        while (gx--) {
+          grid[gx] = [];
+          gy = ngy;
+          while (gy--) {
+            y = g;
+            singleGridLoop: while (y--) {
+              x = g;
+              while (x--) {
+                i = 4;
+                while (i--) {
+                  if (imageData[((gy * g + y) * ngx * g +
+                                 (gx * g + x)) * 4 + i] !== bgPixel[i]) {
+                    grid[gx][gy] = false;
+                    break singleGridLoop;
+                  }
+                }
+              }
+            }
+            if (grid[gx][gy] !== false) {
+              grid[gx][gy] = true;
+            }
+          }
+        }
+
+        imageData = bctx = bgPixel = undefined;
+      }
 
       // Cancel the previous wordcloud action by sending wordcloudstart event
       sendEvent(canvas, 'wordcloudstart');
