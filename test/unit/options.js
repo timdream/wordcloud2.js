@@ -146,7 +146,7 @@ test('shape can be set to pentagon', function() {
 
 test('shape can be set to star', function() {
   var options = getTestOptions();
-  options.shape = 'pentagon';
+  options.shape = 'star';
 
   WordCloud(setupTest('star'), options);
 });
@@ -157,5 +157,5 @@ test('shape can be set to a given polar equation', function() {
     return theta / (2 * Math.PI);
   };
 
-  WordCloud(setupTest('star'), options);
+  WordCloud(setupTest('shape-equation'), options);
 });
