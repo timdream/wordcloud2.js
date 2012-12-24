@@ -36,8 +36,6 @@
   wordList: 2d array in for word list like [['w1', 12], ['w2', 6]]
   clearCanvas: clear canvas before drawing. Faster than running detection on
     what's already on it.
-  fillBox: true will mark the entire box containing the word as filled -
-    no subsequent smaller words can be fit in the gap.
   shape: keyword or a function that represents polar equation r = fn(theta),
     available keywords:
     'circle', (default)
@@ -215,7 +213,6 @@ if (!window.clearImmediate) {
       wordList: [],
       rotateRatio: 0.1,
       clearCanvas: true,
-      fillBox: false,
       shape: 'circle'
     };
 
@@ -594,7 +591,7 @@ if (!window.clearImmediate) {
       ctx.restore();
     };
 
-    /* Help function to fillGrid and updateGrid */
+    /* Help function to updateGrid */
     var fillGridAt = function fillGridAt(x, y, drawMask) {
       if (x >= ngx || y >= ngy || x < 0 || y < 0)
         return;
@@ -603,38 +600,6 @@ if (!window.clearImmediate) {
 
       if (drawMask)
         ctx.fillRect(x * g, y * g, maskRectWidth, maskRectWidth);
-    };
-
-    /* Mark the entire given space in the grid as filled,
-       and draw the mask on the canvas if necessary */
-    var fillGrid = function fillGrid(gx, gy, gw, gh, rotate) {
-      var drawMask = settings.drawMask;
-      if (drawMask) {
-        ctx.save();
-        ctx.fillStyle = settings.maskColor;
-      }
-
-      var x, y, px, py;
-      if (!rotate) {
-        x = gw;
-        out: while (x--) {
-          y = gh;
-          while (y--) {
-            fillGridAt(gx + x, gy + y, drawMask);
-          }
-        }
-      } else {
-        x = gh;
-        out: while (x--) {
-          y = gw;
-          while (y--) {
-            fillGridAt(gx + x, gy + y, drawMask);
-          }
-        }
-      }
-
-      if (drawMask)
-        ctx.restore();
     };
 
     /* Update the filling information of the given space by
@@ -736,11 +701,7 @@ if (!window.clearImmediate) {
                    (maxRadius - r), gxy[2], rotate);
 
           // Mark the spaces on the grid as filled
-          if (settings.fillBox) {
-            fillGrid(gx, gy, gw, gh, rotate);
-          } else {
-            updateGrid(gx, gy, gw, gh, info.grid, rotate);
-          }
+          updateGrid(gx, gy, gw, gh, info.grid, rotate);
 
           // Return true so some() will stop and also return true.
           return true;

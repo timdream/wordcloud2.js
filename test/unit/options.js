@@ -95,13 +95,6 @@ test('wordColor can be set as a function', function() {
   WordCloud(setupTest('wordColor-as-function'), options);
 });
 
-test('fillBox can be set', function() {
-  var options = getTestOptions();
-  options.fillBox = true;
-
-  WordCloud(setupTest('fillBox'), options);
-});
-
 test('shape can be set to circle', function() {
   var options = getTestOptions();
   options.shape = 'circle';
