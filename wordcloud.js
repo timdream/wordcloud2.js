@@ -475,7 +475,7 @@ if (!window.clearImmediate) {
       // Read the pixels and save the information to the grid
       var grid = [];
       var gx = fgw, gy, x, y;
-      out: while (gx--) {
+      while (gx--) {
         grid[gx] = [];
         gy = fgh;
         while (gy--) {
@@ -492,8 +492,6 @@ if (!window.clearImmediate) {
                 }
                 break singleGridLoop;
               }
-              if (exceedTime())
-                break out;
             }
           }
           if (grid[gx][gy] !== false) {
