@@ -498,7 +498,7 @@ if (!window.clearImmediate) {
               fctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
               fctx.fillRect(gx * g, gy * g, g - 0.5, g - 0.5);
             }
-          }
+          };
         }
       }
 
@@ -519,24 +519,27 @@ if (!window.clearImmediate) {
       // Go through the occopied points,
       // return false if the space is not available.
       if (!rotate) {
-        return !(occopied.some(function occopiedPoints(gxy) {
-          var px = gx + gxy[0];
-          var py = gy + gxy[1];
+        var i = occopied.length;
+        while (i--) {
+          var px = gx + occopied[i][0];
+          var py = gy + occopied[i][1];
 
           if (px >= ngx || py >= ngy || px < 0 || py < 0 || !grid[px][py]) {
-            return true;
+            return false;
           }
-        }));
+        }
+        return true;
       } else {
-        return !(occopied.some(function occopiedPoints(gxy) {
-          var px = gx + gxy[1];
-          var py = gy + gw - gxy[0] - 1;
+        var i = occopied.length;
+        while (i--) {
+          var px = gx + occopied[i][1];
+          var py = gy + gw - occopied[i][0] - 1;
 
           if (px >= ngx || py >= ngy || px < 0 || py < 0 || !grid[px][py]) {
-            return true;
+            return false;
           }
-          return false;
-        }));
+        }
+        return true;
       }
     };
 
@@ -598,13 +601,16 @@ if (!window.clearImmediate) {
       }
 
       if (!rotate) {
-        occopied.forEach(function occopiedPoints(gxy) {
-          fillGridAt(gx + gxy[0], gy + gxy[1], drawMask);
-        });
+        var i = occopied.length;
+        while (i--) {
+          fillGridAt(gx + occopied[i][0], gy + occopied[i][1], drawMask);
+        }
       } else {
-        occopied.forEach(function occopiedPoints(gxy) {
-          fillGridAt(gx + gxy[1], gy + gw - gxy[0] - 1, drawMask);
-        });
+        var i = occopied.length;
+        while (i--) {
+          fillGridAt(gx + occopied[i][1],
+                     gy + gw - occopied[i][0] - 1, drawMask);
+        }
       }
 
       if (drawMask)
