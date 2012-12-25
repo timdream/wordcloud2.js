@@ -472,34 +472,32 @@ if (!window.clearImmediate) {
       if (exceedTime())
         return false;
 
-      // Read the pixels and save the information to the grid
-      var grid = [];
+      // Read the pixels and save the information to the occopied array
+      var occopied = [];
       var gx = fgw, gy, x, y;
       while (gx--) {
-        grid[gx] = [];
         gy = fgh;
         while (gy--) {
           y = g;
-          singleGridLoop: while (y--) {
-            x = g;
-            while (x--) {
-              if (imageData[((gy * g + y) * width +
-                             (gx * g + x)) * 4 + 3]) {
-                grid[gx][gy] = false;
-                if (debug) {
-                  fctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-                  fctx.fillRect(gx * g, gy * g, g - 0.5, g - 0.5);
+          singleGridLoop: {
+            while (y--) {
+              x = g;
+              while (x--) {
+                if (imageData[((gy * g + y) * width +
+                               (gx * g + x)) * 4 + 3]) {
+                  occopied.push([gx, gy]);
+                  if (debug) {
+                    fctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                    fctx.fillRect(gx * g, gy * g, g - 0.5, g - 0.5);
+                  }
+                  break singleGridLoop;
                 }
-                break singleGridLoop;
               }
             }
-          }
-          if (grid[gx][gy] !== false) {
-            if (debug){
+            if (debug) {
               fctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
               fctx.fillRect(gx * g, gy * g, g - 0.5, g - 0.5);
             }
-            grid[gx][gy] = true;
           }
         }
       }
@@ -507,7 +505,7 @@ if (!window.clearImmediate) {
       // Return information needed to create the text on the real canvas
       return {
         mu: mu,
-        grid: grid,
+        occopied: occopied,
         gw: fgw,
         gh: fgh,
         fillTextOffsetX: fillTextOffsetX,
@@ -517,40 +515,29 @@ if (!window.clearImmediate) {
     };
 
     /* Determine if there is room available in the given dimension */
-    var canFitText = function canFitText(gx, gy, gw, gh, fgrid, rotate) {
-      // Go through the grid, return false if the space is not available
-      // and fgrid is marked as occopied.
-      var x, y, px, py;
+    var canFitText = function canFitText(gx, gy, gw, gh, occopied, rotate) {
+      // Go through the occopied points,
+      // return false if the space is not available.
       if (!rotate) {
-        x = gw;
-        while (x--) {
-          y = gh;
-          while (y--) {
-            if (!fgrid[x][y]) {
-              px = gx + x;
-              py = gy + y;
-              if (px >= ngx || py >= ngy || px < 0 || py < 0 || !grid[px][py]) {
-                return false;
-              }
-            }
+        return !(occopied.some(function occopiedPoints(gxy) {
+          var px = gx + gxy[0];
+          var py = gy + gxy[1];
+
+          if (px >= ngx || py >= ngy || px < 0 || py < 0 || !grid[px][py]) {
+            return true;
           }
-        }
+        }));
       } else {
-        x = gh;
-        while (x--) {
-          y = gw;
-          while (y--) {
-            if (!fgrid[gw - y - 1][x]) {
-              px = gx + x;
-              py = gy + y;
-              if (px >= ngx || py >= ngy || px < 0 || py < 0 || !grid[px][py]) {
-                return false;
-              }
-            }
+        return !(occopied.some(function occopiedPoints(gxy) {
+          var px = gx + gxy[1];
+          var py = gy + gw - gxy[0] - 1;
+
+          if (px >= ngx || py >= ngy || px < 0 || py < 0 || !grid[px][py]) {
+            return true;
           }
-        }
+          return false;
+        }));
       }
-      return true;
     };
 
     /* Actually draw the text on the grid */
@@ -600,9 +587,9 @@ if (!window.clearImmediate) {
         ctx.fillRect(x * g, y * g, maskRectWidth, maskRectWidth);
     };
 
-    /* Update the filling information of the given space by
-       with information in fgrid. Draw the mask on the canvas if necessary. */
-    var updateGrid = function updateGrid(gx, gy, gw, gh, fgrid, rotate) {
+    /* Update the filling information of the given space with occopied points.
+       Draw the mask on the canvas if necessary. */
+    var updateGrid = function updateGrid(gx, gy, gw, gh, occopied, rotate) {
       var maskRectWidth = g - settings.maskGridWidth;
       var drawMask = settings.drawMask;
       if (drawMask) {
@@ -610,29 +597,14 @@ if (!window.clearImmediate) {
         ctx.fillStyle = settings.maskColor;
       }
 
-      var x, y, px, py;
       if (!rotate) {
-        x = gw;
-        while (x--) {
-          y = gh;
-          while (y--) {
-            if (fgrid[x][y])
-              continue;
-
-            fillGridAt(gx + x, gy + y, drawMask);
-          }
-        }
+        occopied.forEach(function occopiedPoints(gxy) {
+          fillGridAt(gx + gxy[0], gy + gxy[1], drawMask);
+        });
       } else {
-        x = gh;
-        while (x--) {
-          y = gw;
-          while (y--) {
-            if (fgrid[gw - y - 1][x])
-              continue;
-
-            fillGridAt(gx + x, gy + y, drawMask);
-          }
-        }
+        occopied.forEach(function occopiedPoints(gxy) {
+          fillGridAt(gx + gxy[1], gy + gw - gxy[0] - 1, drawMask);
+        });
       }
 
       if (drawMask)
@@ -691,7 +663,7 @@ if (!window.clearImmediate) {
 
           // If we cannot fit the text at this position, return false
           // and go to the next position.
-          if (!canFitText(gx, gy, gw, gh, info.grid, rotate))
+          if (!canFitText(gx, gy, gw, gh, info.occopied, rotate))
             return false;
 
           // Actually put the text on the canvas
@@ -699,7 +671,7 @@ if (!window.clearImmediate) {
                    (maxRadius - r), gxy[2], rotate);
 
           // Mark the spaces on the grid as filled
-          updateGrid(gx, gy, gw, gh, info.grid, rotate);
+          updateGrid(gx, gy, gw, gh, info.occopied, rotate);
 
           // Return true so some() will stop and also return true.
           return true;
