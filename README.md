@@ -1,4 +1,4 @@
-# wordcloud.js
+# wordcloud2.js
 
 Create a tag cloud/[Wordle](http://www.wordle.net/) presentation on a HTML5 canvas element.
 
