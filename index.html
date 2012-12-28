@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>wordcloud2.js - tag cloud/Wordle presentation on HTML5 canvas element</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <!-- Le styles -->
+  <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.2/css/bootstrap-responsive.min.css" rel="stylesheet">
+  <link href="//fonts.googleapis.com/css?family=Finger+Paint" id="link-webfont" rel="stylesheet">
+  <style>
+  @media (min-width: 980px) {
+    body { padding-top: 60px; }
+  }
+  #canvas-container {
+    overflow-x: auto;
+    overflow-y: visible;
+  }
+  #canvas {
+    display: block;
+    margin: 20px auto;
+  }
+  #input-list {
+    height: 20em;
+  }
+  #config-option {
+    height: 4em;
+    font-family: monospace;
+    transition: height 0.2s ease 0.5s;
+    -webkit-transition: height 0.2s ease 0.5s; }
+  #config-option:focus {
+    height: 20em;
+    transition: height 0.2s ease;
+    -webkit-transition: height 0.2s ease; }
+  select { width: 100%; }
+
+  #loading { -webkit-animation: blink 2s infinite; }
+  @-webkit-keyframes blink {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  </style>
+  <script type="text/javascript">
+    if (window.location.hostname === 'timdream.org') {
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-4623408-2']);
+      _gaq.push(['_trackPageview']);
+    }
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+  </script>
+</head>
+<body>
+  <div class="navbar navbar-fixed-top navbar-inverse">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="brand" href="./">wordcloud2.js</a>
+        <ul class="nav">
+          <li class="active"><a href="./">Demo</a></li>
+          <li><a href="https://github.com/timdream/wordcloud2.js">Code</a></li>
+          <li><a href="https://github.com/timdream/wordcloud2.js/blob/master/README.md">README</a></li>
+          <li><a href="https://github.com/timdream/wordcloud2.js/blob/master/API.md">API</a></li>
+          <li><a href="http://timdream.org/">timdream</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <p class="lead"><strong>wordcloud2.js</strong>, tag cloud/Wordle presentation on HTML5 canvas element</p>
+    <div id="not-supported" class="alert" hidden>
+      <strong>Your browser is not supported.</strong>
+    </div>
+    <form id="form" method="get" action="">
+      <div class="row">
+        <div class="span12" id="canvas-container">
+          <canvas id="canvas"></canvas>
+        </div>
+        <div class="span6">
+          <button class="btn btn-primary" type="submit">Run</button>
+          <span id="loading" hidden>......</span>
+        </div>
+        <div class="span6">
+          <select id="examples" class="">
+            <option selected>Examples</option>
+            <option value="web-tech">Web Technologies</option>
+            <option value="les-miz">Les Misérables</option>
+            <option value="red-chamber" lang="zh-tw">紅樓夢</option>
+          </select>
+        </div>
+      </div>
+      <div class="tabbable">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#tab-list" data-toggle="tab">List</a></li>
+          <li><a href="#tab-config" data-toggle="tab">Configuration</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab-list">
+            <textarea id="input-list" placeholder="Put your list here." rows="2" cols="30" class="span12"></textarea>
+          </div>
+          <div class="tab-pane" id="tab-config">
+            <label>Options</label>
+            <textarea id="config-option" placeholder="Put your literal option object here." rows="2" cols="30" class="span12"></textarea>
+            <span class="help-block">See <a href="https://github.com/timdream/wordcloud2.js/blob/master/API.md">API</a> document for available options.</span>
+            <label for="config-width">Fix canvas width to</label>
+            <input type="number" id="config-width" class="input-small" placeholder="Pixels">
+            <label for="config-height">Fix canvas height to</label>
+            <input type="number" id="config-height" class="input-small" placeholder="Pixels">
+            <label for="config-css">Extra Web Font CSS</label>
+            <input type="url" id="config-css" size="40" class="input-xxlarge" placeholder="https://fonts.googleapis.com/css?family=Libre+Baskerville:700" value="https://fonts.googleapis.com/css?family=Finger+Paint">
+            <span class="help-block">Find your favorite font on <a href="https://www.google.com/webfonts">Google Web Fonts</a>. Re-run if the font didn't load in time.</span>
+         </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.2/bootstrap.min.js"></script>
+  <script src="./src/wordcloud2.js"></script>
+  <script>
+  'use strict';
+
+  jQuery(function ($) {
+    var $form = $('#form');
+    var $canvas = $('#canvas');
+    var $canvasContainer = $('#canvas-container');
+    var $loading = $('#loading');
+
+    var $list = $('#input-list');
+    var $options = $('#config-option');
+    var $width = $('#config-width');
+    var $height = $('#config-height');
+    var $css = $('#config-css');
+    var $webfontLink = $('#link-webfont');
+
+    if (!WordCloud.isSupported) {
+      $('#not-supported').prop('hidden', false);
+      $form.find('textarea, input, select, button').prop('disabled', true);
+      return;
+    }
+
+    $canvas.on('wordcloudstop', function wordcloudstopped(evt) {
+      $loading.prop('hidden', true);
+    });
+
+    $form.on('submit', function formSubmit(evt) {
+      evt.preventDefault();
+
+      run();
+    });
+
+    var $examples = $('#examples');
+    $examples.on('change', function loadExample(evt) {
+      loadExampleData(this.value);
+
+      $examples[0].selectedIndex = 0;
+      $form.submit();
+      $examples.blur();
+    });
+
+    var run = function run() {
+      $loading.prop('hidden', false);
+
+      // Load web font
+      $webfontLink.prop('href', $css.val());
+
+      // Set the width and height
+      $canvas.attr('width',
+          $width.val() ? $width.val() : $('#canvas-container').width());
+      $canvas.attr('height',
+          $width.val() ? $height.val() : $('#canvas-container').width() * 0.65);
+
+      // Set the options object
+      var options = {};
+      if ($options.val()) {
+        options = (function evalOptions() {
+          try {
+            return eval('(' + $options.val() + ')');
+          } catch (e) {
+            return {};
+          }
+        })();
+      }
+
+      // Put the word list into options
+      if ($list.val()) {
+        var wordList = [];
+        $.each($list.val().split('\n'), function each(i, line) {
+          if (!$.trim(line))
+            return;
+
+          var lineArr = line.split(' ');
+          var count = parseFloat(lineArr.shift()) || 0;
+          wordList.push([lineArr.join(' '), count]);
+        });
+        options.wordList = wordList;
+      }
+
+      // All set, call the WordCloud();
+      WordCloud($canvas[0], options);
+    };
+
+    var loadExampleData = function loadExampleData(name) {
+      var example = examples[name];
+
+      $options.val(example.option || '');
+      $list.val(example.list || '');
+      $css.val(example.fontCSS || '');
+    };
+
+    loadExampleData('web-tech');
+    run();
+  });
+
+  var examples = {
+    'web-tech': {
+      list: '26 Web Technologies\n' +
+            '20 HTML\n' +
+            '20 <canvas>\n' +
+            '15 CSS\n' +
+            '15 JavaScript\n' +
+            '12 Document Object Model\n' +
+            '12 <audio>\n' +
+            '12 <video>\n' +
+            '12 Web Workers\n' +
+            '12 XMLHttpRequest\n' +
+            '12 SVG\n' +
+            '9 JSON.parse()\n' +
+            '9 Geolocation\n' +
+            '9 data attribute\n' +
+            '9 transform\n' +
+            '9 transition\n' +
+            '9 animation\n' +
+            '7 setTimeout\n' +
+            '7 @font-face\n' +
+            '7 Typed Arrays\n' +
+            '7 FileReader API\n' +
+            '7 FormData\n' +
+            '7 IndexedDB\n' +
+            '7 getUserMedia()\n' +
+            '7 postMassage()\n' +
+            '7 CORS\n' +
+            '6 strict mode\n' +
+            '6 calc()\n' +
+            '6 supports()\n' +
+            '6 media queries\n' +
+            '6 full screen\n' +
+            '6 notification\n' +
+            '6 orientation\n' +
+            '6 requestAnimationFrame\n' +
+            '5 border-radius\n' +
+            '5 box-sizing\n' +
+            '5 rgba()\n' +
+            '5 text-shadow\n' +
+            '5 box-shadow\n' +
+            '5 flexbox\n' +
+            '5 viewpoint',
+      option: '{\n' +
+              '  gridSize: 18,\n' +
+              '  weightFactor: 3,\n' +
+              '  fontFamily: \'Finger Paint, cursive, sans-serif\',\n' +
+              '  wordColor: \'#f0f0c0\',\n' +
+              '  backgroundColor: \'#001f00\'\n' +
+              '}',
+      fontCSS: 'https://fonts.googleapis.com/css?family=Finger+Paint'
+    },
+    'les-miz': {
+      list: '30 Les Misérables\n' +
+            '20 Victor Hugo\n' +
+            '15 Jean Valjean\n' +
+            '15 Javert\n' +
+            '15 Fantine\n' +
+            '15 Cosette\n' +
+            '12 Éponine\n' +
+            '12 Marius\n' +
+            '12 Enjolras\n' +
+            '10 Thénardiers\n' +
+            '10 Gavroche\n' +
+            '10 Bishop Myriel\n' +
+            '10 Patron-Minette\n' +
+            '10 God\n' +
+            '8 ABC Café\n' +
+            '8 Paris\n' +
+            '8 Digne\n' +
+            '8 Elephant of the Bastille\n' +
+            '5 silverware\n' +
+            '5 Bagne of Toulon\n' +
+            '5 loaf of bread\n' +
+            '5 Rue Plumet\n' +
+            '5 revolution\n' +
+            '5 barricade\n' +
+            '4 sewers\n' +
+            '4 Fex urbis lex orbis',
+      option: '{\n' +
+            '  gridSize: 18,\n' +
+            '  weightFactor: 3,\n' +
+            '  fontFamily: \'Average, Times, serif\',\n' +
+            '  wordColor: function() {\n' +
+            '    return ([\'#d0d0d0\', \'#e11\', \'#44f\'])[Math.floor(Math.random() * 3)]\n' +
+            '  },\n' +
+            '  backgroundColor: \'#333\'\n' +
+            '}',
+      fontCSS: 'https://fonts.googleapis.com/css?family=Average'
+    },
+    'red-chamber': {
+      list: '6 紅樓夢\n' +
+            '3 賈寶玉\n' +
+            '3 林黛玉\n' +
+            '3 薛寶釵\n' +
+            '3 王熙鳳\n' +
+            '3 李紈\n' +
+            '3 賈元春\n' +
+            '3 賈迎春\n' +
+            '3 賈探春\n' +
+            '3 賈惜春\n' +
+            '3 秦可卿\n' +
+            '3 賈巧姐\n' +
+            '3 史湘雲\n' +
+            '3 妙玉\n' +
+            '2 賈政\n' +
+            '2 賈赦\n' +
+            '2 賈璉\n' +
+            '2 賈珍\n' +
+            '2 賈環\n' +
+            '2 賈母\n' +
+            '2 王夫人\n' +
+            '2 薛姨媽\n' +
+            '2 尤氏\n' +
+            '2 平兒\n' +
+            '2 鴛鴦\n' +
+            '2 襲人\n' +
+            '2 晴雯\n' +
+            '2 香菱\n' +
+            '2 紫鵑\n' +
+            '2 麝月\n' +
+            '2 小紅\n' +
+            '2 金釧\n' +
+            '2 甄士隱\n' +
+            '2 賈雨村',
+      option: '{\n' +
+              '  gridSize: 8,\n' +
+              '  weightFactor: 16,\n' +
+              '  fontFamily: \'Hiragino Mincho Pro, serif\',\n' +
+              '  wordColor: \'random-dark\',\n' +
+              '  backgroundColor: \'#f0f0f0\',\n' +
+              '  rotateRatio: 0\n' +
+              '}'
+    }
+  };
+  </script>
+</body>
+</html>
