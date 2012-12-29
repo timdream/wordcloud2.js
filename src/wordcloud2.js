@@ -544,7 +544,7 @@ if (!window.clearImmediate) {
     };
 
     /* Actually draw the text on the grid */
-    var fillText = function fillText(gx, gy, info, word, weight,
+    var drawText = function drawText(gx, gy, info, word, weight,
                                      distance, theta, rotate) {
       var fontSize = info.fontSize;
       var mu = info.mu;
@@ -673,7 +673,7 @@ if (!window.clearImmediate) {
             return false;
 
           // Actually put the text on the canvas
-          fillText(gx, gy, info, word, weight,
+          drawText(gx, gy, info, word, weight,
                    (maxRadius - r), gxy[2], rotate);
 
           // Mark the spaces on the grid as filled
