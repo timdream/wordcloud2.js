@@ -22,18 +22,9 @@
     display: block;
     margin: 20px auto;
   }
-  #input-list {
+  textarea {
     height: 20em;
   }
-  #config-option {
-    height: 4em;
-    font-family: monospace;
-    transition: height 0.2s ease 0.5s;
-    -webkit-transition: height 0.2s ease 0.5s; }
-  #config-option:focus {
-    height: 20em;
-    transition: height 0.2s ease;
-    -webkit-transition: height 0.2s ease; }
   select { width: 100%; }
 
   #loading { -webkit-animation: blink 2s infinite; }
@@ -101,19 +92,33 @@
         <ul class="nav nav-tabs">
           <li class="active"><a href="#tab-list" data-toggle="tab">List</a></li>
           <li><a href="#tab-config" data-toggle="tab">Configuration</a></li>
+          <li><a href="#tab-dim" data-toggle="tab">Dimension</a></li>
+          <li><a href="#tab-webfont" data-toggle="tab">Web Font</a></li>
         </ul>
         <div class="tab-content">
           <div class="tab-pane active" id="tab-list">
             <textarea id="input-list" placeholder="Put your list here." rows="2" cols="30" class="span12"></textarea>
           </div>
           <div class="tab-pane" id="tab-config">
-            <label>Options</label>
+            <label>Options as a literal Javascript object</label>
             <textarea id="config-option" placeholder="Put your literal option object here." rows="2" cols="30" class="span12"></textarea>
             <span class="help-block">See <a href="https://github.com/timdream/wordcloud2.js/blob/master/API.md">API</a> document for available options.</span>
-            <label for="config-width">Fix canvas width to</label>
-            <input type="number" id="config-width" class="input-small" placeholder="Pixels">
-            <label for="config-height">Fix canvas height to</label>
-            <input type="number" id="config-height" class="input-small" placeholder="Pixels">
+          </div>
+          <div class="tab-pane" id="tab-dim">
+            <label for="config-width">Width</label>
+            <div class="input-append">
+              <input type="number" id="config-width" class="input-small" min="1">
+              <span class="add-on">px</span>
+            </div>
+            <span class="help-block">Leave blank to use page width.</span>
+            <label for="config-height">Height</label>
+            <div class="input-append">
+              <input type="number" id="config-height" class="input-small" min="1">
+              <span class="add-on">px</span>
+            </div>
+            <span class="help-block">Leave blank to use 0.65x of the width.</span>
+          </div>
+          <div class="tab-pane" id="tab-webfont">
             <label for="config-css">Extra Web Font CSS</label>
             <input type="url" id="config-css" size="40" class="input-xxlarge" placeholder="https://fonts.googleapis.com/css?family=Libre+Baskerville:700" value="https://fonts.googleapis.com/css?family=Finger+Paint">
             <span class="help-block">Find your favorite font on <a href="https://www.google.com/webfonts">Google Web Fonts</a>. Re-run if the font didn't load in time.</span>
