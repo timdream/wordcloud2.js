@@ -90,6 +90,7 @@
           <select id="examples" class="">
             <option selected>Examples</option>
             <option value="web-tech">Web Technologies</option>
+            <option value="quick-fox">The quick brown fox</option>
             <option value="les-miz">Les Misérables</option>
             <option value="red-chamber" lang="zh-tw">紅樓夢</option>
           </select>
@@ -212,6 +213,8 @@
       $options.val(example.option || '');
       $list.val(example.list || '');
       $css.val(example.fontCSS || '');
+      $width.val(example.width || '');
+      $height.val(example.height || '');
     };
 
     loadExampleData('web-tech');
@@ -351,6 +354,29 @@
               '  backgroundColor: \'#f0f0f0\',\n' +
               '  rotateRatio: 0\n' +
               '}'
+    },
+    'quick-fox': {
+      list: '2 The\n' +
+            '2 quick\n' +
+            '3 brown\n' +
+            '5 fox\n' +
+            '3 jumps\n' +
+            '3 over\n' +
+            '3.5 the\n' +
+            '3 lazy\n' +
+            '6 dog\n',
+      option: '{\n' +
+              '  gridSize: 16,\n' +
+              '  weightFactor: 16,\n' +
+              '  center: [90, 0],\n' +
+              '  fontFamily: \'Times, serif\',\n' +
+              '  wordColor: \'random-light\',\n' +
+              '  backgroundColor: \'#000\',\n' +
+              '  shuffle: false,\n' +
+              '  rotateRatio: 0\n' +
+              '}',
+      width: 180,
+      height: 480
     }
   };
   </script>
