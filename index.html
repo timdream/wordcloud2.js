@@ -175,7 +175,7 @@
       $canvas.attr('width',
           $width.val() ? $width.val() : $('#canvas-container').width());
       $canvas.attr('height',
-          $width.val() ? $height.val() : $('#canvas-container').width() * 0.65);
+          $height.val() ? $height.val() : $canvas.attr('width') * 0.65);
 
       // Set the options object
       var options = {};
