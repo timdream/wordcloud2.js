@@ -84,6 +84,7 @@
         </div>
         <div class="span6">
           <button class="btn btn-primary" type="submit">Run</button>
+          <a class="btn" id="btn-save" href="#" download="wordcloud.png">Save</a>
           <span id="loading" hidden>......</span>
         </div>
         <div class="span6">
@@ -154,6 +155,18 @@
       evt.preventDefault();
 
       run();
+    });
+
+    $('#btn-save').on('click', function save(evt) {
+      var url = $canvas[0].toDataURL();
+      if ('download' in document.createElement('a')) {
+        this.href = url;
+      } else {
+        evt.preventDefault();
+        alert('Please right click and choose "Save As..." to save the generated image.');
+        window.open(url, '_blank', 'width=500,height=300,menubar=yes');
+      }
+
     });
 
     var $examples = $('#examples');
