@@ -21,6 +21,7 @@
   #canvas {
     display: block;
     margin: 20px auto;
+    max-height: 100%;
   }
   textarea {
     height: 20em;
@@ -244,47 +245,13 @@
 
   var examples = {
     'web-tech': {
-      list: '26 Web Technologies\n' +
-            '20 HTML\n' +
-            '20 <canvas>\n' +
-            '15 CSS\n' +
-            '15 JavaScript\n' +
-            '12 Document Object Model\n' +
-            '12 <audio>\n' +
-            '12 <video>\n' +
-            '12 Web Workers\n' +
-            '12 XMLHttpRequest\n' +
-            '12 SVG\n' +
-            '9 JSON.parse()\n' +
-            '9 Geolocation\n' +
-            '9 data attribute\n' +
-            '9 transform\n' +
-            '9 transition\n' +
-            '9 animation\n' +
-            '7 setTimeout\n' +
-            '7 @font-face\n' +
-            '7 Typed Arrays\n' +
-            '7 FileReader API\n' +
-            '7 FormData\n' +
-            '7 IndexedDB\n' +
-            '7 getUserMedia()\n' +
-            '7 postMassage()\n' +
-            '7 CORS\n' +
-            '6 strict mode\n' +
-            '6 calc()\n' +
-            '6 supports()\n' +
-            '6 media queries\n' +
-            '6 full screen\n' +
-            '6 notification\n' +
-            '6 orientation\n' +
-            '6 requestAnimationFrame\n' +
-            '5 border-radius\n' +
-            '5 box-sizing\n' +
-            '5 rgba()\n' +
-            '5 text-shadow\n' +
-            '5 box-shadow\n' +
-            '5 flexbox\n' +
-            '5 viewpoint',
+      list: '26 Web Technologies\n20 HTML\n20 <canvas>\n' +
+            '15 CSS\n15 JavaScript\n12 Document Object Model\n12 <audio>\n12 <video>\n12 Web Workers\n12 XMLHttpRequest\n12 SVG\n' +
+            '9 JSON.parse()\n9 Geolocation\n9 data attribute\n9 transform\n9 transition\n9 animation\n' +
+            '7 setTimeout\n7 @font-face\n7 Typed Arrays\n7 FileReader API\n7 FormData\n7 IndexedDB\n' +
+            '7 getUserMedia()\n7 postMassage()\n7 CORS\n6 strict mode\n6 calc()\n6 supports()\n' +
+            '6 media queries\n6 full screen\n6 notification\n6 orientation\n6 requestAnimationFrame\n' +
+            '5 border-radius\n5 box-sizing\n5 rgba()\n5 text-shadow\n5 box-shadow\n5 flexbox\n5 viewpoint',
       option: '{\n' +
               '  gridSize: 18,\n' +
               '  weightFactor: 3,\n' +
@@ -295,32 +262,11 @@
       fontCSS: 'https://fonts.googleapis.com/css?family=Finger+Paint'
     },
     'les-miz': {
-      list: '30 Les Misérables\n' +
-            '20 Victor Hugo\n' +
-            '15 Jean Valjean\n' +
-            '15 Javert\n' +
-            '15 Fantine\n' +
-            '15 Cosette\n' +
-            '12 Éponine\n' +
-            '12 Marius\n' +
-            '12 Enjolras\n' +
-            '10 Thénardiers\n' +
-            '10 Gavroche\n' +
-            '10 Bishop Myriel\n' +
-            '10 Patron-Minette\n' +
-            '10 God\n' +
-            '8 ABC Café\n' +
-            '8 Paris\n' +
-            '8 Digne\n' +
-            '8 Elephant of the Bastille\n' +
-            '5 silverware\n' +
-            '5 Bagne of Toulon\n' +
-            '5 loaf of bread\n' +
-            '5 Rue Plumet\n' +
-            '5 revolution\n' +
-            '5 barricade\n' +
-            '4 sewers\n' +
-            '4 Fex urbis lex orbis',
+      list: '30 Les Misérables\n20 Victor Hugo\n15 Jean Valjean\n15 Javert\n15 Fantine\n' +
+            '15 Cosette\n12 Éponine\n12 Marius\n12 Enjolras\n10 Thénardiers\n10 Gavroche\n' +
+            '10 Bishop Myriel\n10 Patron-Minette\n10 God\n8 ABC Café\n8 Paris\n8 Digne\n' +
+            '8 Elephant of the Bastille\n5 silverware\n5 Bagne of Toulon\n5 loaf of bread\n' +
+            '5 Rue Plumet\n5 revolution\n5 barricade\n4 sewers\n4 Fex urbis lex orbis',
       option: '{\n' +
             '  gridSize: 18,\n' +
             '  weightFactor: 3,\n' +
@@ -333,40 +279,10 @@
       fontCSS: 'https://fonts.googleapis.com/css?family=Average'
     },
     'red-chamber': {
-      list: '6 紅樓夢\n' +
-            '3 賈寶玉\n' +
-            '3 林黛玉\n' +
-            '3 薛寶釵\n' +
-            '3 王熙鳳\n' +
-            '3 李紈\n' +
-            '3 賈元春\n' +
-            '3 賈迎春\n' +
-            '3 賈探春\n' +
-            '3 賈惜春\n' +
-            '3 秦可卿\n' +
-            '3 賈巧姐\n' +
-            '3 史湘雲\n' +
-            '3 妙玉\n' +
-            '2 賈政\n' +
-            '2 賈赦\n' +
-            '2 賈璉\n' +
-            '2 賈珍\n' +
-            '2 賈環\n' +
-            '2 賈母\n' +
-            '2 王夫人\n' +
-            '2 薛姨媽\n' +
-            '2 尤氏\n' +
-            '2 平兒\n' +
-            '2 鴛鴦\n' +
-            '2 襲人\n' +
-            '2 晴雯\n' +
-            '2 香菱\n' +
-            '2 紫鵑\n' +
-            '2 麝月\n' +
-            '2 小紅\n' +
-            '2 金釧\n' +
-            '2 甄士隱\n' +
-            '2 賈雨村',
+      list: '6 紅樓夢\n3 賈寶玉\n3 林黛玉\n3 薛寶釵\n3 王熙鳳\n3 李紈\n3 賈元春\n3 賈迎春\n' +
+            '3 賈探春\n3 賈惜春\n3 秦可卿\n3 賈巧姐\n3 史湘雲\n3 妙玉\n2 賈政\n2 賈赦\n' +
+            '2 賈璉\n2 賈珍\n2 賈環\n2 賈母\n2 王夫人\n2 薛姨媽\n2 尤氏\n2 平兒\n2 鴛鴦\n' +
+            '2 襲人\n2 晴雯\n2 香菱\n2 紫鵑\n2 麝月\n2 小紅\n2 金釧\n2 甄士隱\n2 賈雨村',
       option: '{\n' +
               '  gridSize: 8,\n' +
               '  weightFactor: 16,\n' +
@@ -377,15 +293,7 @@
               '}'
     },
     'quick-fox': {
-      list: '2 The\n' +
-            '2 quick\n' +
-            '3 brown\n' +
-            '5 fox\n' +
-            '3 jumps\n' +
-            '3 over\n' +
-            '3.5 the\n' +
-            '3 lazy\n' +
-            '6 dog\n',
+      list: '2 The\n2 quick\n3 brown\n5 fox\n3 jumps\n3 over\n3.5 the\n3 lazy\n6 dog\n',
       option: '{\n' +
               '  gridSize: 16,\n' +
               '  weightFactor: 16,\n' +
