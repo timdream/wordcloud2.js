@@ -85,6 +85,7 @@
         <div class="span6">
           <select id="examples" class="">
             <option selected>Examples</option>
+            <option value="love">Love of the world</option>
             <option value="web-tech">Web Technologies</option>
             <option value="quick-fox">The quick brown fox</option>
             <option value="les-miz">Les Misérables</option>
@@ -239,7 +240,7 @@
       $height.val(example.height || '');
     };
 
-    loadExampleData('web-tech');
+    loadExampleData('love');
     run();
   });
 
@@ -306,6 +307,43 @@
               '}',
       width: 180,
       height: 480
+    },
+    'love' : {
+      list: (function generateLoveList() {
+        var list = ['12 Love'];
+        var nums = [5, 4, 3, 2, 2];
+        // This list of the word "Love" in language of the world was taken from
+        // the Language links of entry "Love" in English Wikipedia, with duplicate
+        // spelling removed.
+        var words = ('Liebe,ፍቅር,Lufu,حب,Aimor,Amor,Heyran,ভালোবাসা,Каханне,Любоў,Любов,བརྩེ་དུང་།,' +
+          'Ljubav,Karantez,Юрату,Láska,Amore,Cariad,Kærlighed,Armastus,Αγάπη,Amo,Amol,Maitasun,' +
+          'عشق,Pyar,Amour,Leafde,Gràdh,愛,爱,પ્રેમ,사랑,Սեր,Ihunanya,Cinta,ᑕᑯᑦᓱᒍᓱᑉᐳᖅ,Ást,אהבה,' +
+          'ಪ್ರೀತಿ,სიყვარული,Махаббат,Pendo,Сүйүү,Mīlestība,Meilė,Leefde,Bolingo,Szerelem,' +
+          'Љубов,സ്നേഹം,Imħabba,प्रेम,Ái,Хайр,အချစ်,Tlazohtiliztli,Liefde,माया,मतिना,' +
+          'Kjærlighet,Kjærleik,ପ୍ରେମ,Sevgi,ਪਿਆਰ,پیار,Miłość,Leevde,Dragoste,' +
+          'Khuyay,Любовь,Таптал,Dashuria,Amuri,ආදරය,Ljubezen,Jaceyl,خۆشەویستی,Љубав,Rakkaus,' +
+          'Kärlek,Pag-ibig,காதல்,ప్రేమ,ความรัก,Ишқ,Aşk,محبت,Tình yêu,Higugma,ליבע').split(',');
+
+        nums.forEach(function(n) {
+          words.forEach(function(w) {
+            list.push(n + ' ' + w);
+          });
+        });
+
+        return list.join('\n');
+      })(),
+      option: '{\n' +
+        '  gridSize: Math.round(16 * $(\'#canvas\').prop(\'width\') / 1024),\n' +
+        '  weightFactor: function (size) {\n' +
+        '    return Math.pow(size, 2.3) * $(\'#canvas\').prop(\'width\') / 1024;\n' +
+        '  },\n' +
+        '  fontFamily: \'serif\',\n' +
+        '  wordColor: function (word, weight) {\n' +
+        '    return (weight === 12) ? \'#f02222\' : \'#c09292\';\n' +
+        '  },\n' +
+        '  rotateRatio: 0,\n' +
+        '  backgroundColor: \'#ffe0e0\'\n' +
+        '}'
     }
   };
   </script>
