@@ -206,7 +206,9 @@
         options = (function evalOptions() {
           try {
             return eval('(' + $options.val() + ')');
-          } catch (e) {
+          } catch (error) {
+            alert('The following Javascript error occurred in the option definition; all option will be ignored: \n\n' +
+              error.toString());
             return {};
           }
         })();
