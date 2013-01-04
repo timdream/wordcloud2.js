@@ -164,7 +164,7 @@
     $form.on('submit', function formSubmit(evt) {
       evt.preventDefault();
 
-      run();
+      changeHash('');
     });
 
     $('#btn-save').on('click', function save(evt) {
@@ -181,10 +181,9 @@
 
     var $examples = $('#examples');
     $examples.on('change', function loadExample(evt) {
-      loadExampleData(this.value);
+      changeHash(this.value);
 
-      $examples[0].selectedIndex = 0;
-      $form.submit();
+      this.selectedIndex = 0;
       $examples.blur();
     });
 
@@ -242,8 +241,42 @@
       $height.val(example.height || '');
     };
 
-    loadExampleData('love');
-    run();
+    var changeHash = function changeHash(name) {
+      if (window.location.hash === '#' + name ||
+          (!window.location.hash && !name)) {
+        // We got a same hash, call hashChanged() directly
+        hashChanged();
+      } else {
+        // Actually change the hash to invoke hashChanged()
+        window.location.hash = '#' + name;
+      }
+    };
+
+    var hashChanged = function hashChanged() {
+      var name = window.location.hash.substr(1);
+      if (!name) {
+        // If there is no name, run as-is.
+        run();
+      } else if (name in examples) {
+        // If the name matches one of the example, load it and run it
+        loadExampleData(name);
+        run();
+      } else {
+        // If the name doesn't match, reset it.
+        window.location.replace('#');
+      }
+    }
+
+    $(window).on('hashchange', hashChanged);
+
+    if (!window.location.hash ||
+      !(window.location.hash.substr(1) in examples)) {
+      // If the initial hash doesn't match to any of the examples,
+      // or it doesn't exist, reset it to #love
+      window.location.replace('#love');
+    } else {
+      hashChanged();
+    }
   });
 
   var examples = {
