@@ -121,6 +121,12 @@
               <span class="add-on">px</span>
             </div>
             <span class="help-block">Leave blank to use 0.65x of the width.</span>
+            <label for="config-height">Device pixel density</label>
+            <div class="input-append">
+              <input type="number" id="config-dpi" class="input-mini" min="1" value="1" required>
+              <span class="add-on">x</span>
+            </div>
+            <span class="help-block">Adjust the weight, grid size, and canvas pixel size for high pixel density displays.</span>
           </div>
           <div class="tab-pane" id="tab-webfont">
             <label for="config-css">Extra Web Font CSS</label>
@@ -147,6 +153,7 @@
     var $options = $('#config-option');
     var $width = $('#config-width');
     var $height = $('#config-height');
+    var $dpi = $('#config-dpi');
     var $css = $('#config-css');
     var $webfontLink = $('#link-webfont');
 
@@ -154,6 +161,12 @@
       $('#not-supported').prop('hidden', false);
       $form.find('textarea, input, select, button').prop('disabled', true);
       return;
+    }
+
+    // Update the default value if we are running in a hdpi device
+    if (('devicePixelRatio' in window) &&
+        window.devicePixelRatio !== 1) {
+      $dpi.val(window.devicePixelRatio);
     }
 
     $canvas.on('wordcloudstop', function wordcloudstopped(evt) {
@@ -192,11 +205,24 @@
       // Load web font
       $webfontLink.prop('href', $css.val());
 
+      // devicePixelRatio
+      var devicePixelRatio = parseInt($dpi.val());
+
       // Set the width and height
-      $canvas.attr('width',
-          $width.val() ? $width.val() : $('#canvas-container').width());
-      $canvas.attr('height',
-          $height.val() ? $height.val() : $canvas.attr('width') * 0.65);
+      var width = $width.val() ? $width.val() : $('#canvas-container').width();
+      var height = $height.val() ? $height.val() : Math.floor(width * 0.65);
+
+      if (devicePixelRatio !== 1) {
+        $canvas.css({'width': width + 'px', 'height': height + 'px'});
+
+        width *= devicePixelRatio;
+        height *= devicePixelRatio;
+      } else {
+        $canvas.css({'width': '', 'height': '' });
+      }
+
+      $canvas.attr('width', width);
+      $canvas.attr('height', height);
 
       // Set the options object
       var options = {};
@@ -210,6 +236,34 @@
             return {};
           }
         })();
+      }
+
+      // Set devicePixelRatio options
+      if (devicePixelRatio !== 1) {
+        if (!('gridSize' in options)) {
+          options.gridSize = 8;
+        }
+        options.gridSize *= devicePixelRatio;
+
+        if (options.center) {
+          if (typeof options.center[0] == 'number')
+            options.center[0] *= devicePixelRatio;
+          if (typeof options.center[1] == 'number')
+            options.center[1] *= devicePixelRatio;
+        }
+
+        if (!('weightFactor' in options)) {
+          options.weightFactor = 1;
+        }
+        if (typeof options.weightFactor == 'function') {
+          var origWeightFactor = options.weightFactor;
+          options.weightFactor =
+            function weightFactorDevicePixelRatioWrap() {
+              return origWeightFactor.apply(this, arguments) * devicePixelRatio;
+            };
+        } else {
+          options.weightFactor *= devicePixelRatio;
+        }
       }
 
       // Put the word list into options
@@ -367,9 +421,9 @@
         return list.join('\n');
       })(),
       option: '{\n' +
-        '  gridSize: Math.round(16 * $(\'#canvas\').prop(\'width\') / 1024),\n' +
+        '  gridSize: Math.round(16 * $(\'#canvas\').width() / 1024),\n' +
         '  weightFactor: function (size) {\n' +
-        '    return Math.pow(size, 2.3) * $(\'#canvas\').prop(\'width\') / 1024;\n' +
+        '    return Math.pow(size, 2.3) * $(\'#canvas\').width() / 1024;\n' +
         '  },\n' +
         '  fontFamily: \'serif\',\n' +
         '  wordColor: function (word, weight) {\n' +
