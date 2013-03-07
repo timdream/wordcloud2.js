@@ -1,51 +1,10 @@
-/*! wordcloud.js - Tag cloud/Wordle presentation on HTML5 canvas element.
-
-  Author: timdream <http://timc.idv.tw/>
-
- Usage:
-  WordCloud(canvas, settings);
-  - draw word cloud on canvas element.
-  WordCloud.isSupported
-  - return true if the browser checks out
-  WordCloud.miniumFontSize
-  - return minium font size enforced by the browser
-
- available settings
-  fontFamily: font list for text.
-  gridSize: 8,
-  ellipticity: ellipticity of the circle formed by word.
-  center: [x,y] of the center of the circle. Set false to use center of canvas.
-  drawMask: true to debug mask to show area covered by word.
-  maskColor: color of the debug mask.
-  maskGridWidth: width of the mask grid border.
-  shuffle: introduce randomness when looking for place to put the word.
-  wordColor: color for word, could be one of the following:
-    [CSS color value],
-    'random-dark', (default)
-    'random-light',
-    [function(word, weight, fontSize, radius, theta)]
-  backgroundColor: background to cover entire canvas or the detect against.
-  wait: wait N ms before drawing next word.
-  abortThreshold: abort and execute about() when the browser took more than N ms
-    to draw a word. 0 to disable.
-  abort: abort handler.
-  weightFactor:
-  minSize: minium font size in pixel to draw
-    (default: WordCloud.miniumFontSize / 2, larger than that is still look good
-     using bilinear sampling in browser)
-  wordList: 2d array in for word list like [['w1', 12], ['w2', 6]]
-  clearCanvas: clear canvas before drawing. Faster than running detection on
-    what's already on it.
-  shape: keyword or a function that represents polar equation r = fn(theta),
-    available keywords:
-    'circle', (default)
-    'cardioid', (apple or heart shape curve, the most known polar equation)
-    'diamond', (alias: 'square'),
-    'triangle-forward',
-    'triangle', (alias: 'triangle-upright')
-    'pentagon',
-    'star'
-*/
+/*!
+ * wordcloud2.js
+ * http://timdream.org/wordcloud2.js/
+ *
+ * Copyright 2011 - 2013 Tim Chien
+ * Released under the MIT license
+ */
 
 'use strict';
 
@@ -106,7 +65,7 @@ if (!window.setImmediate) {
     // fallback
     function setImmediateFallback(fn) {
       window.setTimeout(fn, 0);
-    }
+    };
   })();
 }
 
@@ -120,7 +79,7 @@ if (!window.clearImmediate) {
     // fallback
     function clearImmediateFallback(timer) {
       window.clearTimeout(timer);
-    }
+    };
   })();
 }
 
@@ -194,26 +153,31 @@ if (!window.clearImmediate) {
 
     /* Default values to be overwritten by options object */
     var settings = {
+      list: [],
       fontFamily: '"Trebuchet MS", "Heiti TC", "微軟正黑體", ' +
                   '"Arial Unicode MS", "Droid Fallback Sans", sans-serif',
+      color: 'random-dark',
+      minSize: 0, // 0 to disable
+      weightFactor: 1,
+      clearCanvas: true,
+      backgroundColor: '#fff',  // opaque white = rgba(255, 255, 255, 1)
+
       gridSize: 8,
-      ellipticity: 0.65,
-      center: false,
+      origin: null,
+
       drawMask: false,
       maskColor: 'rgba(255,0,0,0.3)',
-      maskGridWidth: 0.3,
-      wordColor: 'random-dark',
-      backgroundColor: '#fff',  // opaque white = rgba(255, 255, 255, 1)
+      maskGapWidth: 0.3,
+
       wait: 0,
-      shuffle: true,
       abortThreshold: 0, // disabled
       abort: function noop() {},
-      weightFactor: 1,
-      minSize: 0, // 0 to disable
-      wordList: [],
+
+      shuffle: true,
       rotateRatio: 0.1,
-      clearCanvas: true,
-      shape: 'circle'
+
+      shape: 'circle',
+      ellipticity: 0.65
     };
 
     if (options) {
@@ -317,7 +281,7 @@ if (!window.clearImmediate) {
 
     /* shorthand */
     var g = settings.gridSize;
-    var maskRectWidth = g - settings.maskGridWidth;
+    var maskRectWidth = g - settings.maskGapWidth;
 
     /* information/object available to all functions, set when start() */
     var ctx, // canvas context
@@ -331,7 +295,7 @@ if (!window.clearImmediate) {
 
     /* function for getting the color of the text */
     var getTextColor;
-    switch (settings.wordColor) {
+    switch (settings.color) {
       case 'random-dark':
         getTextColor = function getRandomDarkColor() {
           return 'rgb(' +
@@ -351,8 +315,8 @@ if (!window.clearImmediate) {
         break;
 
       default:
-        if (typeof settings.wordColor === 'function') {
-          getTextColor = settings.wordColor;
+        if (typeof settings.color === 'function') {
+          getTextColor = settings.color;
         }
         break;
     }
@@ -390,7 +354,7 @@ if (!window.clearImmediate) {
 
       pointsAtRadius[radius] = points;
       return points;
-    }
+    };
 
     /* Return true if we had spent too much time */
     var exceedTime = function exceedTime() {
@@ -557,7 +521,7 @@ if (!window.clearImmediate) {
       if (getTextColor) {
         ctx.fillStyle = getTextColor(word, weight, fontSize, distance, theta);
       } else {
-        ctx.fillStyle = settings.wordColor;
+        ctx.fillStyle = settings.color;
       }
       ctx.textBaseline = 'alphabetic';
 
@@ -593,7 +557,7 @@ if (!window.clearImmediate) {
     /* Update the filling information of the given space with occopied points.
        Draw the mask on the canvas if necessary. */
     var updateGrid = function updateGrid(gx, gy, gw, gh, occopied, rotate) {
-      var maskRectWidth = g - settings.maskGridWidth;
+      var maskRectWidth = g - settings.maskGapWidth;
       var drawMask = settings.drawMask;
       if (drawMask) {
         ctx.save();
@@ -617,7 +581,7 @@ if (!window.clearImmediate) {
         ctx.restore();
     };
 
-    /* putWord() processes each item on the wordList,
+    /* putWord() processes each item on the list,
        calculate it's size and determine it's position, and actually
        put it on the canvas. */
     var putWord = function putWord(word, weight) {
@@ -706,8 +670,8 @@ if (!window.clearImmediate) {
       ctx = canvas.getContext('2d');
 
       // Determine the center of the word cloud
-      center = (settings.center) ?
-        [settings.center[0]/g, settings.center[1]/g] :
+      center = (settings.origin) ?
+        [settings.origin[0]/g, settings.origin[1]/g] :
         [ngx / 2, ngy / 2];
 
       // Maxium radius to look for space
@@ -792,13 +756,13 @@ if (!window.clearImmediate) {
         });
 
       var timer = loopingFunction(function loop() {
-        if (i >= settings.wordList.length) {
+        if (i >= settings.list.length) {
           stoppingFunction(timer);
           sendEvent(canvas, 'wordcloudstop');
           return;
         }
         escapeTime = (new Date()).getTime();
-        putWord(settings.wordList[i][0], settings.wordList[i][1]);
+        putWord(settings.list[i][0], settings.list[i][1]);
         if (exceedTime()) {
           stoppingFunction(timer);
           settings.abort();

@@ -9,7 +9,7 @@ test('Test runs without any extra parameters.', function() {
 
 test('Empty list results no output.', function() {
   var options = getTestOptions();
-  options.wordList = [];
+  options.list = [];
 
   WordCloud(setupTest('empty'), options);
 });

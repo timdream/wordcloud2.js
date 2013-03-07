@@ -13,7 +13,7 @@ WebFont.load({
 });
 
 // the list array will be generated here.
-var wordList = (function () {
+var list = (function () {
   var string = 'Grumpy wizards make toxic brew for the evil Queen and Jack';
 
   var list = [];
@@ -30,9 +30,9 @@ var getTestOptions = function getTestOptions() {
   return {
     shuffle: false,
     rotateRatio: 0,
-    wordColor: '#000',
+    color: '#000',
     fontFamily: 'Milonga',
-    wordList: wordList
+    list: list
   };
 };
 

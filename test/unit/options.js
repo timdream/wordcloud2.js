@@ -16,11 +16,11 @@ test('ellipticity can be set', function() {
   WordCloud(setupTest('ellipticity'), options);
 });
 
-test('center can be set', function() {
+test('origin can be set', function() {
   var options = getTestOptions();
-  options.center = [300, 0];
+  options.origin = [300, 0];
 
-  WordCloud(setupTest('center'), options);
+  WordCloud(setupTest('origin'), options);
 });
 
 test('minSize can be set', function() {
@@ -80,9 +80,9 @@ test('weightFactor can be set as a function', function() {
   WordCloud(setupTest('weightFactor-as-function'), options);
 });
 
-test('wordColor can be set as a function', function() {
+test('color can be set as a function', function() {
   var options = getTestOptions();
-  options.wordColor = function (word, weight, fontSize, radius, theta) {
+  options.color = function (word, weight, fontSize, radius, theta) {
     if (theta < 2*Math.PI/3) {
       return '#600';
     } else if (theta < 2*Math.PI*2/3) {
@@ -92,7 +92,7 @@ test('wordColor can be set as a function', function() {
     }
   };
 
-  WordCloud(setupTest('wordColor-as-function'), options);
+  WordCloud(setupTest('color-as-function'), options);
 });
 
 test('shape can be set to circle', function() {

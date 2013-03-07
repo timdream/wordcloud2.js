@@ -250,11 +250,11 @@
         }
         options.gridSize *= devicePixelRatio;
 
-        if (options.center) {
-          if (typeof options.center[0] == 'number')
-            options.center[0] *= devicePixelRatio;
-          if (typeof options.center[1] == 'number')
-            options.center[1] *= devicePixelRatio;
+        if (options.origin) {
+          if (typeof options.origin[0] == 'number')
+            options.origin[0] *= devicePixelRatio;
+          if (typeof options.origin[1] == 'number')
+            options.origin[1] *= devicePixelRatio;
         }
 
         if (!('weightFactor' in options)) {
@@ -273,16 +273,16 @@
 
       // Put the word list into options
       if ($list.val()) {
-        var wordList = [];
+        var list = [];
         $.each($list.val().split('\n'), function each(i, line) {
           if (!$.trim(line))
             return;
 
           var lineArr = line.split(' ');
           var count = parseFloat(lineArr.shift()) || 0;
-          wordList.push([lineArr.join(' '), count]);
+          list.push([lineArr.join(' '), count]);
         });
-        options.wordList = wordList;
+        options.list = list;
       }
 
       // All set, call the WordCloud();
@@ -350,7 +350,7 @@
               '  gridSize: 18,\n' +
               '  weightFactor: 3,\n' +
               '  fontFamily: \'Finger Paint, cursive, sans-serif\',\n' +
-              '  wordColor: \'#f0f0c0\',\n' +
+              '  color: \'#f0f0c0\',\n' +
               '  backgroundColor: \'#001f00\'\n' +
               '}',
       fontCSS: 'https://fonts.googleapis.com/css?family=Finger+Paint'
@@ -365,7 +365,7 @@
             '  gridSize: 18,\n' +
             '  weightFactor: 3,\n' +
             '  fontFamily: \'Average, Times, serif\',\n' +
-            '  wordColor: function() {\n' +
+            '  color: function() {\n' +
             '    return ([\'#d0d0d0\', \'#e11\', \'#44f\'])[Math.floor(Math.random() * 3)]\n' +
             '  },\n' +
             '  backgroundColor: \'#333\'\n' +
@@ -381,7 +381,7 @@
               '  gridSize: 8,\n' +
               '  weightFactor: 16,\n' +
               '  fontFamily: \'Hiragino Mincho Pro, serif\',\n' +
-              '  wordColor: \'random-dark\',\n' +
+              '  color: \'random-dark\',\n' +
               '  backgroundColor: \'#f0f0f0\',\n' +
               '  rotateRatio: 0\n' +
               '}'
@@ -391,9 +391,9 @@
       option: '{\n' +
               '  gridSize: 16,\n' +
               '  weightFactor: 16,\n' +
-              '  center: [90, 0],\n' +
+              '  origin: [90, 0],\n' +
               '  fontFamily: \'Times, serif\',\n' +
-              '  wordColor: \'random-light\',\n' +
+              '  color: \'random-light\',\n' +
               '  backgroundColor: \'#000\',\n' +
               '  shuffle: false,\n' +
               '  rotateRatio: 0\n' +
@@ -431,7 +431,7 @@
         '    return Math.pow(size, 2.3) * $(\'#canvas\').width() / 1024;\n' +
         '  },\n' +
         '  fontFamily: \'serif\',\n' +
-        '  wordColor: function (word, weight) {\n' +
+        '  color: function (word, weight) {\n' +
         '    return (weight === 12) ? \'#f02222\' : \'#c09292\';\n' +
         '  },\n' +
         '  rotateRatio: 0,\n' +
