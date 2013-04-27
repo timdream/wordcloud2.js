@@ -1,4 +1,4 @@
-# wordcloud2.js
+# [wordcloud2.js](http://timdream.org/wordcloud2.js/)
 
 Create a tag cloud/[Wordle](http://www.wordle.net/) presentation on a HTML5 canvas element.
 
@@ -8,11 +8,11 @@ This library is a spin-off project from [HTML5 Word Cloud](https://github.com/ti
 
 Load `wordcloud.js` script to the web page, and run:
 
-    WordCloud(document.getElementById('my_canvas'), { wordList: list } );
+    WordCloud(document.getElementById('my_canvas'), { list: list } );
 
 where `list` is an array that look like this: `[['foo', 12], ['bar', 6]]`.
 
-Options available, see the source code for information for now.
+Options available, see [API documentation](./API.md) for detail.
 
 ## Algorithm
 
