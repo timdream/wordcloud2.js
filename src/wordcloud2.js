@@ -656,14 +656,20 @@ if (!window.clearImmediate) {
     };
 
     /* Send DOM event */
-    var sendEvent = function sendEvent(el, type) {
+    var sendEvent = function sendEvent(el, type, cancelable, detail) {
       var evt = document.createEvent('CustomEvent');
-      evt.initCustomEvent(type, true, false, {});
-      el.dispatchEvent(evt);
+      evt.initCustomEvent(type, true, cancelable, detail || {});
+      return el.dispatchEvent(evt);
     };
 
     /* Start drawing on a canvas */
     var start = function start(canvas) {
+      // Sending a wordcloudstart event which cause the previous loop to stop.
+      // Do nothing if the event is canceled.
+      if (!sendEvent(canvas, 'wordcloudstart', true)) {
+        return;
+      }
+
       ngx = Math.floor(canvas.width / g);
       ngy = Math.floor(canvas.height / g);
       ctx = canvas.getContext('2d');
@@ -735,9 +741,6 @@ if (!window.clearImmediate) {
         imageData = bctx = bgPixel = undefined;
       }
 
-      // Cancel the previous wordcloud action by sending wordcloudstart event
-      sendEvent(canvas, 'wordcloudstart');
-
       var i = 0;
       var loopingFunction, stoppingFunction;
       if (settings.wait !== 0) {
@@ -748,25 +751,31 @@ if (!window.clearImmediate) {
         stoppingFunction = window.clearImmediate;
       }
 
-      canvas.addEventListener('wordcloudstart',
-        function anotherWordCloudStart() {
-          canvas.removeEventListener('wordcloudstart', anotherWordCloudStart);
-          stoppingFunction(timer);
-        });
+      var anotherWordCloudStart = function anotherWordCloudStart() {
+        canvas.removeEventListener('wordcloudstart', anotherWordCloudStart);
+        stoppingFunction(timer);
+      };
+
+      canvas.addEventListener('wordcloudstart', anotherWordCloudStart);
 
       var timer = loopingFunction(function loop() {
         if (i >= settings.list.length) {
           stoppingFunction(timer);
-          sendEvent(canvas, 'wordcloudstop');
+          sendEvent(canvas, 'wordcloudstop', false);
+          canvas.removeEventListener('wordcloudstart', anotherWordCloudStart);
+
           return;
         }
         escapeTime = (new Date()).getTime();
         putWord(settings.list[i][0], settings.list[i][1]);
-        if (exceedTime()) {
+        var canceled = !sendEvent(canvas, 'wordclouddrawn', true, {
+          item: [].concat(settings.list[i]) });
+        if (exceedTime() || canceled) {
           stoppingFunction(timer);
           settings.abort();
-          sendEvent(canvas, 'wordcloudabort');
-          sendEvent(canvas, 'wordcloudstop');
+          sendEvent(canvas, 'wordcloudabort', false);
+          sendEvent(canvas, 'wordcloudstop', false);
+          canvas.removeEventListener('wordcloudstart', anotherWordCloudStart);
           return;
         }
         i++;

@@ -71,8 +71,10 @@ Available presents are `circle` (default), `cardioid` (apple or heart shape curv
 ## Events
 
 You can listen to those custom DOM events filed from the canvas element, instead of using callbacks for taking the appropriate action.
+Cancel the first two events causes the operation to stop immediately.
 
 * `wordcloudstart`
+* `wordclouddrawn`
 * `wordcloudstop`
 * `wordcloudabort`
 
