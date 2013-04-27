@@ -173,6 +173,9 @@ if (!window.clearImmediate) {
       abortThreshold: 0, // disabled
       abort: function noop() {},
 
+      minRotation: - Math.PI / 2,
+      maxRotation: Math.PI / 2,
+
       shuffle: true,
       rotateRatio: 0.1,
 
@@ -283,6 +286,10 @@ if (!window.clearImmediate) {
     var g = settings.gridSize;
     var maskRectWidth = g - settings.maskGapWidth;
 
+    /* normalize rotation settings */
+    var rotationRange = Math.abs(settings.maxRotation - settings.minRotation);
+    var minRotation = Math.min(settings.maxRotation, settings.minRotation);
+
     /* information/object available to all functions, set when start() */
     var ctx, // canvas context
       grid, // 2d array containing filling information
@@ -362,7 +369,21 @@ if (!window.clearImmediate) {
         ((new Date()).getTime() - escapeTime > settings.abortThreshold));
     };
 
-    var getTextInfo = function getTextInfo(word, weight) {
+    /* Get the deg of rotation according to settings, and luck. */
+    var getRotateDeg = function getRotateDeg() {
+      if (settings.rotateRatio === 0)
+        return 0;
+
+      if (Math.random() > settings.rotateRatio)
+        return 0;
+
+      if (rotationRange === 0)
+        return minRotation;
+
+      return minRotation + Math.random() * rotationRange;
+    };
+
+    var getTextInfo = function getTextInfo(word, weight, rotateDeg) {
       // calculate the acutal font size
       // fontSize === 0 means weightFactor function wants the text skipped,
       // and size < minSize means we cannot draw the text.
@@ -398,15 +419,25 @@ if (!window.clearImmediate) {
 
       // Create a boundary box that is larger than our estimates,
       // so text don't get cut of (it sill might)
-      var fgh = Math.ceil(fh / g) * 3;
-      var fgw = Math.ceil(fw / g) + fgh / 3 * 2;
-      var width = fgw * g;
-      var height = fgh * g;
+      var boxWidth = fw + fh * 2;
+      var boxHeight = fh * 3;
+      var fgw = Math.ceil(boxWidth / g);
+      var fgh = Math.ceil(boxHeight / g);
+      boxWidth = fgw * g;
+      boxHeight = fgh * g;
 
-      // The 0.7 here is to lower the alphabetic baseline
+      // The 0.35 here is to lower the alphabetic baseline
       // so that ideographic characters can fit into the height defined by |fh|.
-      var fillTextOffsetX = (fgw * g - fw) / 2;
-      var fillTextOffsetY = (fgh * g + 0.7 * fh) / 2;
+      var fillTextOffsetX = - fw / 2;
+      var fillTextOffsetY = 0.35 * fh;
+
+      // Calculate the actual dimension of the canvas, considering the rotation.
+      var cgh = Math.ceil((boxWidth * Math.abs(Math.sin(rotateDeg)) +
+                           boxHeight * Math.abs(Math.cos(rotateDeg))) / g);
+      var cgw = Math.ceil((boxWidth * Math.abs(Math.cos(rotateDeg)) +
+                           boxHeight * Math.abs(Math.sin(rotateDeg))) / g);
+      var width = cgw * g;
+      var height = cgh * g;
 
       fcanvas.setAttribute('width', width);
       fcanvas.setAttribute('height', height);
@@ -417,6 +448,8 @@ if (!window.clearImmediate) {
       // Scale the canvas with |mu|.
       fctx.save();
       fctx.scale(1 / mu, 1 / mu);
+      fctx.translate(width * mu / 2, height * mu / 2);
+      fctx.rotate(- rotateDeg);
 
       // Once the width/height is set, ctx info will be reset.
       // Set it again here.
@@ -438,9 +471,9 @@ if (!window.clearImmediate) {
 
       // Read the pixels and save the information to the occopied array
       var occopied = [];
-      var gx = fgw, gy, x, y;
+      var gx = cgw, gy, x, y;
       while (gx--) {
-        gy = fgh;
+        gy = cgh;
         while (gy--) {
           y = g;
           singleGridLoop: {
@@ -470,8 +503,8 @@ if (!window.clearImmediate) {
       return {
         mu: mu,
         occopied: occopied,
-        gw: fgw,
-        gh: fgh,
+        gw: cgw,
+        gh: cgh,
         fillTextOffsetX: fillTextOffsetX,
         fillTextOffsetY: fillTextOffsetY,
         fontSize: fontSize
@@ -479,37 +512,24 @@ if (!window.clearImmediate) {
     };
 
     /* Determine if there is room available in the given dimension */
-    var canFitText = function canFitText(gx, gy, gw, gh, occopied, rotate) {
+    var canFitText = function canFitText(gx, gy, gw, gh, occopied) {
       // Go through the occopied points,
       // return false if the space is not available.
-      if (!rotate) {
-        var i = occopied.length;
-        while (i--) {
-          var px = gx + occopied[i][0];
-          var py = gy + occopied[i][1];
+      var i = occopied.length;
+      while (i--) {
+        var px = gx + occopied[i][0];
+        var py = gy + occopied[i][1];
 
-          if (px >= ngx || py >= ngy || px < 0 || py < 0 || !grid[px][py]) {
-            return false;
-          }
+        if (px >= ngx || py >= ngy || px < 0 || py < 0 || !grid[px][py]) {
+          return false;
         }
-        return true;
-      } else {
-        var i = occopied.length;
-        while (i--) {
-          var px = gx + occopied[i][1];
-          var py = gy + gw - occopied[i][0] - 1;
-
-          if (px >= ngx || py >= ngy || px < 0 || py < 0 || !grid[px][py]) {
-            return false;
-          }
-        }
-        return true;
       }
+      return true;
     };
 
     /* Actually draw the text on the grid */
     var drawText = function drawText(gx, gy, info, word, weight,
-                                     distance, theta, rotate) {
+                                     distance, theta, rotateDeg) {
       var fontSize = info.fontSize;
       var mu = info.mu;
 
@@ -527,12 +547,11 @@ if (!window.clearImmediate) {
 
       // Translate the canvas position to the origin coordinate of where
       // the text should be put.
-      ctx.translate(gx * g * mu, gy * g * mu);
+      ctx.translate((gx + info.gw / 2) * g * mu,
+                    (gy + info.gh / 2) * g * mu);
 
-      if (rotate) {
-        // Rotate -90 deg to honor |rotate|. Also reprosition the origin.
-        ctx.rotate(- Math.PI / 2);
-        ctx.translate(- info.gw * g * mu, 0);
+      if (rotateDeg !== 0) {
+        ctx.rotate(- rotateDeg);
       }
 
       // Finally, fill the text.
@@ -556,7 +575,7 @@ if (!window.clearImmediate) {
 
     /* Update the filling information of the given space with occopied points.
        Draw the mask on the canvas if necessary. */
-    var updateGrid = function updateGrid(gx, gy, gw, gh, occopied, rotate) {
+    var updateGrid = function updateGrid(gx, gy, gw, gh, occopied) {
       var maskRectWidth = g - settings.maskGapWidth;
       var drawMask = settings.drawMask;
       if (drawMask) {
@@ -564,17 +583,9 @@ if (!window.clearImmediate) {
         ctx.fillStyle = settings.maskColor;
       }
 
-      if (!rotate) {
-        var i = occopied.length;
-        while (i--) {
-          fillGridAt(gx + occopied[i][0], gy + occopied[i][1], drawMask);
-        }
-      } else {
-        var i = occopied.length;
-        while (i--) {
-          fillGridAt(gx + occopied[i][1],
-                     gy + gw - occopied[i][0] - 1, drawMask);
-        }
+      var i = occopied.length;
+      while (i--) {
+        fillGridAt(gx + occopied[i][0], gy + occopied[i][1], drawMask);
       }
 
       if (drawMask)
@@ -585,8 +596,10 @@ if (!window.clearImmediate) {
        calculate it's size and determine it's position, and actually
        put it on the canvas. */
     var putWord = function putWord(word, weight) {
+      var rotateDeg = getRotateDeg();
+
       // get info needed to put the text onto the canvas
-      var info = getTextInfo(word, weight);
+      var info = getTextInfo(word, weight, rotateDeg);
 
       // not getting the info means we shouldn't be drawing this one.
       if (!info)
@@ -594,14 +607,6 @@ if (!window.clearImmediate) {
 
       if (exceedTime())
         return false;
-
-      // This decides whether we should rotate the word or not
-      var rotate = false;
-      if (settings.rotateRatio === 1) {
-        rotate = true;
-      } else if (settings.rotateRatio !== 0) {
-        rotate = (Math.random() < settings.rotateRatio);
-      }
 
       // Determine the position to put the text by
       // start looking for the nearest points
@@ -620,28 +625,22 @@ if (!window.clearImmediate) {
         // when putWordAtPoint() returns true.
         // If all the points returns false, array.some() returns false.
         var drawn = points.some(function putWordAtPoint(gxy) {
-          var gx, gy;
-          if (!rotate) {
-            gx = Math.floor(gxy[0] - info.gw / 2);
-            gy = Math.floor(gxy[1] - info.gh / 2);
-          } else {
-            gx = Math.floor(gxy[0] - info.gh / 2);
-            gy = Math.floor(gxy[1] - info.gw / 2);
-          }
+          var gx = Math.floor(gxy[0] - info.gw / 2);
+          var gy = Math.floor(gxy[1] - info.gh / 2);
           var gw = info.gw;
           var gh = info.gh;
 
           // If we cannot fit the text at this position, return false
           // and go to the next position.
-          if (!canFitText(gx, gy, gw, gh, info.occopied, rotate))
+          if (!canFitText(gx, gy, gw, gh, info.occopied))
             return false;
 
           // Actually put the text on the canvas
           drawText(gx, gy, info, word, weight,
-                   (maxRadius - r), gxy[2], rotate);
+                   (maxRadius - r), gxy[2], rotateDeg);
 
           // Mark the spaces on the grid as filled
-          updateGrid(gx, gy, gw, gh, info.occopied, rotate);
+          updateGrid(gx, gy, gw, gh, info.occopied);
 
           // Return true so some() will stop and also return true.
           return true;

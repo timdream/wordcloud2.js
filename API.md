@@ -51,10 +51,15 @@ Available options as the property of the `options` object are:
 * `abortThreshold`: If the call with in the loop takes more than *x* milliseconds (and blocks the browser), abort immediately.
 * `abort`: callback function to call when abort.
 
+### Rotation
+
+* `minRotation`: If the word should rotate, the minimum rotation (in rad) the text should rotate.
+* `maxRotation`: If the word should rotate, the maximum rotation (in rad) the text should rotate. Set the two value equal to keep all text in one angle.
+
 ### Randomness
 
 * `shuffle`: Shuffle the points to draw so the result will be different each time for the same list and settings.
-* `rotateRatio`: Probability of rotate the word 90 degree.
+* `rotateRatio`: Probability for the word to rotate. Set the number to 1 to always rotate.
 
 ### Shape
 

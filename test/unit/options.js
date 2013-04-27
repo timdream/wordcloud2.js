@@ -30,11 +30,12 @@ test('minSize can be set', function() {
   WordCloud(setupTest('minSize'), options);
 });
 
-test('rotateRatio can be set', function() {
+test('rotation can be set and locked', function() {
   var options = getTestOptions();
   options.rotateRatio = 1;
+  options.minRotation = options.maxRotation = Math.PI / 6;
 
-  WordCloud(setupTest('rotateRatio'), options);
+  WordCloud(setupTest('rotation'), options);
 });
 
 test('drawMask can be set', function() {
