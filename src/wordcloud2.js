@@ -767,9 +767,9 @@ if (!window.clearImmediate) {
           return;
         }
         escapeTime = (new Date()).getTime();
-        putWord(settings.list[i][0], settings.list[i][1]);
+        var drawn = putWord(settings.list[i][0], settings.list[i][1]);
         var canceled = !sendEvent(canvas, 'wordclouddrawn', true, {
-          item: [].concat(settings.list[i]) });
+          item: [].concat(settings.list[i]), drawn: drawn });
         if (exceedTime() || canceled) {
           stoppingFunction(timer);
           settings.abort();
