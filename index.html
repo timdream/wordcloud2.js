@@ -14,6 +14,11 @@
   @media (min-width: 980px) {
     body { padding-top: 60px; }
   }
+
+  *[hidden] {
+    display: none;
+  }
+
   #canvas-container {
     overflow-x: auto;
     overflow-y: visible;
@@ -30,11 +35,19 @@
   }
   select { width: 100%; }
 
-  #loading { -webkit-animation: blink 2s infinite; }
+  #loading {
+    animation: blink 2s infinite;
+    -webkit-animation: blink 2s infinite;
+  }
   @-webkit-keyframes blink {
     0% { opacity: 1; }
     100% { opacity: 0; }
   }
+  @keyframes blink {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
   </style>
   <script type="text/javascript">
     if (window.location.hostname === 'timdream.org') {
