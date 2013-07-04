@@ -180,7 +180,10 @@ if (!window.clearImmediate) {
       rotateRatio: 0.1,
 
       shape: 'circle',
-      ellipticity: 0.65
+      ellipticity: 0.65,
+
+      hover: null,
+      click: null
     };
 
     if (options) {
@@ -327,6 +330,34 @@ if (!window.clearImmediate) {
         }
         break;
     }
+
+    /* Interactive */
+    var interactive = false;
+    var infoGrid = [];
+    var hovered;
+
+    var wordcloudhover = function wordcloudhover(evt) {
+      var x = Math.floor(evt.offsetX/g);
+      var y = Math.floor(evt.offsetY/g);
+
+      var item = infoGrid[x][y];
+      if (hovered === item)
+        return;
+
+      hovered = item;
+      settings.hover(item, evt.offsetX, evt.offsetY);
+    };
+
+    var wordcloudclick = function wordcloudclick(evt) {
+      var x = Math.floor(evt.offsetX/g);
+      var y = Math.floor(evt.offsetY/g);
+
+      var item = infoGrid[x][y];
+      if (!item)
+        return;
+
+      settings.click(item, evt.offsetX, evt.offsetY);
+    };
 
     /* Get points on the grid for a given radius away from the center */
     var pointsAtRadius = [];
@@ -563,7 +594,7 @@ if (!window.clearImmediate) {
     };
 
     /* Help function to updateGrid */
-    var fillGridAt = function fillGridAt(x, y, drawMask) {
+    var fillGridAt = function fillGridAt(x, y, drawMask, item) {
       if (x >= ngx || y >= ngy || x < 0 || y < 0)
         return;
 
@@ -571,11 +602,15 @@ if (!window.clearImmediate) {
 
       if (drawMask)
         ctx.fillRect(x * g, y * g, maskRectWidth, maskRectWidth);
+
+      if (interactive) {
+        infoGrid[x][y] = item;
+      }
     };
 
     /* Update the filling information of the given space with occopied points.
        Draw the mask on the canvas if necessary. */
-    var updateGrid = function updateGrid(gx, gy, gw, gh, occopied) {
+    var updateGrid = function updateGrid(gx, gy, gw, gh, occopied, item) {
       var maskRectWidth = g - settings.maskGapWidth;
       var drawMask = settings.drawMask;
       if (drawMask) {
@@ -585,7 +620,7 @@ if (!window.clearImmediate) {
 
       var i = occopied.length;
       while (i--) {
-        fillGridAt(gx + occopied[i][0], gy + occopied[i][1], drawMask);
+        fillGridAt(gx + occopied[i][0], gy + occopied[i][1], drawMask, item);
       }
 
       if (drawMask)
@@ -595,7 +630,9 @@ if (!window.clearImmediate) {
     /* putWord() processes each item on the list,
        calculate it's size and determine it's position, and actually
        put it on the canvas. */
-    var putWord = function putWord(word, weight) {
+    var putWord = function putWord(item) {
+      var word = item[0];
+      var weight = item[1];
       var rotateDeg = getRotateDeg();
 
       // get info needed to put the text onto the canvas
@@ -640,7 +677,7 @@ if (!window.clearImmediate) {
                    (maxRadius - r), gxy[2], rotateDeg);
 
           // Mark the spaces on the grid as filled
-          updateGrid(gx, gy, gw, gh, info.occopied);
+          updateGrid(gx, gy, gw, gh, info.occopied, item);
 
           // Return true so some() will stop and also return true.
           return true;
@@ -741,6 +778,34 @@ if (!window.clearImmediate) {
         imageData = bctx = bgPixel = undefined;
       }
 
+      // fill the infoGrid with empty state if we need it
+      if (settings.hover || settings.click) {
+
+        interactive = true;
+
+        /* fill the grid with empty state */
+        var gx = ngx;
+        while (gx--) {
+          infoGrid[gx] = [];
+        }
+
+        if (settings.hover) {
+          canvas.addEventListener('mousemove', wordcloudhover);
+        }
+
+        if (settings.click) {
+          canvas.addEventListener('click', wordcloudclick);
+        }
+
+        canvas.addEventListener('wordcloudstart', function stopInteraction() {
+          canvas.removeEventListener('wordcloudstart', stopInteraction);
+
+          canvas.removeEventListener('mousemove', wordcloudhover);
+          canvas.removeEventListener('click', wordcloudclick);
+          hovered = undefined;
+        });
+      }
+
       var i = 0;
       var loopingFunction, stoppingFunction;
       if (settings.wait !== 0) {
@@ -767,7 +832,7 @@ if (!window.clearImmediate) {
           return;
         }
         escapeTime = (new Date()).getTime();
-        var drawn = putWord(settings.list[i][0], settings.list[i][1]);
+        var drawn = putWord(settings.list[i]);
         var canceled = !sendEvent(canvas, 'wordclouddrawn', true, {
           item: [].concat(settings.list[i]), drawn: drawn });
         if (exceedTime() || canceled) {

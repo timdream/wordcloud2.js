@@ -67,6 +67,10 @@ Available options as the property of the `options` object are:
 Available presents are `circle` (default), `cardioid` (apple or heart shape curve, the most known polar equation), `diamond` (alias of `square`), `triangle-forward`, `triangle`, (alias of `triangle-upright`, `pentagon`, and `star`.
 * `ellipticity`: degree of "flatness" of the shape wordcloud2.js should draw.
 
+### Interactive
+
+* `hover`: callback to call when the cursor enters or leaves a region occupied by a word. The callback will take arugments `callback(item, x, y)`.
+* `click`: callback to call when the user clicks on a word. The callback will take arugments `callback(item, x, y)`.
 
 ## Events
 
