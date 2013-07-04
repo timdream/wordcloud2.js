@@ -834,7 +834,7 @@ if (!window.clearImmediate) {
         escapeTime = (new Date()).getTime();
         var drawn = putWord(settings.list[i]);
         var canceled = !sendEvent(canvas, 'wordclouddrawn', true, {
-          item: [].concat(settings.list[i]), drawn: drawn });
+          item: settings.list[i], drawn: drawn });
         if (exceedTime() || canceled) {
           stoppingFunction(timer);
           settings.abort();
