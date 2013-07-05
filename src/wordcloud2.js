@@ -500,8 +500,8 @@ if (!window.clearImmediate) {
       if (exceedTime())
         return false;
 
-      // Read the pixels and save the information to the occopied array
-      var occopied = [];
+      // Read the pixels and save the information to the occupied array
+      var occupied = [];
       var gx = cgw, gy, x, y;
       var bounds = [cgh / 2, cgw / 2, cgh / 2, cgw / 2];
       while (gx--) {
@@ -514,7 +514,7 @@ if (!window.clearImmediate) {
               while (x--) {
                 if (imageData[((gy * g + y) * width +
                                (gx * g + x)) * 4 + 3]) {
-                  occopied.push([gx, gy]);
+                  occupied.push([gx, gy]);
 
                   if (gx < bounds[3])
                     bounds[3] = gx;
@@ -552,7 +552,7 @@ if (!window.clearImmediate) {
       // Return information needed to create the text on the real canvas
       return {
         mu: mu,
-        occopied: occopied,
+        occupied: occupied,
         bounds: bounds,
         gw: cgw,
         gh: cgh,
@@ -563,13 +563,13 @@ if (!window.clearImmediate) {
     };
 
     /* Determine if there is room available in the given dimension */
-    var canFitText = function canFitText(gx, gy, gw, gh, occopied) {
-      // Go through the occopied points,
+    var canFitText = function canFitText(gx, gy, gw, gh, occupied) {
+      // Go through the occupied points,
       // return false if the space is not available.
-      var i = occopied.length;
+      var i = occupied.length;
       while (i--) {
-        var px = gx + occopied[i][0];
-        var py = gy + occopied[i][1];
+        var px = gx + occupied[i][0];
+        var py = gy + occupied[i][1];
 
         if (px >= ngx || py >= ngy || px < 0 || py < 0 || !grid[px][py]) {
           return false;
@@ -628,9 +628,9 @@ if (!window.clearImmediate) {
       }
     };
 
-    /* Update the filling information of the given space with occopied points.
+    /* Update the filling information of the given space with occupied points.
        Draw the mask on the canvas if necessary. */
-    var updateGrid = function updateGrid(gx, gy, gw, gh, occopied, item) {
+    var updateGrid = function updateGrid(gx, gy, gw, gh, occupied, item) {
       var maskRectWidth = g - settings.maskGapWidth;
       var drawMask = settings.drawMask;
       if (drawMask) {
@@ -638,9 +638,9 @@ if (!window.clearImmediate) {
         ctx.fillStyle = settings.maskColor;
       }
 
-      var i = occopied.length;
+      var i = occupied.length;
       while (i--) {
-        fillGridAt(gx + occopied[i][0], gy + occopied[i][1], drawMask, item);
+        fillGridAt(gx + occupied[i][0], gy + occupied[i][1], drawMask, item);
       }
 
       if (drawMask)
@@ -697,7 +697,7 @@ if (!window.clearImmediate) {
 
           // If we cannot fit the text at this position, return false
           // and go to the next position.
-          if (!canFitText(gx, gy, gw, gh, info.occopied))
+          if (!canFitText(gx, gy, gw, gh, info.occupied))
             return false;
 
           // Actually put the text on the canvas
@@ -705,7 +705,7 @@ if (!window.clearImmediate) {
                    (maxRadius - r), gxy[2], rotateDeg);
 
           // Mark the spaces on the grid as filled
-          updateGrid(gx, gy, gw, gh, info.occopied, item);
+          updateGrid(gx, gy, gw, gh, info.occupied, item);
 
           // Return true so some() will stop and also return true.
           return true;
