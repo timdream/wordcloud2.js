@@ -340,23 +340,30 @@ if (!window.clearImmediate) {
       var x = Math.floor(evt.offsetX/g);
       var y = Math.floor(evt.offsetY/g);
 
-      var item = infoGrid[x][y];
-      if (hovered === item)
+      var info = infoGrid[x][y];
+      if (hovered === info)
         return;
 
-      hovered = item;
-      settings.hover(item, evt.offsetX, evt.offsetY);
+      hovered = info;
+      if (!info) {
+        settings.hover(undefined, undefined, evt.offsetX, evt.offsetY);
+
+        return;
+      }
+
+      settings.hover(info.item, info.dimension, evt.offsetX, evt.offsetY);
+
     };
 
     var wordcloudclick = function wordcloudclick(evt) {
       var x = Math.floor(evt.offsetX/g);
       var y = Math.floor(evt.offsetY/g);
 
-      var item = infoGrid[x][y];
-      if (!item)
+      var info = infoGrid[x][y];
+      if (!info)
         return;
 
-      settings.click(item, evt.offsetX, evt.offsetY);
+      settings.click(info.item, info.dimension, evt.offsetX, evt.offsetY);
     };
 
     /* Get points on the grid for a given radius away from the center */
@@ -614,7 +621,7 @@ if (!window.clearImmediate) {
     };
 
     /* Help function to updateGrid */
-    var fillGridAt = function fillGridAt(x, y, drawMask, item) {
+    var fillGridAt = function fillGridAt(x, y, drawMask, dimension, item) {
       if (x >= ngx || y >= ngy || x < 0 || y < 0)
         return;
 
@@ -624,13 +631,14 @@ if (!window.clearImmediate) {
         ctx.fillRect(x * g, y * g, maskRectWidth, maskRectWidth);
 
       if (interactive) {
-        infoGrid[x][y] = item;
+        infoGrid[x][y] = { item: item, dimension: dimension };
       }
     };
 
     /* Update the filling information of the given space with occupied points.
        Draw the mask on the canvas if necessary. */
-    var updateGrid = function updateGrid(gx, gy, gw, gh, occupied, item) {
+    var updateGrid = function updateGrid(gx, gy, gw, gh, info, item) {
+      var occupied = info.occupied;
       var maskRectWidth = g - settings.maskGapWidth;
       var drawMask = settings.drawMask;
       if (drawMask) {
@@ -638,9 +646,21 @@ if (!window.clearImmediate) {
         ctx.fillStyle = settings.maskColor;
       }
 
+      var dimension;
+      if (interactive) {
+        var bounds = info.bounds;
+        dimension = {
+          x: (gx + bounds[3]) * g,
+          y: (gy + bounds[0]) * g,
+          w: (bounds[1] - bounds[3] + 1) * g,
+          h: (bounds[2] - bounds[0] + 1) * g
+        };
+      }
+
       var i = occupied.length;
       while (i--) {
-        fillGridAt(gx + occupied[i][0], gy + occupied[i][1], drawMask, item);
+        fillGridAt(gx + occupied[i][0], gy + occupied[i][1],
+                   drawMask, dimension, item);
       }
 
       if (drawMask)
@@ -705,7 +725,7 @@ if (!window.clearImmediate) {
                    (maxRadius - r), gxy[2], rotateDeg);
 
           // Mark the spaces on the grid as filled
-          updateGrid(gx, gy, gw, gh, info.occupied, item);
+          updateGrid(gx, gy, gw, gh, info, item);
 
           // Return true so some() will stop and also return true.
           return true;
@@ -812,7 +832,7 @@ if (!window.clearImmediate) {
         interactive = true;
 
         /* fill the grid with empty state */
-        var gx = ngx;
+        var gx = ngx + 1;
         while (gx--) {
           infoGrid[gx] = [];
         }

@@ -22,11 +22,21 @@
   #canvas-container {
     overflow-x: auto;
     overflow-y: visible;
+    position: relative;
+    margin-top: 20px;
+    margin-bottom: 20px;
   }
   #canvas {
     display: block;
-    margin: 20px auto;
   }
+  #box {
+    pointer-events: none;
+    position: absolute;
+    box-shadow: 0 0 200px 200px rgba(255, 255, 255, 0.5);
+    border-radius: 50px;
+    cursor: pointer;
+  }
+
   textarea {
     height: 20em;
   }
@@ -180,6 +190,23 @@
       $form.find('textarea, input, select, button').prop('disabled', true);
       return;
     }
+
+    var $box = $('<div id="box" hidden />');
+    $canvasContainer.append($box);
+    window.drawBox = function drawBox(item, dimension) {
+      if (!dimension) {
+        $box.prop('hidden', true);
+
+        return;
+      }
+      $box.prop('hidden', false);
+      $box.css({
+        left: dimension.x + 'px',
+        top: dimension.y + 'px',
+        width: dimension.w + 'px',
+        height: dimension.h + 'px'
+      });
+    };
 
     // Update the default value if we are running in a hdpi device
     if (('devicePixelRatio' in window) &&
@@ -364,8 +391,9 @@
               '  weightFactor: 3,\n' +
               '  fontFamily: \'Finger Paint, cursive, sans-serif\',\n' +
               '  color: \'#f0f0c0\',\n' +
+              '  hover: window.drawBox,\n' +
               '  click: function(item) {\n' +
-              '    alert(item[0]);\n' +
+              '    alert(item[0] + \': \' + item[1]);\n' +
               '  },\n' +
               '  backgroundColor: \'#001f00\'\n' +
               '}',
