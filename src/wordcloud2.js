@@ -503,6 +503,7 @@ if (!window.clearImmediate) {
       // Read the pixels and save the information to the occopied array
       var occopied = [];
       var gx = cgw, gy, x, y;
+      var bounds = [cgh / 2, cgw / 2, cgh / 2, cgw / 2];
       while (gx--) {
         gy = cgh;
         while (gy--) {
@@ -514,6 +515,16 @@ if (!window.clearImmediate) {
                 if (imageData[((gy * g + y) * width +
                                (gx * g + x)) * 4 + 3]) {
                   occopied.push([gx, gy]);
+
+                  if (gx < bounds[3])
+                    bounds[3] = gx;
+                  if (gx > bounds[1])
+                    bounds[1] = gx;
+                  if (gy < bounds[0])
+                    bounds[0] = gy;
+                  if (gy > bounds[2])
+                    bounds[2] = gy;
+
                   if (debug) {
                     fctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
                     fctx.fillRect(gx * g, gy * g, g - 0.5, g - 0.5);
@@ -530,10 +541,19 @@ if (!window.clearImmediate) {
         }
       }
 
+      if (debug) {
+        fctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+        fctx.fillRect(bounds[3] * g,
+                      bounds[0] * g,
+                      (bounds[1] - bounds[3] + 1) * g,
+                      (bounds[2] - bounds[0] + 1) * g);
+      }
+
       // Return information needed to create the text on the real canvas
       return {
         mu: mu,
         occopied: occopied,
+        bounds: bounds,
         gw: cgw,
         gh: cgh,
         fillTextOffsetX: fillTextOffsetX,
@@ -644,6 +664,14 @@ if (!window.clearImmediate) {
 
       if (exceedTime())
         return false;
+
+      // Skip the loop if we have already know the bounding box of
+      // word is larger than the canvas.
+      var bounds = info.bounds;
+      if ((bounds[1] - bounds[3] + 1) > ngx ||
+        (bounds[2] - bounds[0] + 1) > ngy) {
+        return false;
+      }
 
       // Determine the position to put the text by
       // start looking for the nearest points
