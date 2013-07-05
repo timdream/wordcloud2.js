@@ -337,8 +337,8 @@ if (!window.clearImmediate) {
     var hovered;
 
     var wordcloudhover = function wordcloudhover(evt) {
-      var x = Math.floor(evt.offsetX/g);
-      var y = Math.floor(evt.offsetY/g);
+      var x = Math.floor(evt.offsetX / g);
+      var y = Math.floor(evt.offsetY / g);
 
       var info = infoGrid[x][y];
       if (hovered === info)
@@ -356,8 +356,8 @@ if (!window.clearImmediate) {
     };
 
     var wordcloudclick = function wordcloudclick(evt) {
-      var x = Math.floor(evt.offsetX/g);
-      var y = Math.floor(evt.offsetY/g);
+      var x = Math.floor(evt.offsetX / g);
+      var y = Math.floor(evt.offsetY / g);
 
       var info = infoGrid[x][y];
       if (!info)
