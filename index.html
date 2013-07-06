@@ -199,12 +199,15 @@
 
         return;
       }
+
+      var dppx = $dpi.val();
+
       $box.prop('hidden', false);
       $box.css({
-        left: dimension.x + 'px',
-        top: dimension.y + 'px',
-        width: dimension.w + 'px',
-        height: dimension.h + 'px'
+        left: dimension.x / dppx + 'px',
+        top: dimension.y / dppx + 'px',
+        width: dimension.w / dppx + 'px',
+        height: dimension.h / dppx + 'px'
       });
     };
 
