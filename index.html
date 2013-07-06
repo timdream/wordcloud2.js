@@ -149,9 +149,9 @@
               <span class="add-on">px</span>
             </div>
             <span class="help-block">Leave blank to use 0.65x of the width.</span>
-            <label for="config-height">Device pixel density</label>
+            <label for="config-height">Device pixel density (<span title="Dots per 'px' unit">dppx</span>)</label>
             <div class="input-append">
-              <input type="number" id="config-dpi" class="input-mini" min="1" value="1" required>
+              <input type="number" id="config-dppx" class="input-mini" min="1" value="1" required>
               <span class="add-on">x</span>
             </div>
             <span class="help-block">Adjust the weight, grid size, and canvas pixel size for high pixel density displays.</span>
@@ -181,7 +181,7 @@
     var $options = $('#config-option');
     var $width = $('#config-width');
     var $height = $('#config-height');
-    var $dpi = $('#config-dpi');
+    var $dppx = $('#config-dppx');
     var $css = $('#config-css');
     var $webfontLink = $('#link-webfont');
 
@@ -200,7 +200,7 @@
         return;
       }
 
-      var dppx = $dpi.val();
+      var dppx = $dppx.val();
 
       $box.prop('hidden', false);
       $box.css({
@@ -211,10 +211,10 @@
       });
     };
 
-    // Update the default value if we are running in a hdpi device
+    // Update the default value if we are running in a hdppx device
     if (('devicePixelRatio' in window) &&
         window.devicePixelRatio !== 1) {
-      $dpi.val(window.devicePixelRatio);
+      $dppx.val(window.devicePixelRatio);
     }
 
     $canvas.on('wordcloudstop', function wordcloudstopped(evt) {
@@ -254,7 +254,7 @@
       $webfontLink.prop('href', $css.val());
 
       // devicePixelRatio
-      var devicePixelRatio = parseInt($dpi.val());
+      var devicePixelRatio = parseInt($dppx.val());
 
       // Set the width and height
       var width = $width.val() ? $width.val() : $('#canvas-container').width();
