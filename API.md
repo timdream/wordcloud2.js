@@ -69,8 +69,8 @@ Available presents are `circle` (default), `cardioid` (apple or heart shape curv
 
 ### Interactive
 
-* `hover`: callback to call when the cursor enters or leaves a region occupied by a word. The callback will take arugments `callback(item, dimension, x, y)`.
-* `click`: callback to call when the user clicks on a word. The callback will take arugments `callback(item, dimension, x, y)`.
+* `hover`: callback to call when the cursor enters or leaves a region occupied by a word. The callback will take arugments `callback(item, dimension, event)`, where `event` is the original `mousemove` event.
+* `click`: callback to call when the user clicks on a word. The callback will take arugments `callback(item, dimension, event)`, where `event` is the original `click` event.
 
 ## Events
 

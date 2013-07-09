@@ -336,38 +336,40 @@ if (!window.clearImmediate) {
     var infoGrid = [];
     var hovered;
 
-    var wordcloudhover = function wordcloudhover(evt) {
-      var x =
-        Math.floor(evt.offsetX * (canvas.width / canvas.offsetWidth) / g);
-      var y =
-        Math.floor(evt.offsetY * (canvas.height / canvas.offsetHeight) / g);
+    var getInfoGridFromMouseEvent = function getInfoGridFromMouseEvent(evt) {
+      var rect = canvas.getBoundingClientRect();
+      var eventX = evt.clientX - rect.left;
+      var eventY = evt.clientY - rect.top;
 
-      var info = infoGrid[x][y];
+      var x = Math.floor(eventX * (canvas.width / rect.width) / g);
+      var y = Math.floor(eventY * (canvas.height / rect.height) / g);
+
+      return infoGrid[x][y];
+    };
+
+    var wordcloudhover = function wordcloudhover(evt) {
+      var info = getInfoGridFromMouseEvent(evt);
+
       if (hovered === info)
         return;
 
       hovered = info;
       if (!info) {
-        settings.hover(undefined, undefined, evt.offsetX, evt.offsetY);
+        settings.hover(undefined, undefined, evt);
 
         return;
       }
 
-      settings.hover(info.item, info.dimension, evt.offsetX, evt.offsetY);
+      settings.hover(info.item, info.dimension, evt);
 
     };
 
     var wordcloudclick = function wordcloudclick(evt) {
-      var x =
-        Math.floor(evt.offsetX / g * (canvas.width / canvas.offsetWidth));
-      var y =
-        Math.floor(evt.offsetY / g * (canvas.height / canvas.offsetHeight));
-
-      var info = infoGrid[x][y];
+      var info = getInfoGridFromMouseEvent(evt);
       if (!info)
         return;
 
-      settings.click(info.item, info.dimension, evt.offsetX, evt.offsetY);
+      settings.click(info.item, info.dimension, evt);
     };
 
     /* Get points on the grid for a given radius away from the center */
