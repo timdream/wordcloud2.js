@@ -571,6 +571,8 @@ if (!window.clearImmediate) {
         gh: cgh,
         fillTextOffsetX: fillTextOffsetX,
         fillTextOffsetY: fillTextOffsetY,
+        fillTextWidth: fw,
+        fillTextHeight: fh,
         fontSize: fontSize
       };
     };
@@ -594,6 +596,47 @@ if (!window.clearImmediate) {
     /* Actually draw the text on the grid */
     var drawText = function drawText(gx, gy, info, word, weight,
                                      distance, theta, rotateDeg) {
+
+      var color;
+      if (getTextColor) {
+        color = getTextColor(word, weight, fontSize, distance, theta);
+      } else {
+        color = settings.color;
+      }
+
+      var dimension;
+      var bounds = info.bounds;
+      dimension = {
+        x: (gx + bounds[3]) * g,
+        y: (gy + bounds[0]) * g,
+        w: (bounds[1] - bounds[3] + 1) * g,
+        h: (bounds[2] - bounds[0] + 1) * g
+      };
+
+      var $container = $('#canvas-container');
+      var $el = $('<span />');
+      var translateZ = - 100 + info.fontSize;
+      var styleRules = {
+        'position': 'absolute',
+        'display': 'block',
+        'font': info.fontSize + 'px ' + settings.fontFamily,
+        'left': ((gx + info.gw / 2) * g + info.fillTextOffsetX) + 'px',
+        'top': ((gy + info.gh / 2) * g + info.fillTextOffsetY - info.fillTextHeight * 0.75) + 'px',
+        'width': info.fillTextWidth + 'px',
+        'height': info.fillTextHeight + 'px',
+        'color': color,
+        'line-height': info.fontSize + 'px',
+        'white-space': 'nowrap'
+      };
+
+      $el.text(word);
+      $el.css(styleRules);
+      $el[0].style.transform =
+        'rotate(' + (- rotateDeg / Math.PI * 180) + 'deg)';// +
+        //' perspective(100px) translateZ(' + translateZ + 'px)';
+      $el[0].style.transformOrigin = '50% 40%';
+      $container.append($el);
+
       var fontSize = info.fontSize;
       var mu = info.mu;
 
@@ -602,11 +645,7 @@ if (!window.clearImmediate) {
       ctx.scale(1 / mu, 1 / mu);
 
       ctx.font = (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
-      if (getTextColor) {
-        ctx.fillStyle = getTextColor(word, weight, fontSize, distance, theta);
-      } else {
-        ctx.fillStyle = settings.color;
-      }
+      ctx.fillStyle = color;
       ctx.textBaseline = 'alphabetic';
 
       // Translate the canvas position to the origin coordinate of where
@@ -876,6 +915,7 @@ if (!window.clearImmediate) {
       };
 
       canvas.addEventListener('wordcloudstart', anotherWordCloudStart);
+      $('#canvas-container span').remove();
 
       var timer = loopingFunction(function loop() {
         if (i >= settings.list.length) {
