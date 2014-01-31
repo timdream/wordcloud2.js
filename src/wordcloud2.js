@@ -470,10 +470,14 @@ if (!window.clearImmediate) {
       boxWidth = fgw * g;
       boxHeight = fgh * g;
 
-      // The 0.35 here is to lower the alphabetic baseline
-      // so that ideographic characters can fit into the height defined by |fh|.
+      // Calculate the proper offsets to make the text centered at
+      // the preferred position.
+
+      // This is simply half of the width.
       var fillTextOffsetX = - fw / 2;
-      var fillTextOffsetY = 0.35 * fh;
+      // The 0.4 * here is roughly the distance between alphabetic baseline and
+      // top baseline of most fonts.
+      var fillTextOffsetY = - fh * 0.4;
 
       // Calculate the actual dimension of the canvas, considering the rotation.
       var cgh = Math.ceil((boxWidth * Math.abs(Math.sin(rotateDeg)) +
@@ -501,7 +505,7 @@ if (!window.clearImmediate) {
 
       // Fill the text into the fcanvas.
       fctx.fillStyle = '#000';
-      fctx.textBaseline = 'alphabetic';
+      fctx.textBaseline = 'top';
       fctx.fillText(word, fillTextOffsetX * mu, fillTextOffsetY * mu);
 
       // Restore the transform.
@@ -621,7 +625,7 @@ if (!window.clearImmediate) {
         'display': 'block',
         'font': info.fontSize + 'px ' + settings.fontFamily,
         'left': ((gx + info.gw / 2) * g + info.fillTextOffsetX) + 'px',
-        'top': ((gy + info.gh / 2) * g + info.fillTextOffsetY - info.fillTextHeight * 0.75) + 'px',
+        'top': ((gy + info.gh / 2) * g + info.fillTextOffsetY) + 'px',
         'width': info.fillTextWidth + 'px',
         'height': info.fillTextHeight + 'px',
         'color': color,
@@ -646,7 +650,7 @@ if (!window.clearImmediate) {
 
       ctx.font = (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
       ctx.fillStyle = color;
-      ctx.textBaseline = 'alphabetic';
+      ctx.textBaseline = 'top';
 
       // Translate the canvas position to the origin coordinate of where
       // the text should be put.
