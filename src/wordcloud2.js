@@ -676,12 +676,17 @@ if (!window.clearImmediate) {
         } else {
           // drawText on DIV element
           var span = document.createElement('span');
-          var transformRule =
-            'rotate(' + (- rotateDeg / Math.PI * 180) + 'deg)';
+          var transformRule = '';
+          transformRule = 'rotate(' + (- rotateDeg / Math.PI * 180) + 'deg) ';
+          if (info.mu !== 1) {
+            transformRule +=
+              'translateX(-' + (info.fillTextWidth / 4) + 'px) ' +
+              'scale(' + (1 / info.mu) + ')';
+          }
           var styleRules = {
             'position': 'absolute',
             'display': 'block',
-            'font': fontSize + 'px ' + settings.fontFamily,
+            'font': (fontSize * info.mu) + 'px ' + settings.fontFamily,
             'left': ((gx + info.gw / 2) * g + info.fillTextOffsetX) + 'px',
             'top': ((gy + info.gh / 2) * g + info.fillTextOffsetY) + 'px',
             'width': info.fillTextWidth + 'px',
