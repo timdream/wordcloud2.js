@@ -462,7 +462,7 @@ if (!window.clearImmediate) {
       }
 
       var fcanvas = document.createElement('canvas');
-      var fctx = fcanvas.getContext('2d');
+      var fctx = fcanvas.getContext('2d', { willReadFrequently: true });
 
       fctx.font = settings.fontWeight + ' ' + (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
 
