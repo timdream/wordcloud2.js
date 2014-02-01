@@ -143,13 +143,24 @@ if (!window.clearImmediate) {
     return arr;
   };
 
-  var WordCloud = function WordCloud(canvas, options) {
+  var WordCloud = function WordCloud(elements, options) {
     if (!isSupported)
       return;
 
-    if (typeof canvas === 'string') {
-      canvas = document.getElementById(canvas);
+    if (!Array.isArray(elements)) {
+      elements = [elements];
     }
+
+    elements.forEach(function(el, i) {
+      if (typeof el === 'string') {
+        elements[i] = document.getElementById(el);
+        if (!elements[i]) {
+          throw 'The element id specified is not found.';
+        }
+      } else if (!el.tagName && !el.appendChild) {
+        throw 'You must pass valid HTML elements, or ID of the element.';
+      }
+    });
 
     /* Default values to be overwritten by options object */
     var settings = {
@@ -295,8 +306,7 @@ if (!window.clearImmediate) {
     var minRotation = Math.min(settings.maxRotation, settings.minRotation);
 
     /* information/object available to all functions, set when start() */
-    var ctx, // canvas context
-      grid, // 2d array containing filling information
+    var grid, // 2d array containing filling information
       ngx, ngy, // width and height of the grid
       center, // position of the center of the cloud
       maxRadius;
@@ -471,10 +481,15 @@ if (!window.clearImmediate) {
       boxWidth = fgw * g;
       boxHeight = fgh * g;
 
-      // The 0.35 here is to lower the alphabetic baseline
-      // so that ideographic characters can fit into the height defined by |fh|.
+      // Calculate the proper offsets to make the text centered at
+      // the preferred position.
+
+      // This is simply half of the width.
       var fillTextOffsetX = - fw / 2;
-      var fillTextOffsetY = 0.35 * fh;
+      // Instead of moving the box to the exact middle of the preferred
+      // position, for Y-offset we move 0.4 instead, so Latin alphabets look
+      // vertical centered.
+      var fillTextOffsetY = - fh * 0.4;
 
       // Calculate the actual dimension of the canvas, considering the rotation.
       var cgh = Math.ceil((boxWidth * Math.abs(Math.sin(rotateDeg)) +
@@ -501,9 +516,15 @@ if (!window.clearImmediate) {
       fctx.font = settings.fontWeight + ' ' + (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
 
       // Fill the text into the fcanvas.
+      // XXX: We cannot because textBaseline = 'top' here because
+      // Firefox and Chrome uses different default line-height for canvas.
+      // Please read https://bugzil.la/737852#c6.
+      // Here, we use textBaseline = 'middle' and draw the text at exactly
+      // 0.5 * fontSize lower.
       fctx.fillStyle = '#000';
-      fctx.textBaseline = 'alphabetic';
-      fctx.fillText(word, fillTextOffsetX * mu, fillTextOffsetY * mu);
+      fctx.textBaseline = 'middle';
+      fctx.fillText(word, fillTextOffsetX * mu,
+                    (fillTextOffsetY + fontSize * 0.5) * mu);
 
       // Restore the transform.
       fctx.restore();
@@ -572,6 +593,8 @@ if (!window.clearImmediate) {
         gh: cgh,
         fillTextOffsetX: fillTextOffsetX,
         fillTextOffsetY: fillTextOffsetY,
+        fillTextWidth: fw,
+        fillTextHeight: fh,
         fontSize: fontSize
       };
     };
@@ -595,36 +618,99 @@ if (!window.clearImmediate) {
     /* Actually draw the text on the grid */
     var drawText = function drawText(gx, gy, info, word, weight,
                                      distance, theta, rotateDeg) {
+
       var fontSize = info.fontSize;
-      var mu = info.mu;
-
-      // Save the current state before messing it
-      ctx.save();
-      ctx.scale(1 / mu, 1 / mu);
-
-      ctx.font = settings.fontWeight + ' ' + (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
+      var color;
       if (getTextColor) {
-        ctx.fillStyle = getTextColor(word, weight, fontSize, distance, theta);
+        color = getTextColor(word, weight, fontSize, distance, theta);
       } else {
-        ctx.fillStyle = settings.color;
-      }
-      ctx.textBaseline = 'alphabetic';
-
-      // Translate the canvas position to the origin coordinate of where
-      // the text should be put.
-      ctx.translate((gx + info.gw / 2) * g * mu,
-                    (gy + info.gh / 2) * g * mu);
-
-      if (rotateDeg !== 0) {
-        ctx.rotate(- rotateDeg);
+        color = settings.color;
       }
 
-      // Finally, fill the text.
-      ctx.fillText(word, info.fillTextOffsetX * mu,
-                         info.fillTextOffsetY * mu);
+      var dimension;
+      var bounds = info.bounds;
+      dimension = {
+        x: (gx + bounds[3]) * g,
+        y: (gy + bounds[0]) * g,
+        w: (bounds[1] - bounds[3] + 1) * g,
+        h: (bounds[2] - bounds[0] + 1) * g
+      };
 
-      // Restore the state.
-      ctx.restore();
+      elements.forEach(function(el) {
+        if (el.getContext) {
+          var ctx = el.getContext('2d');
+          var mu = info.mu;
+
+          // Save the current state before messing it
+          ctx.save();
+          ctx.scale(1 / mu, 1 / mu);
+
+          ctx.font = settings.fontWeight + ' ' +
+                     (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
+          ctx.fillStyle = color;
+
+          // Translate the canvas position to the origin coordinate of where
+          // the text should be put.
+          ctx.translate((gx + info.gw / 2) * g * mu,
+                        (gy + info.gh / 2) * g * mu);
+
+          if (rotateDeg !== 0) {
+            ctx.rotate(- rotateDeg);
+          }
+
+          // Finally, fill the text.
+
+          // XXX: We cannot because textBaseline = 'top' here because
+          // Firefox and Chrome uses different default line-height for canvas.
+          // Please read https://bugzil.la/737852#c6.
+          // Here, we use textBaseline = 'middle' and draw the text at exactly
+          // 0.5 * fontSize lower.
+          ctx.textBaseline = 'middle';
+          ctx.fillText(word, info.fillTextOffsetX * mu,
+                             (info.fillTextOffsetY + fontSize * 0.5) * mu);
+
+          // The below box is always matches how <span>s are positioned
+          /* ctx.strokeRect(info.fillTextOffsetX, info.fillTextOffsetY,
+            info.fillTextWidth, info.fillTextHeight); */
+
+          // Restore the state.
+          ctx.restore();
+        } else {
+          // drawText on DIV element
+          var span = document.createElement('span');
+          var transformRule = '';
+          transformRule = 'rotate(' + (- rotateDeg / Math.PI * 180) + 'deg) ';
+          if (info.mu !== 1) {
+            transformRule +=
+              'translateX(-' + (info.fillTextWidth / 4) + 'px) ' +
+              'scale(' + (1 / info.mu) + ')';
+          }
+          var styleRules = {
+            'position': 'absolute',
+            'display': 'block',
+            'font': settings.fontWeight + ' ' +
+                    (fontSize * info.mu) + 'px ' + settings.fontFamily,
+            'left': ((gx + info.gw / 2) * g + info.fillTextOffsetX) + 'px',
+            'top': ((gy + info.gh / 2) * g + info.fillTextOffsetY) + 'px',
+            'width': info.fillTextWidth + 'px',
+            'height': info.fillTextHeight + 'px',
+            'color': color,
+            'lineHeight': fontSize + 'px',
+            'whiteSpace': 'nowrap',
+            'transform': transformRule,
+            'webkitTransform': transformRule,
+            'msTransform': transformRule,
+            'transformOrigin': '50% 40%',
+            'webkitTransformOrigin': '50% 40%',
+            'msTransformOrigin': '50% 40%'
+          };
+          span.textContent = word;
+          for (var cssProp in styleRules) {
+            span.style[cssProp] = styleRules[cssProp];
+          }
+          el.appendChild(span);
+        }
+      });
     };
 
     /* Help function to updateGrid */
@@ -747,24 +833,44 @@ if (!window.clearImmediate) {
       return false;
     };
 
-    /* Send DOM event */
-    var sendEvent = function sendEvent(el, type, cancelable, detail) {
-      var evt = document.createEvent('CustomEvent');
-      evt.initCustomEvent(type, true, cancelable, detail || {});
-      return el.dispatchEvent(evt);
+    /* Send DOM event to all elements. Will stop sending event and return
+       if the previous one is canceled (for cancelable events). */
+    var sendEvent = function sendEvent(type, cancelable, detail) {
+      if (cancelable) {
+        return !elements.some(function(el) {
+          var evt = document.createEvent('CustomEvent');
+          evt.initCustomEvent(type, true, cancelable, detail || {});
+          return !el.dispatchEvent(evt);
+        }, this);
+      } else {
+        elements.forEach(function(el) {
+          var evt = document.createEvent('CustomEvent');
+          evt.initCustomEvent(type, true, cancelable, detail || {});
+          el.dispatchEvent(evt);
+        }, this);
+      }
     };
 
     /* Start drawing on a canvas */
-    var start = function start(canvas) {
-      // Sending a wordcloudstart event which cause the previous loop to stop.
-      // Do nothing if the event is canceled.
-      if (!sendEvent(canvas, 'wordcloudstart', true)) {
-        return;
+    var start = function start() {
+      // For dimensions, clearCanvas etc.,
+      // we only care about the first element.
+      var canvas = elements[0];
+
+      if (canvas.getContext) {
+        ngx = Math.floor(canvas.width / g);
+        ngy = Math.floor(canvas.height / g);
+      } else {
+        var rect = canvas.getBoundingClientRect();
+        ngx = Math.floor(rect.width / g);
+        ngy = Math.floor(rect.height / g);
       }
 
-      ngx = Math.floor(canvas.width / g);
-      ngy = Math.floor(canvas.height / g);
-      ctx = canvas.getContext('2d');
+      // Sending a wordcloudstart event which cause the previous loop to stop.
+      // Do nothing if the event is canceled.
+      if (!sendEvent('wordcloudstart', true)) {
+        return;
+      }
 
       // Determine the center of the word cloud
       center = (settings.origin) ?
@@ -778,10 +884,18 @@ if (!window.clearImmediate) {
          if not, update the grid to the current canvas state */
       grid = [];
 
-      if (settings.clearCanvas) {
-        ctx.fillStyle = settings.backgroundColor;
-        ctx.clearRect(0, 0, ngx * (g + 1), ngy * (g + 1));
-        ctx.fillRect(0, 0, ngx * (g + 1), ngy * (g + 1));
+      if (!canvas.getContext || settings.clearCanvas) {
+        elements.forEach(function(el) {
+          if (el.getContext) {
+            var ctx = el.getContext('2d');
+            ctx.fillStyle = settings.backgroundColor;
+            ctx.clearRect(0, 0, ngx * (g + 1), ngy * (g + 1));
+            ctx.fillRect(0, 0, ngx * (g + 1), ngy * (g + 1));
+          } else {
+            el.textContent = '';
+            el.style.backgroundColor = settings.backgroundColor;
+          }
+        });
 
         /* fill the grid with empty state */
         var gx = ngx, gy;
@@ -794,7 +908,7 @@ if (!window.clearImmediate) {
         }
       } else {
         /* Determine bgPixel by creating
-           another canvas and fill the specified background color */
+           another canvas and fill the specified background color. */
         var bctx = document.createElement('canvas').getContext('2d');
 
         bctx.fillStyle = settings.backgroundColor;
@@ -802,8 +916,10 @@ if (!window.clearImmediate) {
         var bgPixel = bctx.getImageData(0, 0, 1, 1).data;
 
         /* Read back the pixels of the canvas we got to tell which part of the
-           canvas is empty. */
-        var imageData = ctx.getImageData(0, 0, ngx * g, ngy * g).data;
+           canvas is empty.
+           (no clearCanvas only works with a canvas, not divs) */
+        var imageData =
+          canvas.getContext('2d').getImageData(0, 0, ngx * g, ngy * g).data;
 
         var gx = ngx, gy, x, y, i;
         while (gx--) {
@@ -871,31 +987,44 @@ if (!window.clearImmediate) {
         stoppingFunction = window.clearImmediate;
       }
 
+      var addEventListener = function addEventListener(type, listener) {
+        elements.forEach(function(el) {
+          el.addEventListener(type, listener);
+        }, this);
+      };
+
+      var removeEventListener = function removeEventListener(type, listener) {
+        elements.forEach(function(el) {
+          el.removeEventListener(type, listener);
+        }, this);
+      };
+
       var anotherWordCloudStart = function anotherWordCloudStart() {
-        canvas.removeEventListener('wordcloudstart', anotherWordCloudStart);
+        removeEventListener('wordcloudstart', anotherWordCloudStart);
         stoppingFunction(timer);
       };
 
-      canvas.addEventListener('wordcloudstart', anotherWordCloudStart);
+      addEventListener('wordcloudstart', anotherWordCloudStart);
+      $('#canvas-container span').remove();
 
       var timer = loopingFunction(function loop() {
         if (i >= settings.list.length) {
           stoppingFunction(timer);
-          sendEvent(canvas, 'wordcloudstop', false);
-          canvas.removeEventListener('wordcloudstart', anotherWordCloudStart);
+          sendEvent('wordcloudstop', false);
+          removeEventListener('wordcloudstart', anotherWordCloudStart);
 
           return;
         }
         escapeTime = (new Date()).getTime();
         var drawn = putWord(settings.list[i]);
-        var canceled = !sendEvent(canvas, 'wordclouddrawn', true, {
+        var canceled = !sendEvent('wordclouddrawn', true, {
           item: settings.list[i], drawn: drawn });
         if (exceedTime() || canceled) {
           stoppingFunction(timer);
           settings.abort();
-          sendEvent(canvas, 'wordcloudabort', false);
-          sendEvent(canvas, 'wordcloudstop', false);
-          canvas.removeEventListener('wordcloudstart', anotherWordCloudStart);
+          sendEvent('wordcloudabort', false);
+          sendEvent('wordcloudstop', false);
+          removeEventListener('wordcloudstart', anotherWordCloudStart);
           return;
         }
         i++;
@@ -904,7 +1033,7 @@ if (!window.clearImmediate) {
     };
 
     // All set, start the drawing
-    start(canvas);
+    start();
   };
 
   WordCloud.isSupported = isSupported;

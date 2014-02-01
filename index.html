@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>wordcloud2.js - tag cloud/Wordle presentation on HTML5 canvas element</title>
+  <title>wordcloud2.js - tag cloud/Wordle presentation on 2D canvas or HTML</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
   <meta name="author" content="">
@@ -26,9 +26,27 @@
     margin-top: 20px;
     margin-bottom: 20px;
   }
-  #canvas {
+  .canvas {
     display: block;
+    position: relative;
+    overflow: hidden;
   }
+
+  .canvas.hide {
+    display: none;
+  }
+
+  #html-canvas > span {
+    transition: text-shadow 1s ease, opacity 1s ease;
+    -webkit-transition: text-shadow 1s ease, opacity 1s ease;
+    -ms-transition: text-shadow 1s ease, opacity 1s ease;
+  }
+
+  #html-canvas > span:hover {
+    text-shadow: 0 0 10px, 0 0 10px #fff, 0 0 10px #fff, 0 0 10px #fff;
+    opacity: 0.5;
+  }
+
   #box {
     pointer-events: none;
     position: absolute;
@@ -90,18 +108,23 @@
     </div>
   </div>
   <div class="container">
-    <p class="lead"><strong>wordcloud2.js</strong>, tag cloud/Wordle presentation on HTML5 canvas element</p>
+    <p class="lead"><strong>wordcloud2.js</strong>, tag cloud/Wordle presentation on 2D canvas or HTML</p>
     <div id="not-supported" class="alert" hidden>
       <strong>Your browser is not supported.</strong>
     </div>
     <form id="form" method="get" action="">
       <div class="row">
         <div class="span12" id="canvas-container">
-          <canvas id="canvas"></canvas>
+          <canvas id="canvas" class="canvas"></canvas>
+          <div id="html-canvas" class="canvas hide"></div>
         </div>
         <div class="span6">
           <button class="btn btn-primary" type="submit">Run</button>
-          <a class="btn" id="btn-save" href="#" download="wordcloud.png">Save</a>
+          <div class="btn-group">
+            <button class="btn" type="button" id="btn-canvas" disabled title="Show drawn canvas element.">Canvas</button>
+            <button class="btn" type="button" id="btn-html-canvas" title="Show Word Cloud with elements.">Elements</button>
+          </div>
+          <a class="btn" id="btn-save" href="#" download="wordcloud.png" title="Save canvas">Save Image</a>
           <span id="loading" hidden>......</span>
         </div>
         <div class="span6">
@@ -174,6 +197,7 @@
   jQuery(function ($) {
     var $form = $('#form');
     var $canvas = $('#canvas');
+    var $htmlCanvas = $('#html-canvas');
     var $canvasContainer = $('#canvas-container');
     var $loading = $('#loading');
 
@@ -236,8 +260,24 @@
         alert('Please right click and choose "Save As..." to save the generated image.');
         window.open(url, '_blank', 'width=500,height=300,menubar=yes');
       }
-
     });
+
+    $('#btn-canvas').on('click', function showCanvas(evt) {
+      $canvas.removeClass('hide');
+      $htmlCanvas.addClass('hide');
+      $('#btn-canvas').prop('disabled', true);
+      $('#btn-html-canvas').prop('disabled', false);
+    });
+
+    $('#btn-html-canvas').on('click', function showCanvas(evt) {
+      $canvas.addClass('hide');
+      $htmlCanvas.removeClass('hide');
+      $('#btn-canvas').prop('disabled', false);
+      $('#btn-html-canvas').prop('disabled', true);
+    });
+
+    $('#btn-canvas').prop('disabled', true);
+    $('#btn-html-canvas').prop('disabled', false);
 
     var $examples = $('#examples');
     $examples.on('change', function loadExample(evt) {
@@ -254,23 +294,27 @@
       $webfontLink.prop('href', $css.val());
 
       // devicePixelRatio
-      var devicePixelRatio = parseInt($dppx.val());
+      var devicePixelRatio = parseFloat($dppx.val());
 
       // Set the width and height
       var width = $width.val() ? $width.val() : $('#canvas-container').width();
       var height = $height.val() ? $height.val() : Math.floor(width * 0.65);
+      var pixelWidth = width;
+      var pixelHeight = height;
 
       if (devicePixelRatio !== 1) {
         $canvas.css({'width': width + 'px', 'height': height + 'px'});
 
-        width *= devicePixelRatio;
-        height *= devicePixelRatio;
+        pixelWidth *= devicePixelRatio;
+        pixelHeight *= devicePixelRatio;
       } else {
         $canvas.css({'width': '', 'height': '' });
       }
 
-      $canvas.attr('width', width);
-      $canvas.attr('height', height);
+      $canvas.attr('width', pixelWidth);
+      $canvas.attr('height', pixelHeight);
+
+      $htmlCanvas.css({'width': pixelWidth + 'px', 'height': pixelHeight + 'px'});
 
       // Set the options object
       var options = {};
@@ -328,8 +372,10 @@
         options.list = list;
       }
 
-      // All set, call the WordCloud();
-      WordCloud($canvas[0], options);
+      // All set, call the WordCloud()
+      // Order matters here because the HTML canvas might by
+      // set to display: none.
+      WordCloud([$canvas[0], $htmlCanvas[0]], options);
     };
 
     var loadExampleData = function loadExampleData(name) {
