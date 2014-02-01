@@ -1,6 +1,6 @@
 # [wordcloud2.js](http://timdream.org/wordcloud2.js/)
 
-Create a tag cloud/[Wordle](http://www.wordle.net/) presentation on a HTML5 canvas element.
+Create a tag cloud/[Wordle](http://www.wordle.net/) presentation on 2D canvas or HTML.
 
 This library is a spin-off project from [HTML5 Word Cloud](https://github.com/timdream/wordcloud).
 
