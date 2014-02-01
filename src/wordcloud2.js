@@ -167,6 +167,7 @@ if (!window.clearImmediate) {
       list: [],
       fontFamily: '"Trebuchet MS", "Heiti TC", "微軟正黑體", ' +
                   '"Arial Unicode MS", "Droid Fallback Sans", sans-serif',
+      fontWeight: 'normal',
       color: 'random-dark',
       minSize: 0, // 0 to disable
       weightFactor: 1,
@@ -463,7 +464,7 @@ if (!window.clearImmediate) {
       var fcanvas = document.createElement('canvas');
       var fctx = fcanvas.getContext('2d');
 
-      fctx.font = (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
+      fctx.font = settings.fontWeight + ' ' + (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
 
       // Estimate the dimension of the text with measureText().
       var fw = fctx.measureText(word).width / mu;
@@ -512,7 +513,7 @@ if (!window.clearImmediate) {
 
       // Once the width/height is set, ctx info will be reset.
       // Set it again here.
-      fctx.font = (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
+      fctx.font = settings.fontWeight + ' ' + (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
 
       // Fill the text into the fcanvas.
       // XXX: We cannot because textBaseline = 'top' here because
@@ -644,7 +645,8 @@ if (!window.clearImmediate) {
           ctx.save();
           ctx.scale(1 / mu, 1 / mu);
 
-          ctx.font = (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
+          ctx.font = settings.fontWeight + ' ' +
+                     (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
           ctx.fillStyle = color;
 
           // Translate the canvas position to the origin coordinate of where
@@ -686,7 +688,8 @@ if (!window.clearImmediate) {
           var styleRules = {
             'position': 'absolute',
             'display': 'block',
-            'font': (fontSize * info.mu) + 'px ' + settings.fontFamily,
+            'font': settings.fontWeight + ' ' +
+                    (fontSize * info.mu) + 'px ' + settings.fontFamily,
             'left': ((gx + info.gw / 2) * g + info.fillTextOffsetX) + 'px',
             'top': ((gy + info.gh / 2) * g + info.fillTextOffsetY) + 'px',
             'width': info.fillTextWidth + 'px',
