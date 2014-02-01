@@ -485,8 +485,9 @@ if (!window.clearImmediate) {
 
       // This is simply half of the width.
       var fillTextOffsetX = - fw / 2;
-      // The 0.4 * here is roughly the distance between alphabetic baseline and
-      // top baseline of most fonts.
+      // Instead of moving the box to the exact middle of the preferred
+      // position, for Y-offset we move 0.4 instead, so Latin alphabets look
+      // vertical centered.
       var fillTextOffsetY = - fh * 0.4;
 
       // Calculate the actual dimension of the canvas, considering the rotation.
@@ -514,9 +515,15 @@ if (!window.clearImmediate) {
       fctx.font = (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
 
       // Fill the text into the fcanvas.
+      // XXX: We cannot because textBaseline = 'top' here because
+      // Firefox and Chrome uses different default line-height for canvas.
+      // Please read https://bugzil.la/737852#c6.
+      // Here, we use textBaseline = 'middle' and draw the text at exactly
+      // 0.5 * fontSize lower.
       fctx.fillStyle = '#000';
-      fctx.textBaseline = 'top';
-      fctx.fillText(word, fillTextOffsetX * mu, fillTextOffsetY * mu);
+      fctx.textBaseline = 'middle';
+      fctx.fillText(word, fillTextOffsetX * mu,
+                    (fillTextOffsetY + fontSize * 0.5) * mu);
 
       // Restore the transform.
       fctx.restore();
@@ -639,7 +646,6 @@ if (!window.clearImmediate) {
 
           ctx.font = (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
           ctx.fillStyle = color;
-          ctx.textBaseline = 'top';
 
           // Translate the canvas position to the origin coordinate of where
           // the text should be put.
@@ -651,8 +657,19 @@ if (!window.clearImmediate) {
           }
 
           // Finally, fill the text.
+
+          // XXX: We cannot because textBaseline = 'top' here because
+          // Firefox and Chrome uses different default line-height for canvas.
+          // Please read https://bugzil.la/737852#c6.
+          // Here, we use textBaseline = 'middle' and draw the text at exactly
+          // 0.5 * fontSize lower.
+          ctx.textBaseline = 'middle';
           ctx.fillText(word, info.fillTextOffsetX * mu,
-                             info.fillTextOffsetY * mu);
+                             (info.fillTextOffsetY + fontSize * 0.5) * mu);
+
+          // The below box is always matches how <span>s are positioned
+          /* ctx.strokeRect(info.fillTextOffsetX, info.fillTextOffsetY,
+            info.fillTextWidth, info.fillTextHeight); */
 
           // Restore the state.
           ctx.restore();
