@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>wordcloud2.js - tag cloud/Wordle presentation on HTML5 canvas element</title>
+  <title>wordcloud2.js - tag cloud/Wordle presentation on 2D canvas or HTML</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
   <meta name="author" content="">
@@ -37,13 +37,14 @@
   }
 
   #html-canvas > span {
-    transition: text-shadow 1s ease;
-    -webkit-transition: text-shadow 1s ease;
-    -ms-transition: text-shadow 1s ease;
+    transition: text-shadow 1s ease, opacity 1s ease;
+    -webkit-transition: text-shadow 1s ease, opacity 1s ease;
+    -ms-transition: text-shadow 1s ease, opacity 1s ease;
   }
 
   #html-canvas > span:hover {
-    text-shadow: 0 0 10px, 0 0 10px #fff;
+    text-shadow: 0 0 10px, 0 0 10px #fff, 0 0 10px #fff, 0 0 10px #fff;
+    opacity: 0.5;
   }
 
   #box {
@@ -107,7 +108,7 @@
     </div>
   </div>
   <div class="container">
-    <p class="lead"><strong>wordcloud2.js</strong>, tag cloud/Wordle presentation on HTML5 canvas element</p>
+    <p class="lead"><strong>wordcloud2.js</strong>, tag cloud/Wordle presentation on 2D canvas or HTML</p>
     <div id="not-supported" class="alert" hidden>
       <strong>Your browser is not supported.</strong>
     </div>
@@ -123,7 +124,7 @@
             <button class="btn" type="button" id="btn-canvas" disabled title="Show drawn canvas element.">Canvas</button>
             <button class="btn" type="button" id="btn-html-canvas" title="Show Word Cloud with elements.">Elements</button>
           </div>
-          <a class="btn" id="btn-save" href="#" download="wordcloud.png">Save</a>
+          <a class="btn" id="btn-save" href="#" download="wordcloud.png" title="Save canvas">Save Image</a>
           <span id="loading" hidden>......</span>
         </div>
         <div class="span6">
