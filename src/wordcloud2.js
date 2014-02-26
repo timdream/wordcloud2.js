@@ -348,6 +348,7 @@ if (!window.clearImmediate) {
     var hovered;
 
     var getInfoGridFromMouseEvent = function getInfoGridFromMouseEvent(evt) {
+      var canvas = evt.target;
       var rect = canvas.getBoundingClientRect();
       var eventX = evt.clientX - rect.left;
       var eventY = evt.clientY - rect.top;
