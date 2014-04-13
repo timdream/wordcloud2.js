@@ -1006,7 +1006,6 @@ if (!window.clearImmediate) {
       };
 
       addEventListener('wordcloudstart', anotherWordCloudStart);
-      $('#canvas-container span').remove();
 
       var timer = loopingFunction(function loop() {
         if (i >= settings.list.length) {
