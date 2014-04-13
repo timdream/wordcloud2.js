@@ -721,8 +721,10 @@ if (!window.clearImmediate) {
 
       grid[x][y] = false;
 
-      if (drawMask)
+      if (drawMask) {
+        var ctx = elements[0].getContext('2d');
         ctx.fillRect(x * g, y * g, maskRectWidth, maskRectWidth);
+      }
 
       if (interactive) {
         infoGrid[x][y] = { item: item, dimension: dimension };
@@ -735,7 +737,9 @@ if (!window.clearImmediate) {
       var occupied = info.occupied;
       var maskRectWidth = g - settings.maskGapWidth;
       var drawMask = settings.drawMask;
+      var ctx;
       if (drawMask) {
+        ctx = elements[0].getContext('2d');
         ctx.save();
         ctx.fillStyle = settings.maskColor;
       }
@@ -757,8 +761,9 @@ if (!window.clearImmediate) {
                    drawMask, dimension, item);
       }
 
-      if (drawMask)
+      if (drawMask) {
         ctx.restore();
+      }
     };
 
     /* putWord() processes each item on the list,
