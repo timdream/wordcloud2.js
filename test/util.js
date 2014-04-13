@@ -38,13 +38,35 @@ var getTestOptions = function getTestOptions() {
 
 // Get the reference image from localStorage
 var getRefImage = function getRefImage(id, callback) {
-  var url = window.localStorage.getItem('wordcloud-js-' + id);
-  callback(url);
+  var str = window.localStorage.getItem('wordcloud-js-' + id);
+  if (!str) {
+    callback();
+
+    return;
+  }
+  var arr = new Uint8ClampedArray(str.length * 2);
+  for (var i = 0; i < arr.length; i += 2) {
+    var code = str.charCodeAt(i / 2);
+    arr[i] = code >> 8;
+    arr[i + 1] = code & (1 << 8) - 1;
+  }
+
+  callback(arr);
 };
 
 // Save the reference image to localStorage
 var saveRefImage = function saveRefImage(id, canvas, callback) {
-  window.localStorage.setItem('wordcloud-js-' + id, canvas.toDataURL());
+  var canvasData = canvas.getContext('2d')
+                    .getImageData(0, 0, canvas.width, canvas.height).data;
+  var strArr = [];
+
+  for (var i = 0; i < canvasData.length; i += 2) {
+    strArr.push(canvasData[i] << 8 | canvasData[i + 1]);
+  }
+
+  window.localStorage.setItem('wordcloud-js-' + id,
+    String.fromCharCode.apply(String, strArr));
+
   if (callback)
     callback();
 };
@@ -95,59 +117,50 @@ var setupTestCanvas = function setupTestCanvas(refImageId, callback) {
 
 // Compare the canvas with reference image pixel-by-pixel,
 // and return the result to callback.
-var compareCanvas = function compareCanvas(canvas, refImageUrl, callback) {
-  if (!refImageUrl) {
+var compareCanvas = function compareCanvas(canvas, refImgData, callback) {
+  if (!refImgData || refImgData.length !== canvas.width * canvas.height * 4) {
     callback(false);
     return;
   }
 
-  var refImg = new Image();
-  refImg.src = refImageUrl;
-  refImg.onerror = function refImgLoadError() {
-    callback(false);
-  };
-  refImg.onload = function refImgLoaded() {
-    if (refImg.width !== canvas.width ||
-        refImg.height !== canvas.height) {
+  var refCanvas = document.createElement('canvas');
+  refCanvas.className = 'reference';
+  refCanvas.title = 'Reference';
+  appendToCurrentTestOutput(refCanvas);
+
+  refCanvas.width = canvas.width;
+  refCanvas.height = canvas.height;
+  var refCtx = refCanvas.getContext('2d');
+  var refImageData = refCtx.createImageData(canvas.width, canvas.height);
+  var i = refImgData.length;
+  while(i--) {
+    refImageData.data[i] = refImgData[i];
+  }
+
+  refCtx.putImageData(refImageData, 0, 0);
+
+  var canvasData = canvas.getContext('2d')
+                    .getImageData(0, 0, canvas.width, canvas.height).data;
+
+  var i = canvasData.length;
+  while(i--) {
+    if (refImgData[i] !== canvasData[i]) {
       callback(false);
       return;
     }
-
-    var refCanvas = document.createElement('canvas');
-    refCanvas.className = 'reference';
-    refCanvas.title = 'Reference';
-    appendToCurrentTestOutput(refCanvas);
-
-    refCanvas.width = refImg.width;
-    refCanvas.height = refImg.height;
-    var refCtx = refCanvas.getContext('2d');
-    refCtx.drawImage(refImg, 0, 0);
-
-    var refImageData = refCtx.getImageData(0, 0, canvas.width, canvas.height).data;
-
-    var canvasData = canvas.getContext('2d')
-                      .getImageData(0, 0, canvas.width, canvas.height).data;
-
-    var i = canvasData.length;
-    while(i--) {
-      if (refImageData[i] !== canvasData[i]) {
-        callback(false);
-        return;
-      }
-    }
-    callback(true);
-  };
+  }
+  callback(true);
 };
 
 // Wrapper to functions above. Basic scaffold for all the simple tests.
 var setupTest = function setupTest(refImageId) {
   stop();
   var canvas = setupTestCanvas(refImageId, function canvasDrawn() {
-    getRefImage(refImageId, function gotRefImage(refImgUrl) {
-      ok(refImgUrl,
+    getRefImage(refImageId, function gotRefImage(refImgData) {
+      ok(refImgData,
          'Reference image found; click on the canvas to save it as the ' +
          'new refernece image in localStorage.');
-      compareCanvas(canvas, refImgUrl, function canvasCompared(value) {
+      compareCanvas(canvas, refImgData, function canvasCompared(value) {
         ok(value, 'The canvas output is equal to the reference image.');
         start();
       });
