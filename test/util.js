@@ -156,6 +156,11 @@ var compareCanvas = function compareCanvas(canvas, refImgData, callback) {
   callback(true);
 };
 
+var SAVEMODE = false;
+if (window.location.search.indexOf('savemode=true') !== -1) {
+  SAVEMODE = true;
+}
+
 // Wrapper to functions above. Basic scaffold for all the simple tests.
 var setupTest = function setupTest(refImageId) {
   stop();
@@ -182,6 +187,15 @@ var setupTest = function setupTest(refImageId) {
   }
 
   var canvas = setupTestCanvas(refImageId, function canvasDrawn() {
+    if (SAVEMODE) {
+      canvas.save();
+
+      ok(true, 'Canvas output has been saved as reference images.');
+      start();
+
+      return;
+    }
+
     getRefImage(refImageId, function gotRefImage(refImgData) {
       ok(refImgData,
          'Reference image found; click on the canvas to save it as the ' +
