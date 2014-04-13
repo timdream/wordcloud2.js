@@ -97,6 +97,7 @@ var appendToCurrentTestOutput = function appendToCurrentTestOutput(el) {
 // run the callback when it is being drawn by wordcloud.js
 var setupTestCanvas = function setupTestCanvas(refImageId, callback) {
   var canvas = document.createElement('canvas');
+  canvas.className = 'ref-canvas';
   canvas.width = 300;
   canvas.height = 300;
   canvas.addEventListener('wordcloudstop', function wordcloudstopped() {
@@ -108,6 +109,9 @@ var setupTestCanvas = function setupTestCanvas(refImageId, callback) {
       }
       saveRefImage(refImageId, canvas);
     });
+    canvas.save = function() {
+      saveRefImage(refImageId, canvas);
+    };
     callback();
   });
   appendToCurrentTestOutput(canvas);
@@ -155,6 +159,28 @@ var compareCanvas = function compareCanvas(canvas, refImgData, callback) {
 // Wrapper to functions above. Basic scaffold for all the simple tests.
 var setupTest = function setupTest(refImageId) {
   stop();
+
+  var el = document.getElementById('save-all');
+  if (!el) {
+    var container = document.getElementById('qunit-testrunner-toolbar');
+    var buttonEl = document.createElement('button');
+    buttonEl.type = 'button';
+    buttonEl.id = 'save-all';
+    buttonEl.textContent = 'Save all reference images';
+    container.appendChild(buttonEl);
+    buttonEl.addEventListener('click', function clicked() {
+      if (!window.confirm('Are you sure you want to keep all the output' +
+                          ' as the reference image?')) {
+        return;
+      }
+      var refCanvases = document.getElementsByClassName('ref-canvas');
+      for (var i = 0; i < refCanvases.length; i++) {
+        refCanvases[i].save();
+      }
+    });
+
+  }
+
   var canvas = setupTestCanvas(refImageId, function canvasDrawn() {
     getRefImage(refImageId, function gotRefImage(refImgData) {
       ok(refImgData,
