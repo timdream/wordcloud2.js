@@ -38,37 +38,15 @@ var getTestOptions = function getTestOptions() {
 
 // Get the reference image from localStorage
 var getRefImage = function getRefImage(id, callback) {
-  var str = window.localStorage.getItem('wordcloud-js-' + id);
-  if (!str) {
-    callback();
-
-    return;
-  }
-  var arr = new Uint8ClampedArray(str.length * 2);
-  for (var i = 0; i < arr.length; i += 2) {
-    var code = str.charCodeAt(i / 2);
-    arr[i] = code >> 8;
-    arr[i + 1] = code & (1 << 8) - 1;
-  }
-
-  callback(arr);
+  var str = window.asyncStorage.getItem('wordcloud-js-' + id, callback);
 };
 
 // Save the reference image to localStorage
 var saveRefImage = function saveRefImage(id, canvas, callback) {
   var canvasData = canvas.getContext('2d')
                     .getImageData(0, 0, canvas.width, canvas.height).data;
-  var strArr = [];
 
-  for (var i = 0; i < canvasData.length; i += 2) {
-    strArr.push(canvasData[i] << 8 | canvasData[i + 1]);
-  }
-
-  window.localStorage.setItem('wordcloud-js-' + id,
-    String.fromCharCode.apply(String, strArr));
-
-  if (callback)
-    callback();
+  window.asyncStorage.setItem('wordcloud-js-' + id, canvasData, callback);
 };
 
 // Save the current test details to currentTestDetails
