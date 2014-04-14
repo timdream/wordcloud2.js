@@ -130,6 +130,11 @@ if (window.location.search.indexOf('savemode=true') !== -1) {
   SAVEMODE = true;
 }
 
+var ALLOWNOREF = false;
+if (window.location.search.indexOf('allownoref=true') !== -1) {
+  ALLOWNOREF = true;
+}
+
 // Wrapper to functions above. Basic scaffold for all the simple tests.
 var setupTest = function setupTest(refImageId) {
   stop();
@@ -166,6 +171,14 @@ var setupTest = function setupTest(refImageId) {
     }
 
     getRefImage(refImageId, function gotRefImage(refImgData) {
+      if (!refImgData && ALLOWNOREF) {
+        ok(true, 'Skip the test; no reference image and ALLOWNOREF is turned on.');
+
+        start();
+
+        return;
+      }
+
       ok(refImgData,
          'Reference image found; click on the canvas to save it as the ' +
          'new refernece image in localStorage.');
