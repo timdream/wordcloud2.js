@@ -172,7 +172,11 @@ var setupTest = function setupTest(refImageId) {
 
     getRefImage(refImageId, function gotRefImage(refImgData) {
       if (!refImgData && ALLOWNOREF) {
-        ok(true, 'Skip the test; no reference image and ALLOWNOREF is turned on.');
+        ok(true, 'Skip the test with ALLOWNOREF.');
+        console.log(
+          'Skip the test with ALLOWNOREF. Please manually confirm \n' +
+          'the test result of "' + currentTestDetails.name + '"');
+        console.log(canvas.toDataURL());
 
         start();
 
