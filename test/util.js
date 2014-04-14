@@ -3,15 +3,6 @@
 // Introduce a timeout
 QUnit.config.testTimeout = 10*1E3;
 
-// Load the web font before begin the test
-QUnit.config.autostart = false;
-WebFont.load({
-  google: { families: [ 'Milonga::latin' ] },
-  fontactive: function() {
-    QUnit.start();
-  }
-});
-
 // the list array will be generated here.
 var list = (function () {
   var string = 'Grumpy wizards make toxic brew for the evil Queen and Jack';
@@ -31,7 +22,7 @@ var getTestOptions = function getTestOptions() {
     shuffle: false,
     rotateRatio: 0,
     color: '#000',
-    fontFamily: 'Milonga',
+    fontFamily: 'sans-serif',
     list: list
   };
 };
