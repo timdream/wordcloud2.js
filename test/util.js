@@ -118,7 +118,7 @@ var compareCanvas = function compareCanvas(canvas, refImgData, callback) {
   var i = canvasData.length;
   while(i--) {
     if (refImgData[i] !== canvasData[i]) {
-      callback(false);
+      callback(false, refCanvas);
       return;
     }
   }
@@ -186,8 +186,16 @@ var setupTest = function setupTest(refImageId) {
       ok(refImgData,
          'Reference image found; click on the canvas to save it as the ' +
          'new refernece image in localStorage.');
-      compareCanvas(canvas, refImgData, function canvasCompared(value) {
+      compareCanvas(canvas, refImgData, function canvasCompared(value, refCanvas) {
         ok(value, 'The canvas output is equal to the reference image.');
+        if (!value) {
+          console.log('Test name: "' + currentTestDetails.name + '"');
+          console.log('The reference image:');
+          console.log(refCanvas.toDataURL());
+          console.log('The output:');
+          console.log(canvas.toDataURL());
+        }
+
         start();
       });
     });
