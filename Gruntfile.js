@@ -62,4 +62,16 @@ module.exports = function(grunt) {
   // Run the test suite with QUnit on SlimerJS
   grunt.registerTask('compare-slimerjs',
     ['connect', 'shell:compare-slimerjs']);
+
+  grunt.registerTask('travis-ci', function() {
+    if (process.env.TRAVIS_PULL_REQUEST === 'false') {
+      // Not working on pull requests -- simply run test job.
+      grunt.task.run(['test']);
+    } else {
+      // Running on pull requests -- check linting, and compare the images with
+      // the branch to merge.
+      BASE_COMMIT = process.env.TRAVIS_BRANCH;
+      grunt.task.run(['jshint', 'compare']);
+    }
+  });
 };
