@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+  - 0.8
+env:
+  - SLIMERJSLAUNCHER=$(which firefox) DISPLAY=:99.0 PATH=$TRAVIS_BUILD_DIR/slimerjs:$PATH
+addons:
+  firefox: "28.0"
+branches:
+  except:
+    - gh-pages
+script: grunt travis-ci
+before_script:
+  - "sh -e /etc/init.d/xvfb start"
+  - "echo 'Installing SlimerJS'"
+  - "wget http://download.slimerjs.org/v0.9/0.9.1/slimerjs-0.9.1.zip"
+  - "unzip slimerjs-0.9.1.zip"
+  - "mv slimerjs-0.9.1 ./slimerjs"
+  - "echo 'Installing Grunt'"
+  - "npm install -g grunt-cli"
