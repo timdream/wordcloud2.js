@@ -53,7 +53,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-contrib-connect');
 
-  grunt.registerTask('test', ['test-slimerjs']);
+  grunt.registerTask('test', ['jshint','test-slimerjs']);
   grunt.registerTask('compare', ['compare-slimerjs']);
 
   // Run the test suite with QUnit on SlimerJS

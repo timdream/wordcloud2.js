@@ -39,14 +39,16 @@ if (!window.setImmediate) {
         // object with another in the presence of iframe
         if (typeof evt.data !== 'string' ||
             evt.data.substr(0, message.length) !== message/* ||
-            evt.source !== window */)
+            evt.source !== window */) {
           return;
+        }
 
         evt.stopImmediatePropagation();
 
         var id = parseInt(evt.data.substr(message.length), 36);
-        if (!callbacks[id])
+        if (!callbacks[id]) {
           return;
+        }
 
         callbacks[id]();
         callbacks[id] = undefined;
@@ -54,8 +56,9 @@ if (!window.setImmediate) {
 
       /* specify clearImmediate() here since we need the scope */
       window.clearImmediate = function clearZeroTimeout(id) {
-        if (!callbacks[id])
+        if (!callbacks[id]) {
           return;
+        }
 
         callbacks[id] = undefined;
       };
@@ -88,19 +91,24 @@ if (!window.clearImmediate) {
   // Check if WordCloud can run on this browser
   var isSupported = (function isSupported() {
     var canvas = document.createElement('canvas');
-    if (!canvas || !canvas.getContext)
+    if (!canvas || !canvas.getContext) {
       return false;
+    }
 
     var ctx = canvas.getContext('2d');
-    if (!ctx.getImageData)
+    if (!ctx.getImageData) {
       return false;
-    if (!ctx.fillText)
+    }
+    if (!ctx.fillText) {
       return false;
+    }
 
-    if (!Array.prototype.some)
+    if (!Array.prototype.some) {
       return false;
-    if (!Array.prototype.push)
+    }
+    if (!Array.prototype.push) {
       return false;
+    }
 
     return true;
   }());
@@ -108,8 +116,9 @@ if (!window.clearImmediate) {
   // Find out if the browser impose minium font size by
   // drawing small texts on a canvas and measure it's width.
   var miniumFontSize = (function getMiniumFontSize() {
-    if (!isSupported)
+    if (!isSupported) {
       return;
+    }
 
     var ctx = document.createElement('canvas').getContext('2d');
 
@@ -122,8 +131,9 @@ if (!window.clearImmediate) {
     while (size) {
       ctx.font = size.toString(10) + 'px sans-serif';
       if ((ctx.measureText('\uFF37').width === hanWidth) &&
-          (ctx.measureText('m').width) === mWidth)
+          (ctx.measureText('m').width) === mWidth) {
         return (size + 1);
+      }
 
       hanWidth = ctx.measureText('\uFF37').width;
       mWidth = ctx.measureText('m').width;
@@ -139,13 +149,14 @@ if (!window.clearImmediate) {
     for (var j, x, i = arr.length; i;
       j = Math.floor(Math.random() * i),
       x = arr[--i], arr[i] = arr[j],
-      arr[j] = x);
+      arr[j] = x) {}
     return arr;
   };
 
   var WordCloud = function WordCloud(elements, options) {
-    if (!isSupported)
+    if (!isSupported) {
       return;
+    }
 
     if (!Array.isArray(elements)) {
       elements = [elements];
@@ -200,8 +211,9 @@ if (!window.clearImmediate) {
 
     if (options) {
       for (var key in options) {
-        if (key in settings)
+        if (key in settings) {
           settings[key] = options[key];
+        }
       }
     }
 
@@ -217,6 +229,7 @@ if (!window.clearImmediate) {
     if (typeof settings.shape !== 'function') {
       switch (settings.shape) {
         case 'circle':
+        /* falls through */
         default:
           // 'circle' is the default and a shortcut in the code loop.
           settings.shape = 'circle';
@@ -362,8 +375,9 @@ if (!window.clearImmediate) {
     var wordcloudhover = function wordcloudhover(evt) {
       var info = getInfoGridFromMouseEvent(evt);
 
-      if (hovered === info)
+      if (hovered === info) {
         return;
+      }
 
       hovered = info;
       if (!info) {
@@ -378,8 +392,9 @@ if (!window.clearImmediate) {
 
     var wordcloudclick = function wordcloudclick(evt) {
       var info = getInfoGridFromMouseEvent(evt);
-      if (!info)
+      if (!info) {
         return;
+      }
 
       settings.click(info.item, info.dimension, evt);
     };
@@ -387,8 +402,9 @@ if (!window.clearImmediate) {
     /* Get points on the grid for a given radius away from the center */
     var pointsAtRadius = [];
     var getPointsAtRadius = function getPointsAtRadius(radius) {
-      if (pointsAtRadius[radius])
+      if (pointsAtRadius[radius]) {
         return pointsAtRadius[radius];
+      }
 
       // Look for these number of points on each radius
       var T = radius * 8;
@@ -404,8 +420,9 @@ if (!window.clearImmediate) {
       while (t--) {
         // distort the radius to put the cloud in shape
         var rx = 1;
-        if (settings.shape !== 'circle')
+        if (settings.shape !== 'circle') {
           rx = settings.shape(t / T * 2 * Math.PI); // 0 to 1
+        }
 
         // Push [x, y, t]; t is used solely for getTextColor()
         points.push([
@@ -427,14 +444,17 @@ if (!window.clearImmediate) {
 
     /* Get the deg of rotation according to settings, and luck. */
     var getRotateDeg = function getRotateDeg() {
-      if (settings.rotateRatio === 0)
+      if (settings.rotateRatio === 0) {
         return 0;
+      }
 
-      if (Math.random() > settings.rotateRatio)
+      if (Math.random() > settings.rotateRatio) {
         return 0;
+      }
 
-      if (rotationRange === 0)
+      if (rotationRange === 0) {
         return minRotation;
+      }
 
       return minRotation + Math.random() * rotationRange;
     };
@@ -445,8 +465,9 @@ if (!window.clearImmediate) {
       // and size < minSize means we cannot draw the text.
       var debug = false;
       var fontSize = settings.weightFactor(weight);
-      if (fontSize <= settings.minSize)
+      if (fontSize <= settings.minSize) {
         return false;
+      }
 
       // Scale factor here is to make sure fillText is not limited by
       // the minium font size set by browser.
@@ -465,7 +486,8 @@ if (!window.clearImmediate) {
       var fcanvas = document.createElement('canvas');
       var fctx = fcanvas.getContext('2d', { willReadFrequently: true });
 
-      fctx.font = settings.fontWeight + ' ' + (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
+      fctx.font = settings.fontWeight + ' ' +
+        (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
 
       // Estimate the dimension of the text with measureText().
       var fw = fctx.measureText(word).width / mu;
@@ -503,8 +525,9 @@ if (!window.clearImmediate) {
       fcanvas.setAttribute('width', width);
       fcanvas.setAttribute('height', height);
 
-      if (debug)
+      if (debug) {
         document.body.appendChild(fcanvas);
+      }
 
       // Scale the canvas with |mu|.
       fctx.save();
@@ -514,7 +537,8 @@ if (!window.clearImmediate) {
 
       // Once the width/height is set, ctx info will be reset.
       // Set it again here.
-      fctx.font = settings.fontWeight + ' ' + (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
+      fctx.font = settings.fontWeight + ' ' +
+        (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
 
       // Fill the text into the fcanvas.
       // XXX: We cannot because textBaseline = 'top' here because
@@ -533,8 +557,9 @@ if (!window.clearImmediate) {
       // Get the pixels of the text
       var imageData = fctx.getImageData(0, 0, width, height).data;
 
-      if (exceedTime())
+      if (exceedTime()) {
         return false;
+      }
 
       // Read the pixels and save the information to the occupied array
       var occupied = [];
@@ -552,14 +577,18 @@ if (!window.clearImmediate) {
                                (gx * g + x)) * 4 + 3]) {
                   occupied.push([gx, gy]);
 
-                  if (gx < bounds[3])
+                  if (gx < bounds[3]) {
                     bounds[3] = gx;
-                  if (gx > bounds[1])
+                  }
+                  if (gx > bounds[1]) {
                     bounds[1] = gx;
-                  if (gy < bounds[0])
+                  }
+                  if (gy < bounds[0]) {
                     bounds[0] = gy;
-                  if (gy > bounds[2])
+                  }
+                  if (gy > bounds[2]) {
                     bounds[2] = gy;
+                  }
 
                   if (debug) {
                     fctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
@@ -573,7 +602,7 @@ if (!window.clearImmediate) {
               fctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
               fctx.fillRect(gx * g, gy * g, g - 0.5, g - 0.5);
             }
-          };
+          }
         }
       }
 
@@ -716,8 +745,9 @@ if (!window.clearImmediate) {
 
     /* Help function to updateGrid */
     var fillGridAt = function fillGridAt(x, y, drawMask, dimension, item) {
-      if (x >= ngx || y >= ngy || x < 0 || y < 0)
+      if (x >= ngx || y >= ngy || x < 0 || y < 0) {
         return;
+      }
 
       grid[x][y] = false;
 
@@ -735,7 +765,6 @@ if (!window.clearImmediate) {
        Draw the mask on the canvas if necessary. */
     var updateGrid = function updateGrid(gx, gy, gw, gh, info, item) {
       var occupied = info.occupied;
-      var maskRectWidth = g - settings.maskGapWidth;
       var drawMask = settings.drawMask;
       var ctx;
       if (drawMask) {
@@ -778,11 +807,13 @@ if (!window.clearImmediate) {
       var info = getTextInfo(word, weight, rotateDeg);
 
       // not getting the info means we shouldn't be drawing this one.
-      if (!info)
+      if (!info) {
         return false;
+      }
 
-      if (exceedTime())
+      if (exceedTime()) {
         return false;
+      }
 
       // Skip the loop if we have already know the bounding box of
       // word is larger than the canvas.
@@ -796,6 +827,29 @@ if (!window.clearImmediate) {
       // start looking for the nearest points
       var r = maxRadius + 1;
 
+      var tryToPutWordAtPoint = function(gxy) {
+        var gx = Math.floor(gxy[0] - info.gw / 2);
+        var gy = Math.floor(gxy[1] - info.gh / 2);
+        var gw = info.gw;
+        var gh = info.gh;
+
+        // If we cannot fit the text at this position, return false
+        // and go to the next position.
+        if (!canFitText(gx, gy, gw, gh, info.occupied)) {
+          return false;
+        }
+
+        // Actually put the text on the canvas
+        drawText(gx, gy, info, word, weight,
+                 (maxRadius - r), gxy[2], rotateDeg);
+
+        // Mark the spaces on the grid as filled
+        updateGrid(gx, gy, gw, gh, info, item);
+
+        // Return true so some() will stop and also return true.
+        return true;
+      };
+
       while (r--) {
         var points = getPointsAtRadius(maxRadius - r);
 
@@ -808,27 +862,7 @@ if (!window.clearImmediate) {
         // array.some() will stop and return true
         // when putWordAtPoint() returns true.
         // If all the points returns false, array.some() returns false.
-        var drawn = points.some(function putWordAtPoint(gxy) {
-          var gx = Math.floor(gxy[0] - info.gw / 2);
-          var gy = Math.floor(gxy[1] - info.gh / 2);
-          var gw = info.gw;
-          var gh = info.gh;
-
-          // If we cannot fit the text at this position, return false
-          // and go to the next position.
-          if (!canFitText(gx, gy, gw, gh, info.occupied))
-            return false;
-
-          // Actually put the text on the canvas
-          drawText(gx, gy, info, word, weight,
-                   (maxRadius - r), gxy[2], rotateDeg);
-
-          // Mark the spaces on the grid as filled
-          updateGrid(gx, gy, gw, gh, info, item);
-
-          // Return true so some() will stop and also return true.
-          return true;
-        });
+        var drawn = points.some(tryToPutWordAtPoint);
 
         if (drawn) {
           // leave putWord() and return true
@@ -890,6 +924,7 @@ if (!window.clearImmediate) {
          if not, update the grid to the current canvas state */
       grid = [];
 
+      var gx, gy, i;
       if (!canvas.getContext || settings.clearCanvas) {
         elements.forEach(function(el) {
           if (el.getContext) {
@@ -904,7 +939,7 @@ if (!window.clearImmediate) {
         });
 
         /* fill the grid with empty state */
-        var gx = ngx, gy;
+        gx = ngx;
         while (gx--) {
           grid[gx] = [];
           gy = ngy;
@@ -927,7 +962,8 @@ if (!window.clearImmediate) {
         var imageData =
           canvas.getContext('2d').getImageData(0, 0, ngx * g, ngy * g).data;
 
-        var gx = ngx, gy, x, y, i;
+        gx = ngx;
+        var x, y;
         while (gx--) {
           grid[gx] = [];
           gy = ngy;
@@ -961,7 +997,7 @@ if (!window.clearImmediate) {
         interactive = true;
 
         /* fill the grid with empty state */
-        var gx = ngx + 1;
+        gx = ngx + 1;
         while (gx--) {
           infoGrid[gx] = [];
         }
@@ -983,7 +1019,7 @@ if (!window.clearImmediate) {
         });
       }
 
-      var i = 0;
+      i = 0;
       var loopingFunction, stoppingFunction;
       if (settings.wait !== 0) {
         loopingFunction = window.setTimeout;
@@ -1045,10 +1081,10 @@ if (!window.clearImmediate) {
   WordCloud.miniumFontSize = miniumFontSize;
 
   // Expose the library as an AMD module
-  if (typeof define === 'function' && define.amd) {
-    define('wordcloud', [], function() { return WordCloud; });
+  if (typeof global.define === 'function' && global.define.amd) {
+    global.define('wordcloud', [], function() { return WordCloud; });
   } else {
     global.WordCloud = WordCloud;
   }
 
-})(this);
+})(window);
