@@ -1,8 +1,10 @@
-# [wordcloud2.js](http://timdream.org/wordcloud2.js/)
+# wordcloud2.js [![Build Status](https://travis-ci.org/timdream/wordcloud2.js.svg?branch=master)](https://travis-ci.org/timdream/wordcloud2.js)
 
 Create a tag cloud/[Wordle](http://www.wordle.net/) presentation on 2D canvas or HTML.
 
 This library is a spin-off project from [HTML5 Word Cloud](https://github.com/timdream/wordcloud).
+
+** Visit the [demo page](http://timdream.org/wordcloud2.js/)**
 
 ## Simple usage
 
@@ -25,4 +27,5 @@ Tests are available with [QUnit](http://qunitjs.com/) and `grunt`.
 To setup environment for testing, run `npm install` and manually install [SlimerJS](http://slimerjs.org/) of your platform.
 
 Use `grunt test` to ensure all options can be set without JavaScript error.
+
 Use `grunt compare --base-commit=master` to compare your proposed fix with `master` branch.
