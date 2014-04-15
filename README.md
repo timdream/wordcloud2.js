@@ -21,11 +21,8 @@ With the information, wordcloud.js will then try to find a place to fit the word
 
 ## Testing
 
-Semi-automatic tests are available with [QUnit](http://qunitjs.com/).
+Tests are available with [QUnit](http://qunitjs.com/) and `grunt`.
+To setup environment for testing, run `npm install` and manually install [SlimerJS](http://slimerjs.org/) of your platform.
 
-Unfortunately, even with all the randomness options disabled,
-the output will still depend on the browser and the font rendering of the OS
-(and ClearType settings!). Hence, I cannot supply a set of reference images.
-The tests won't pass unless you manually confirm them in your environment first --
-subsequent tests are considered passed if the reference image exists
-(saved when you confirm the output) and the output is identical to it pixel-by-pixel.
+Use `grunt test` to ensure all options can be set without JavaScript error.
+Use `grunt compare --base-commit=master` to compare your proposed fix with `master` branch.
