@@ -3,15 +3,6 @@
 // Introduce a timeout
 QUnit.config.testTimeout = 10*1E3;
 
-// Load the web font before begin the test
-QUnit.config.autostart = false;
-WebFont.load({
-  google: { families: [ 'Milonga::latin' ] },
-  fontactive: function() {
-    QUnit.start();
-  }
-});
-
 // the list array will be generated here.
 var list = (function () {
   var string = 'Grumpy wizards make toxic brew for the evil Queen and Jack';
@@ -31,22 +22,22 @@ var getTestOptions = function getTestOptions() {
     shuffle: false,
     rotateRatio: 0,
     color: '#000',
-    fontFamily: 'Milonga',
+    fontFamily: 'sans-serif',
     list: list
   };
 };
 
 // Get the reference image from localStorage
 var getRefImage = function getRefImage(id, callback) {
-  var url = window.localStorage.getItem('wordcloud-js-' + id);
-  callback(url);
+  var str = window.asyncStorage.getItem('wordcloud-js-' + id, callback);
 };
 
 // Save the reference image to localStorage
 var saveRefImage = function saveRefImage(id, canvas, callback) {
-  window.localStorage.setItem('wordcloud-js-' + id, canvas.toDataURL());
-  if (callback)
-    callback();
+  var canvasData = canvas.getContext('2d')
+                    .getImageData(0, 0, canvas.width, canvas.height).data;
+
+  window.asyncStorage.setItem('wordcloud-js-' + id, canvasData, callback);
 };
 
 // Save the current test details to currentTestDetails
@@ -75,6 +66,7 @@ var appendToCurrentTestOutput = function appendToCurrentTestOutput(el) {
 // run the callback when it is being drawn by wordcloud.js
 var setupTestCanvas = function setupTestCanvas(refImageId, callback) {
   var canvas = document.createElement('canvas');
+  canvas.className = 'ref-canvas';
   canvas.width = 300;
   canvas.height = 300;
   canvas.addEventListener('wordcloudstop', function wordcloudstopped() {
@@ -86,6 +78,9 @@ var setupTestCanvas = function setupTestCanvas(refImageId, callback) {
       }
       saveRefImage(refImageId, canvas);
     });
+    canvas.save = function() {
+      saveRefImage(refImageId, canvas);
+    };
     callback();
   });
   appendToCurrentTestOutput(canvas);
@@ -95,60 +90,112 @@ var setupTestCanvas = function setupTestCanvas(refImageId, callback) {
 
 // Compare the canvas with reference image pixel-by-pixel,
 // and return the result to callback.
-var compareCanvas = function compareCanvas(canvas, refImageUrl, callback) {
-  if (!refImageUrl) {
+var compareCanvas = function compareCanvas(canvas, refImgData, callback) {
+  if (!refImgData || refImgData.length !== canvas.width * canvas.height * 4) {
     callback(false);
     return;
   }
 
-  var refImg = new Image();
-  refImg.src = refImageUrl;
-  refImg.onerror = function refImgLoadError() {
-    callback(false);
-  };
-  refImg.onload = function refImgLoaded() {
-    if (refImg.width !== canvas.width ||
-        refImg.height !== canvas.height) {
-      callback(false);
+  var refCanvas = document.createElement('canvas');
+  refCanvas.className = 'reference';
+  refCanvas.title = 'Reference';
+  appendToCurrentTestOutput(refCanvas);
+
+  refCanvas.width = canvas.width;
+  refCanvas.height = canvas.height;
+  var refCtx = refCanvas.getContext('2d');
+  var refImageData = refCtx.createImageData(canvas.width, canvas.height);
+  var i = refImgData.length;
+  while(i--) {
+    refImageData.data[i] = refImgData[i];
+  }
+
+  refCtx.putImageData(refImageData, 0, 0);
+
+  var canvasData = canvas.getContext('2d')
+                    .getImageData(0, 0, canvas.width, canvas.height).data;
+
+  var i = canvasData.length;
+  while(i--) {
+    if (refImgData[i] !== canvasData[i]) {
+      callback(false, refCanvas);
       return;
     }
-
-    var refCanvas = document.createElement('canvas');
-    refCanvas.className = 'reference';
-    refCanvas.title = 'Reference';
-    appendToCurrentTestOutput(refCanvas);
-
-    refCanvas.width = refImg.width;
-    refCanvas.height = refImg.height;
-    var refCtx = refCanvas.getContext('2d');
-    refCtx.drawImage(refImg, 0, 0);
-
-    var refImageData = refCtx.getImageData(0, 0, canvas.width, canvas.height).data;
-
-    var canvasData = canvas.getContext('2d')
-                      .getImageData(0, 0, canvas.width, canvas.height).data;
-
-    var i = canvasData.length;
-    while(i--) {
-      if (refImageData[i] !== canvasData[i]) {
-        callback(false);
-        return;
-      }
-    }
-    callback(true);
-  };
+  }
+  callback(true);
 };
+
+var SAVEMODE = false;
+if (window.location.search.indexOf('savemode=true') !== -1) {
+  SAVEMODE = true;
+}
+
+var ALLOWNOREF = false;
+if (window.location.search.indexOf('allownoref=true') !== -1) {
+  ALLOWNOREF = true;
+}
 
 // Wrapper to functions above. Basic scaffold for all the simple tests.
 var setupTest = function setupTest(refImageId) {
   stop();
+
+  var el = document.getElementById('save-all');
+  if (!el) {
+    var container = document.getElementById('qunit-testrunner-toolbar');
+    var buttonEl = document.createElement('button');
+    buttonEl.type = 'button';
+    buttonEl.id = 'save-all';
+    buttonEl.textContent = 'Save all reference images';
+    container.appendChild(buttonEl);
+    buttonEl.addEventListener('click', function clicked() {
+      if (!window.confirm('Are you sure you want to keep all the output' +
+                          ' as the reference image?')) {
+        return;
+      }
+      var refCanvases = document.getElementsByClassName('ref-canvas');
+      for (var i = 0; i < refCanvases.length; i++) {
+        refCanvases[i].save();
+      }
+    });
+
+  }
+
   var canvas = setupTestCanvas(refImageId, function canvasDrawn() {
-    getRefImage(refImageId, function gotRefImage(refImgUrl) {
-      ok(refImgUrl,
+    if (SAVEMODE) {
+      canvas.save();
+
+      ok(true, 'Canvas output has been saved as reference images.');
+      start();
+
+      return;
+    }
+
+    getRefImage(refImageId, function gotRefImage(refImgData) {
+      if (!refImgData && ALLOWNOREF) {
+        ok(true, 'Skip the test with ALLOWNOREF.');
+        console.log(
+          'Skip the test with ALLOWNOREF. Please manually confirm \n' +
+          'the test result of "' + currentTestDetails.name + '"');
+        console.log(canvas.toDataURL());
+
+        start();
+
+        return;
+      }
+
+      ok(refImgData,
          'Reference image found; click on the canvas to save it as the ' +
          'new refernece image in localStorage.');
-      compareCanvas(canvas, refImgUrl, function canvasCompared(value) {
+      compareCanvas(canvas, refImgData, function canvasCompared(value, refCanvas) {
         ok(value, 'The canvas output is equal to the reference image.');
+        if (!value) {
+          console.log('Test name: "' + currentTestDetails.name + '"');
+          console.log('The reference image:');
+          console.log(refCanvas.toDataURL());
+          console.log('The output:');
+          console.log(canvas.toDataURL());
+        }
+
         start();
       });
     });
