@@ -4,7 +4,7 @@ Create a tag cloud/[Wordle](http://www.wordle.net/) presentation on 2D canvas or
 
 This library is a spin-off project from [HTML5 Word Cloud](https://github.com/timdream/wordcloud).
 
-** Visit the [demo page](http://timdream.org/wordcloud2.js/)**
+**Visit the [demo page](http://timdream.org/wordcloud2.js/)**
 
 ## Simple usage
 
