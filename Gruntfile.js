@@ -5,7 +5,9 @@ module.exports = function(grunt) {
   var HTTPD_PORT = 28080 + Math.floor(Math.random() * 10);
   var TEST_URL = 'http://localhost:' + HTTPD_PORT + '/test/';
 
-  var BASE_COMMIT = grunt.option('base-commit') || '';
+  var BASE_COMMIT = grunt.option('base-commit') ||
+    process.env.TRAVIS_BRANCH ||
+    '';
 
   grunt.initConfig({
     shell: {
@@ -70,7 +72,6 @@ module.exports = function(grunt) {
     } else {
       // Running on pull requests -- check linting, and compare the images with
       // the branch to merge.
-      BASE_COMMIT = process.env.TRAVIS_BRANCH;
       grunt.task.run(['jshint', 'compare']);
     }
   });
