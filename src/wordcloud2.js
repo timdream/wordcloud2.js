@@ -526,11 +526,13 @@ if (!window.clearImmediate) {
       fcanvas.setAttribute('height', height);
 
       if (debug) {
+        // Attach fcanvas to the DOM
         document.body.appendChild(fcanvas);
+        // Save it's state so that we could restore and draw the grid correctly.
+        fctx.save();
       }
 
       // Scale the canvas with |mu|.
-      fctx.save();
       fctx.scale(1 / mu, 1 / mu);
       fctx.translate(width * mu / 2, height * mu / 2);
       fctx.rotate(- rotateDeg);
@@ -551,14 +553,18 @@ if (!window.clearImmediate) {
       fctx.fillText(word, fillTextOffsetX * mu,
                     (fillTextOffsetY + fontSize * 0.5) * mu);
 
-      // Restore the transform.
-      fctx.restore();
-
       // Get the pixels of the text
       var imageData = fctx.getImageData(0, 0, width, height).data;
 
       if (exceedTime()) {
         return false;
+      }
+
+      if (debug) {
+        // Draw the box of the original estimation
+        fctx.strokeRect(fillTextOffsetX * mu,
+                        fillTextOffsetY, fw * mu, fh * mu);
+        fctx.restore();
       }
 
       // Read the pixels and save the information to the occupied array
