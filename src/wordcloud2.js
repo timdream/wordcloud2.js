@@ -362,6 +362,12 @@ if (!window.clearImmediate) {
 
     var getInfoGridFromMouseEvent = function getInfoGridFromMouseEvent(evt) {
       var canvas = evt.target;
+      if (!canvas.getContext) {
+          var i = $(canvas).text();
+          var d = { x: 0, y: 0, w: 0, h: 0 }; /* FIXME */
+          var info = { item: i, dimension: d };
+          return info;
+      }
       var rect = canvas.getBoundingClientRect();
       var eventX = evt.clientX - rect.left;
       var eventY = evt.clientY - rect.top;
