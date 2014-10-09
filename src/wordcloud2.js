@@ -361,19 +361,13 @@ if (!window.clearImmediate) {
     var hovered;
 
     var getInfoGridFromMouseEvent = function getInfoGridFromMouseEvent(evt) {
-      var canvas = evt.target;
-      if (!canvas.getContext) {
-          var i = canvas.textContent;
-          var d = { x: 0, y: 0, w: 0, h: 0 }; /* FIXME */
-          var info = { item: i, dimension: d };
-          return info;
-      }
+      var canvas = evt.currentTarget;
       var rect = canvas.getBoundingClientRect();
       var eventX = evt.clientX - rect.left;
       var eventY = evt.clientY - rect.top;
 
-      var x = Math.floor(eventX * (canvas.width / rect.width) / g);
-      var y = Math.floor(eventY * (canvas.height / rect.height) / g);
+      var x = Math.floor(eventX * ((canvas.width / rect.width) || 1) / g);
+      var y = Math.floor(eventY * ((canvas.height / rect.height) || 1) / g);
 
       return infoGrid[x][y];
     };
