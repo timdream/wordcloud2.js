@@ -15,9 +15,9 @@ wordcloud2.js works around it by scaling the canvas, but you may be interested t
 
 ## Usage
 
-    WordCloud(canvas, options);
+    WordCloud(elements, options);
 
-`canvases` is the DOM Element of the canvas, i.e. `document.getElementById('my_canvas')` or `$('#my_canvas')[0]` in jQuery.
+`elements` is the DOM Element of the canvas, i.e. `document.getElementById('my_canvas')` or `$('#my_canvas')[0]` in jQuery.
 It can be also an array of DOM Elements. If a `<canvas>` element is passed, Word Cloud would generate an image on it; if it's some other element, Word Cloud would create `<span>` elements and fill it.
 
 Depend on the application, you may want to create an image (high fidelity but interaction is limited) or create the "cloud" with DOM to do further styling.
