@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Get approximate polar equation for given image</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <!-- Le styles -->
+  <link href="//netdna.bootstrapcdn.com/bootstrap/2.2.2/css/bootstrap.min.css" rel="stylesheet">
+  <link href="//netdna.bootstrapcdn.com/bootstrap/2.2.2/css/bootstrap-responsive.min.css" rel="stylesheet">
+  <link href="//fonts.googleapis.com/css?family=Finger+Paint" id="link-webfont" rel="stylesheet">
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.2.2/bootstrap.min.js"></script>
+  <script>
+    var img, url;
+
+    window.onload = function() {
+      // DOM File object selected
+      var file = document.getElementById('file').files[0];
+
+      if (file) run();
+    }
+
+    function run() {
+      // DOM File object selected
+      var file = document.getElementById('file').files[0];
+
+      url = window.URL.createObjectURL(file);
+      img = new Image();
+      img.src = url;
+
+      img.onload = readPixels;
+    }
+
+    function readPixels() {
+      window.URL.revokeObjectURL(url);
+
+      var canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      document.body.appendChild(canvas);
+
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, img.width, img.height);
+
+      var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      var mask = new Uint8Array(imageData.data.length / 4);
+      var width = canvas.width;
+      var height = canvas.height;
+      for (var i = 0; i < imageData.data.length; i++) {
+        if (i % 4 === 3) {
+          mask[(i - 3) / 4] = imageData.data[i];
+          imageData.data[i] = imageData.data[i] * 7 / 8 + 32;
+          continue;
+        }
+        imageData.data[i] = 0;
+      }
+
+      var o = [(img.width / 2) | 0, (img.height / 2) | 0];
+      var d = window.d = [];
+
+      imageData.data[(o[1] * width + o[0]) * 4] = 254;
+
+      for (var theta = 0; theta < 2 * Math.PI; theta += 0.01) {
+        var dx = 1 * Math.cos(theta);
+        var dy = - 1 * Math.sin(theta);
+        var i = 0;
+
+        var x = o[0];
+        var y = o[1];
+        var intX = x;
+        var intY = y;
+        while (true) {
+          x += dx;
+          y += dy;
+
+          intX = x | 0;
+          intY = y | 0;
+
+          if (intY < 0 || intY > canvas.height || intX < 0 || intX > width) {
+            break;
+          }
+
+          imageData.data[(intY * width + intX) * 4 + 1] = 254;
+          imageData.data[(intY * width + intX) * 4] =
+            (imageData.data[(intY * width + intX) * 4 + 3] === 32) ? 255: 128;
+
+          if (imageData.data[(intY * width + intX) * 4 + 3] === 32) {
+            d.push(i);
+            break;
+          } else {
+            i++;
+          }
+        }
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+
+      var max = d.reduce(function(prev, curr) {
+        return Math.max(prev, curr);
+      });
+
+      var resultText =
+        'function(theta) {\n' +
+        '  var max = ' + max + ';\n' +
+        '  var leng = ' + JSON.stringify(d) + ';\n\n' +
+        '  return leng[(theta / (2 * Math.PI)) * leng.length | 0] / max;\n' +
+        '}\n';
+
+      var result = document.getElementById('result');
+      result.textContent = resultText;
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <p class="lead">Get approximate polar equation for given image.</p>
+    <p>
+      Please select a black-white image below.
+      The black part shall be centered and it will be the shape to trace.
+      You would have to manually save, edit the code if you want any additional processing.
+    </p>
+    <form>
+      <input type="file" id="file" class="input-large" onchange="run()">
+    </form>
+    <pre id="result"></pre>
+  </div>
+</body>
