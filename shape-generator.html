@@ -46,21 +46,15 @@
       ctx.drawImage(img, 0, 0, img.width, img.height);
 
       var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
       var mask = new Uint8Array(imageData.data.length / 4);
       var width = canvas.width;
       var height = canvas.height;
-      for (var i = 0; i < imageData.data.length; i++) {
-        if (i % 4 === 3) {
-          mask[(i - 3) / 4] = imageData.data[i];
-          imageData.data[i] = imageData.data[i] * 7 / 8 + 32;
-          continue;
-        }
-        imageData.data[i] = 0;
-      }
 
       var o = [(img.width / 2) | 0, (img.height / 2) | 0];
       var d = window.d = [];
 
+      // paint red on the center pixel (not really visible)
       imageData.data[(o[1] * width + o[0]) * 4] = 254;
 
       for (var theta = 0; theta < 2 * Math.PI; theta += 0.01) {
@@ -83,11 +77,20 @@
             break;
           }
 
-          imageData.data[(intY * width + intX) * 4 + 1] = 254;
-          imageData.data[(intY * width + intX) * 4] =
-            (imageData.data[(intY * width + intX) * 4 + 3] === 32) ? 255: 128;
+          var ptr = (intY * width + intX) * 4;
+          var tone = imageData.data[ptr] +
+            imageData.data[ptr + 1] +
+            imageData.data[ptr + 2];
+          var alpha = imageData.data[ptr + 3];
 
-          if (imageData.data[(intY * width + intX) * 4 + 3] === 32) {
+          // draw a green line all the way until the boundary
+          imageData.data[ptr] = 0; // R
+          imageData.data[ptr + 1] = 254; // G
+          imageData.data[ptr + 2] = 0;  // B
+          imageData.data[ptr + 3] = 254;
+
+          // are we there at the boundary?
+          if (alpha < 128 || tone > 128 * 3) {
             d.push(i);
             break;
           } else {
