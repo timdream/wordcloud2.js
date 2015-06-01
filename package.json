@@ -1,6 +1,6 @@
 {
   "name": "wordcloud",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/timdream/wordcloud2.js"
@@ -8,6 +8,7 @@
   "scripts": {
     "test": "grunt test"
   },
+  "main": "src/wordcloud2.js",
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-shell": "~0.6.4",

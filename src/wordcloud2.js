@@ -1101,6 +1101,8 @@ if (!window.clearImmediate) {
   // Expose the library as an AMD module
   if (typeof global.define === 'function' && global.define.amd) {
     global.define('wordcloud', [], function() { return WordCloud; });
+  } else if (typeof global.module !== 'undefined' && global.module.exports) {
+    global.module.exports = WordCloud;
   } else {
     global.WordCloud = WordCloud;
   }
