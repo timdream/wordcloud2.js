@@ -1,5 +1,6 @@
 {
   "name": "wordcloud2.js",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/timdream/wordcloud2.js"
