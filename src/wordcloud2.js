@@ -329,22 +329,22 @@ if (!window.clearImmediate) {
 
     /* function for getting the color of the text */
     var getTextColor;
+    function random_hsl_color(min, max) {
+      return 'hsl(' +
+        (Math.random() * 360).toFixed() + ',' +
+        (Math.random() * 30 + 70).toFixed() + '%,' +
+        (Math.random() * (max - min) + min).toFixed() + '%)';
+    }
     switch (settings.color) {
       case 'random-dark':
         getTextColor = function getRandomDarkColor() {
-          return 'rgb(' +
-            Math.floor(Math.random() * 128).toString(10) + ',' +
-            Math.floor(Math.random() * 128).toString(10) + ',' +
-            Math.floor(Math.random() * 128).toString(10) + ')';
+          return random_hsl_color(10, 50);
         };
         break;
 
       case 'random-light':
         getTextColor = function getRandomLightColor() {
-          return 'rgb(' +
-            Math.floor(Math.random() * 128 + 128).toString(10) + ',' +
-            Math.floor(Math.random() * 128 + 128).toString(10) + ',' +
-            Math.floor(Math.random() * 128 + 128).toString(10) + ')';
+          return random_hsl_color(50, 90);
         };
         break;
 
