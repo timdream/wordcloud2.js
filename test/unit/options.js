@@ -96,6 +96,21 @@ test('color can be set as a function', function() {
   WordCloud(setupTest('color-as-function'), options);
 });
 
+test('classes can be set as a function', function() {
+  var options = getTestOptions();
+  options.classes = function (word, weight, fontSize, radius, theta) {
+    if (theta < 2*Math.PI/3) {
+      return 'class1';
+    } else if (theta < 2*Math.PI*2/3) {
+      return 'class2';
+    } else {
+      return 'class3';
+    }
+  };
+
+  WordCloud(setupTest('classes-as-function'), options);
+});
+
 test('shape can be set to circle', function() {
   var options = getTestOptions();
   options.shape = 'circle';
