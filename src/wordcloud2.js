@@ -205,6 +205,8 @@ if (!window.clearImmediate) {
       shape: 'circle',
       ellipticity: 0.65,
 
+      classes: null,
+
       hover: null,
       click: null
     };
@@ -353,6 +355,12 @@ if (!window.clearImmediate) {
           getTextColor = settings.color;
         }
         break;
+    }
+
+    /* function for getting the classes of the text */
+    var getTextClasses = null;
+    if (typeof settings.classes === 'function') {
+      getTextClasses = settings.classes;
     }
 
     /* Interactive */
@@ -663,6 +671,13 @@ if (!window.clearImmediate) {
         color = settings.color;
       }
 
+      var classes;
+      if (getTextClasses) {
+        classes = getTextClasses(word, weight, fontSize, distance, theta);
+      } else {
+        classes = settings.classes;
+      }
+
       var dimension;
       var bounds = info.bounds;
       dimension = {
@@ -730,7 +745,6 @@ if (!window.clearImmediate) {
             'top': ((gy + info.gh / 2) * g + info.fillTextOffsetY) + 'px',
             'width': info.fillTextWidth + 'px',
             'height': info.fillTextHeight + 'px',
-            'color': color,
             'lineHeight': fontSize + 'px',
             'whiteSpace': 'nowrap',
             'transform': transformRule,
@@ -740,6 +754,9 @@ if (!window.clearImmediate) {
             'webkitTransformOrigin': '50% 40%',
             'msTransformOrigin': '50% 40%'
           };
+          if (color) {
+            styleRules.color = color;
+          }
           span.textContent = word;
           for (var cssProp in styleRules) {
             span.style[cssProp] = styleRules[cssProp];
@@ -748,6 +765,9 @@ if (!window.clearImmediate) {
             for (var attribute in attributes) {
               span.setAttribute(attribute, attributes[attribute]);
             }
+          }
+          if (classes) {
+            span.className += classes;
           }
           el.appendChild(span);
         }
