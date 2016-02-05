@@ -115,7 +115,7 @@ if (!window.clearImmediate) {
 
   // Find out if the browser impose minium font size by
   // drawing small texts on a canvas and measure it's width.
-  var miniumFontSize = (function getMiniumFontSize() {
+  var minFontSize = (function getMinFontSize() {
     if (!isSupported) {
       return;
     }
@@ -481,10 +481,10 @@ if (!window.clearImmediate) {
       // the minium font size set by browser.
       // It will always be 1 or 2n.
       var mu = 1;
-      if (fontSize < miniumFontSize) {
+      if (fontSize < minFontSize) {
         mu = (function calculateScaleFactor() {
           var mu = 2;
-          while (mu * fontSize < miniumFontSize) {
+          while (mu * fontSize < minFontSize) {
             mu += 2;
           }
           return mu;
@@ -1116,7 +1116,7 @@ if (!window.clearImmediate) {
   };
 
   WordCloud.isSupported = isSupported;
-  WordCloud.miniumFontSize = miniumFontSize;
+  WordCloud.minFontSize = minFontSize;
 
   // Expose the library as an AMD module
   if (typeof global.define === 'function' && global.define.amd) {
