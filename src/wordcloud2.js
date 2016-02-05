@@ -675,9 +675,6 @@ if (!window.clearImmediate) {
             var fontSize = info.fontSize;
             var color;
 
-            console.log(scopeColor)
-
-
                                     // [word, size, color], e.g. [['foo', 12, '#00b2ee'], ['bar', 6, '#ff3d3d']]
             if(scopeColor) {       //NEW! Added possibility for passing color as third index in item list.
                 color = scopeColor; // Should custom color not be passed it runs its' default code.
