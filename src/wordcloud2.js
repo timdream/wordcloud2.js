@@ -675,11 +675,11 @@ if (!window.clearImmediate) {
             var fontSize = info.fontSize;
             var color;
 
-            console.log(globalColor)
+            console.log(scopeColor)
 
 
                                     // [word, size, color], e.g. [['foo', 12, '#00b2ee'], ['bar', 6, '#ff3d3d']]
-            if(globalColor) {       //NEW! Added possibility for passing color as third index in item list.
+            if(scopeColor) {       //NEW! Added possibility for passing color as third index in item list.
                 color = scopeColor; // Should custom color not be passed it runs its' default code.
             }
             else if (getTextColor) {
@@ -909,7 +909,7 @@ if (!window.clearImmediate) {
                 drawText(gx, gy, info, word, weight,
                     (maxRadius - r), gxy[2], rotateDeg, attributes);
 
-               globalColor =  item[2];
+               scopeColor =  item[2];
 
                 // Mark the spaces on the grid as filled
                 updateGrid(gx, gy, gw, gh, info, item);
