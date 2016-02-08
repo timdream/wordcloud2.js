@@ -670,7 +670,7 @@ if (!window.clearImmediate) {
 
         /* Actually draw the text on the grid */
         var drawText = function drawText(gx, gy, info, word, weight,
-                                         distance, theta, rotateDeg, attributes, item) {
+                                         distance, theta, rotateDeg, attributes, item) {        //Added attribute
 
             var fontSize = info.fontSize;
             var color;
@@ -680,11 +680,11 @@ if (!window.clearImmediate) {
                 color = scopeColor; // Should custom color not be passed it runs its' default code.
             }
             else if (getTextColor) {
-                color = getTextColor(word, weight, fontSize, distance, theta);
+                color = item[2];        //uses attribute to set color for first item being put.
             } else {
+                console.warn("else")
                 color = settings.color;
             }
-
 
             var classes;
             if (getTextClasses) {
@@ -703,7 +703,6 @@ if (!window.clearImmediate) {
             };
 
             elements.forEach(function (el) {
-
                 if (el.getContext) {
                     var ctx = el.getContext('2d');
                     var mu = info.mu;
@@ -795,7 +794,6 @@ if (!window.clearImmediate) {
         /* Help function to updateGrid */
         var fillGridAt = function fillGridAt(x, y, drawMask, dimension, item) {
 
-            //console.warn(item)
             actualElement = item;
 
             if (x >= ngx || y >= ngy || x < 0 || y < 0) {
@@ -904,9 +902,9 @@ if (!window.clearImmediate) {
 
                 // Actually put the text on the canvas
                 drawText(gx, gy, info, word, weight,
-                    (maxRadius - r), gxy[2], rotateDeg, attributes);
+                    (maxRadius - r), gxy[2], rotateDeg, attributes, item);
 
-               scopeColor =  item[2];
+               scopeColor =  item[2];       //Saves color for next run.
 
                 // Mark the spaces on the grid as filled
                 updateGrid(gx, gy, gw, gh, info, item);
