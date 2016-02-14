@@ -11,7 +11,7 @@ will evaluates to `false` if the browser doesn't supply necessary functionalitie
 Some browsers come with restrictions on minimum font size preference on, and the preference will also impact canvas.
 wordcloud2.js works around it by scaling the canvas, but you may be interested to know value of the preference. The value detected is accessible at
 
-	WordCloud.miniumFontSize
+	WordCloud.minimumFontSize
 
 ## Usage
 
