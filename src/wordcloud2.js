@@ -371,8 +371,10 @@ if (!window.clearImmediate) {
     var getInfoGridFromMouseEvent = function getInfoGridFromMouseEvent(evt) {
       var canvas = evt.currentTarget;
       var rect = canvas.getBoundingClientRect();
-      var eventX = evt.clientX - rect.left;
-      var eventY = evt.clientY - rect.top;
+      var clientX = evt.clientX || evt.touches[0].clientX;
+      var clientY = evt.clientX || evt.touches[0].clientY;
+      var eventX = clientX - rect.left;
+      var eventY = clientY - rect.top;
 
       var x = Math.floor(eventX * ((canvas.width / rect.width) || 1) / g);
       var y = Math.floor(eventY * ((canvas.height / rect.height) || 1) / g);
