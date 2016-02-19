@@ -405,6 +405,7 @@ if (!window.clearImmediate) {
       }
 
       settings.click(info.item, info.dimension, evt);
+      evt.preventDefault();
     };
 
     /* Get points on the grid for a given radius away from the center */
@@ -1046,6 +1047,9 @@ if (!window.clearImmediate) {
 
         if (settings.click) {
           canvas.addEventListener('click', wordcloudclick);
+          canvas.addEventListener('touchstart', wordcloudclick);
+          canvas.addEventListener('touchend', function (e) { e.preventDefault(); });
+          canvas.style.webkitTapHighlightColor = "rgba(0, 0, 0, 0)";
         }
 
         canvas.addEventListener('wordcloudstart', function stopInteraction() {
