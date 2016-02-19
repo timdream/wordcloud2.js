@@ -1050,8 +1050,10 @@ if (!window.clearImmediate) {
         if (settings.click) {
           canvas.addEventListener('click', wordcloudclick);
           canvas.addEventListener('touchstart', wordcloudclick);
-          canvas.addEventListener('touchend', function (e) { e.preventDefault(); });
-          canvas.style.webkitTapHighlightColor = "rgba(0, 0, 0, 0)";
+          canvas.addEventListener('touchend', function (e) {
+            e.preventDefault();
+          });
+          canvas.style.webkitTapHighlightColor = 'rgba(0, 0, 0, 0)';
         }
 
         canvas.addEventListener('wordcloudstart', function stopInteraction() {
