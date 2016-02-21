@@ -368,7 +368,7 @@ if (!window.clearImmediate) {
     var infoGrid = [];
     var hovered;
 
-    var getInfoGridFromMouseEvent = function getInfoGridFromMouseEvent(evt) {
+    var getInfoGridFromMouseTouchEvent = function getInfoGridFromMouseTouchEvent(evt) {
       var canvas = evt.currentTarget;
       var rect = canvas.getBoundingClientRect();
       var clientX = evt.clientX || evt.touches[0].clientX;
@@ -383,7 +383,7 @@ if (!window.clearImmediate) {
     };
 
     var wordcloudhover = function wordcloudhover(evt) {
-      var info = getInfoGridFromMouseEvent(evt);
+      var info = getInfoGridFromMouseTouchEvent(evt);
 
       if (hovered === info) {
         return;
@@ -401,7 +401,7 @@ if (!window.clearImmediate) {
     };
 
     var wordcloudclick = function wordcloudclick(evt) {
-      var info = getInfoGridFromMouseEvent(evt);
+      var info = getInfoGridFromMouseTouchEvent(evt);
       if (!info) {
         return;
       }
