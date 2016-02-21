@@ -368,7 +368,8 @@ if (!window.clearImmediate) {
     var infoGrid = [];
     var hovered;
 
-    var getInfoGridFromMouseTouchEvent = function getInfoGridFromMouseTouchEvent(evt) {
+    var getInfoGridFromMouseTouchEvent =
+    function getInfoGridFromMouseTouchEvent(evt) {
       var canvas = evt.currentTarget;
       var rect = canvas.getBoundingClientRect();
       var clientX = evt.clientX || evt.touches[0].clientX;
