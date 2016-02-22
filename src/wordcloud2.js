@@ -368,11 +368,14 @@ if (!window.clearImmediate) {
     var infoGrid = [];
     var hovered;
 
-    var getInfoGridFromMouseEvent = function getInfoGridFromMouseEvent(evt) {
+    var getInfoGridFromMouseTouchEvent =
+    function getInfoGridFromMouseTouchEvent(evt) {
       var canvas = evt.currentTarget;
       var rect = canvas.getBoundingClientRect();
-      var eventX = evt.clientX - rect.left;
-      var eventY = evt.clientY - rect.top;
+      var clientX = evt.clientX || evt.touches[0].clientX;
+      var clientY = evt.clientX || evt.touches[0].clientY;
+      var eventX = clientX - rect.left;
+      var eventY = clientY - rect.top;
 
       var x = Math.floor(eventX * ((canvas.width / rect.width) || 1) / g);
       var y = Math.floor(eventY * ((canvas.height / rect.height) || 1) / g);
@@ -381,7 +384,7 @@ if (!window.clearImmediate) {
     };
 
     var wordcloudhover = function wordcloudhover(evt) {
-      var info = getInfoGridFromMouseEvent(evt);
+      var info = getInfoGridFromMouseTouchEvent(evt);
 
       if (hovered === info) {
         return;
@@ -399,12 +402,13 @@ if (!window.clearImmediate) {
     };
 
     var wordcloudclick = function wordcloudclick(evt) {
-      var info = getInfoGridFromMouseEvent(evt);
+      var info = getInfoGridFromMouseTouchEvent(evt);
       if (!info) {
         return;
       }
 
       settings.click(info.item, info.dimension, evt);
+      evt.preventDefault();
     };
 
     /* Get points on the grid for a given radius away from the center */
@@ -1046,6 +1050,11 @@ if (!window.clearImmediate) {
 
         if (settings.click) {
           canvas.addEventListener('click', wordcloudclick);
+          canvas.addEventListener('touchstart', wordcloudclick);
+          canvas.addEventListener('touchend', function (e) {
+            e.preventDefault();
+          });
+          canvas.style.webkitTapHighlightColor = 'rgba(0, 0, 0, 0)';
         }
 
         canvas.addEventListener('wordcloudstart', function stopInteraction() {
