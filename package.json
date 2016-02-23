@@ -1,6 +1,22 @@
 {
   "name": "wordcloud",
   "version": "1.0.2",
+  "description": "Tag cloud/Wordle presentation on 2D canvas or HTML",                                                                  
+  "homepage": "http://timdream.org/wordcloud2.js/",                                                                                     
+  "author": {                                                                                                                           
+    "name": "Timothy Guan-tin Chien",                                                                                                   
+    "email": "timdream@gmail.com",                                                                                                      
+    "url": "http://timdream.org/"                                                                                                       
+  },                                                                                                                                    
+  "keywords": [                                                                                                                         
+    "cloud",                                                                                                                            
+    "canvas",                                                                                                                           
+    "2D",                                                                                                                               
+    "html",                                                                                                                             
+    "Wordle",                                                                                                                           
+    "presentation",                                                                                                                     
+    "tag"                                                                                                                               
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/timdream/wordcloud2.js"
