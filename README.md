@@ -28,4 +28,4 @@ To setup environment for testing, run `npm install` and manually install [Slimer
 
 Use `grunt test` to ensure all options can be set without JavaScript error.
 
-Use `grunt compare --base-commit=master` to compare your proposed fix with `master` branch.
+Use `grunt compare --base-commit=gh-pages` to compare your proposed fix with `gh-pages` branch.
