@@ -29,3 +29,7 @@ To setup environment for testing, run `npm install` and manually install [Slimer
 Use `grunt test` to ensure all options can be set without JavaScript error.
 
 Use `grunt compare --base-commit=gh-pages` to compare your proposed fix with `gh-pages` branch.
+
+## Acknowledgement
+
+The developer would like to thank [Chad Jensen](mailto:scubaaddiction@gmail.com) for sponsoring the work on image masking on the demo page.

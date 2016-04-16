@@ -149,6 +149,7 @@
           <li class="active"><a href="#tab-list" data-toggle="tab">List</a></li>
           <li><a href="#tab-config" data-toggle="tab">Configuration</a></li>
           <li><a href="#tab-dim" data-toggle="tab">Dimension</a></li>
+          <li><a href="#tab-mask" data-toggle="tab">Mask image</a></li>
           <li><a href="#tab-webfont" data-toggle="tab">Web Font</a></li>
         </ul>
         <div class="tab-content">
@@ -184,6 +185,12 @@
               <span class="add-on">x</span>
             </div>
             <span class="help-block">Adjust the weight, grid size, and canvas pixel size for high pixel density displays.</span>
+          </div>
+          <div class="tab-pane" id="tab-mask">
+            <label for="config-mask">Image mask</label>
+            <input type="file" id="config-mask"><button id="config-mask-clear" class="btn" type="button">Clear</button>
+            <span class="help-block">An silhouette image which the white area will be excluded from drawing texts. The <code>shape</code> option will continue to apply as the shape of the cloud to grow.</span>
+            <span class="help-block">When there is an image set, <code>clearCanvas</code> will be set to <code>false</code>.</span>
           </div>
           <div class="tab-pane" id="tab-webfont">
             <label for="config-css">Extra Web Font CSS</label>
