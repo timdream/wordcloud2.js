@@ -186,6 +186,7 @@ if (!window.clearImmediate) {
       backgroundColor: '#fff',  // opaque white = rgba(255, 255, 255, 1)
 
       gridSize: 8,
+      drawOutOfBound: false,
       origin: null,
 
       drawMask: false,
@@ -664,7 +665,14 @@ if (!window.clearImmediate) {
         var px = gx + occupied[i][0];
         var py = gy + occupied[i][1];
 
-        if (px >= ngx || py >= ngy || px < 0 || py < 0 || !grid[px][py]) {
+        if (px >= ngx || py >= ngy || px < 0 || py < 0) {
+          if (!settings.drawOutOfBound) {
+            return false;
+          }
+          continue;
+        }
+
+        if (!grid[px][py]) {
           return false;
         }
       }
@@ -829,8 +837,14 @@ if (!window.clearImmediate) {
 
       var i = occupied.length;
       while (i--) {
-        fillGridAt(gx + occupied[i][0], gy + occupied[i][1],
-                   drawMask, dimension, item);
+        var px = gx + occupied[i][0];
+        var py = gy + occupied[i][1];
+
+        if (px >= ngx || py >= ngy || px < 0 || py < 0) {
+          continue;
+        }
+
+        fillGridAt(px, py, drawMask, dimension, item);
       }
 
       if (drawMask) {
@@ -865,12 +879,15 @@ if (!window.clearImmediate) {
         return false;
       }
 
-      // Skip the loop if we have already know the bounding box of
+      // If drawOutOfBound is set to false,
+      // skip the loop if we have already know the bounding box of
       // word is larger than the canvas.
-      var bounds = info.bounds;
-      if ((bounds[1] - bounds[3] + 1) > ngx ||
-        (bounds[2] - bounds[0] + 1) > ngy) {
-        return false;
+      if (!settings.drawOutOfBound) {
+        var bounds = info.bounds;
+        if ((bounds[1] - bounds[3] + 1) > ngx ||
+          (bounds[2] - bounds[0] + 1) > ngy) {
+          return false;
+        }
       }
 
       // Determine the position to put the text by
@@ -948,12 +965,12 @@ if (!window.clearImmediate) {
       var canvas = elements[0];
 
       if (canvas.getContext) {
-        ngx = Math.floor(canvas.width / g);
-        ngy = Math.floor(canvas.height / g);
+        ngx = Math.ceil(canvas.width / g);
+        ngy = Math.ceil(canvas.height / g);
       } else {
         var rect = canvas.getBoundingClientRect();
-        ngx = Math.floor(rect.width / g);
-        ngy = Math.floor(rect.height / g);
+        ngx = Math.ceil(rect.width / g);
+        ngy = Math.ceil(rect.height / g);
       }
 
       // Sending a wordcloudstart event which cause the previous loop to stop.

@@ -46,6 +46,7 @@ Available options as the property of the `options` object are:
 
 * `gridSize`: size of the grid in pixels for marking the availability of the canvas — the larger the grid size, the bigger the gap between words.
 * `origin`: origin of the “cloud” in `[x, y]`.
+* `drawOutOfBound`: set to `true` to allow word being draw partly outside of the canvas. Allow word bigger than the size of the canvas to be drawn.
 
 ### Mask
 
