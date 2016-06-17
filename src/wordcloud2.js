@@ -209,9 +209,7 @@ if (!window.clearImmediate) {
       classes: null,
 
       hover: null,
-      click: null,
-
-      fixElementOffset: false
+      click: null
     };
 
     if (options) {
@@ -758,20 +756,13 @@ if (!window.clearImmediate) {
               'translateX(-' + (info.fillTextWidth / 4) + 'px) ' +
               'scale(' + (1 / info.mu) + ')';
           }
-          
-          var styleRuleLeft = settings.fixElementOffset ? el.offsetLeft  : 0;
-          var styleRuleTop = settings.fixElementOffset ? el.offsetTop  : 0;
-
-          styleRuleLeft = styleRuleLeft + ((gx + info.gw / 2) * g + info.fillTextOffsetX) + 'px';
-          styleRuleTop = styleRuleTop + ((gy + info.gh / 2) * g + info.fillTextOffsetY) + 'px';
-
           var styleRules = {
             'position': 'absolute',
             'display': 'block',
             'font': settings.fontWeight + ' ' +
                     (fontSize * info.mu) + 'px ' + settings.fontFamily,
-            'left': styleRuleLeft,
-            'top': styleRuleTop,
+            'left': ((gx + info.gw / 2) * g + info.fillTextOffsetX) + 'px',
+            'top': ((gy + info.gh / 2) * g + info.fillTextOffsetY) + 'px',
             'width': info.fillTextWidth + 'px',
             'height': info.fillTextHeight + 'px',
             'lineHeight': fontSize + 'px',
@@ -1011,6 +1002,7 @@ if (!window.clearImmediate) {
           } else {
             el.textContent = '';
             el.style.backgroundColor = settings.backgroundColor;
+            el.style.position = 'relative';
           }
         });
 
