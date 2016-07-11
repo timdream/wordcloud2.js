@@ -44,7 +44,8 @@ module.exports = function(grunt) {
     },
     jshint: {
       options: {
-        jshintrc: true
+        jshintrc: true,
+        reporterOutput: "" // Workaround jshint/jshint#2922
       },
       all: ['src/*.js']
     }
