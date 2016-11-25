@@ -199,6 +199,7 @@ if (!window.clearImmediate) {
 
       minRotation: - Math.PI / 2,
       maxRotation: Math.PI / 2,
+      rotationSteps: 0,
 
       shuffle: true,
       rotateRatio: 0.1,
@@ -319,6 +320,7 @@ if (!window.clearImmediate) {
 
     /* normalize rotation settings */
     var rotationRange = Math.abs(settings.maxRotation - settings.minRotation);
+    var rotationSteps = Math.abs(Math.floor(settings.rotationSteps));
     var minRotation = Math.min(settings.maxRotation, settings.minRotation);
 
     /* information/object available to all functions, set when start() */
@@ -477,7 +479,12 @@ if (!window.clearImmediate) {
         return minRotation;
       }
 
-      return minRotation + Math.random() * rotationRange;
+      if (rotationSteps > 0) {
+        return minRotation + (1 / Math.floor((Math.random() * rotationSteps) + 1)) * rotationRange;
+      }
+      else {
+        return minRotation + Math.random() * rotationRange;
+      }
     };
 
     var getTextInfo = function getTextInfo(word, weight, rotateDeg) {
