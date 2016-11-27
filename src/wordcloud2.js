@@ -480,7 +480,9 @@ if (!window.clearImmediate) {
       }
 
       if (rotationSteps > 0) {
-        return minRotation + (1 / Math.floor((Math.random() * rotationSteps) + 1)) * rotationRange;
+        return minRotation + 
+          (1 / Math.floor((Math.random() * rotationSteps) + 1)) *
+          rotationRange;
       }
       else {
         return minRotation + Math.random() * rotationRange;
