@@ -64,6 +64,7 @@ Available options as the property of the `options` object are:
 
 * `minRotation`: If the word should rotate, the minimum rotation (in rad) the text should rotate.
 * `maxRotation`: If the word should rotate, the maximum rotation (in rad) the text should rotate. Set the two value equal to keep all text in one angle.
+* `rotationSteps`: Force the use of a defined number of angles. Set the value equal to 2 in a -90°/90° range means just -90, 0 or 90 will be used. 
 
 ### Randomness
 
