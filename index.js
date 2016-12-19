@@ -23,7 +23,7 @@ var examples = {
             '  color: \'random-dark\',\n' +
             '  backgroundColor: \'#f0f0f0\',\n' +
             '  rotateRatio: 0.5,\n' +
-            '  rotationSteps: 2,' +
+            '  rotationSteps: 2\n,' +
             '  ellipticity: 1,\n' +
             '  shape: function(theta) {\n' +
             '    /' + '/ Function for simple shapes can be generated manually with http://timdream.org/wordcloud2.js/shape-generator.html.\n' +
@@ -134,7 +134,7 @@ var examples = {
       '    return (weight === 12) ? \'#f02222\' : \'#c09292\';\n' +
       '  },\n' +
       '  rotateRatio: 0.5,\n' +
-      '  rotationSteps: 2,' +
+      '  rotationSteps: 2,\n' +
       '  backgroundColor: \'#ffe0e0\'\n' +
       '}'
   }
