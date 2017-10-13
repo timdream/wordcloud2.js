@@ -261,13 +261,23 @@ if (!window.clearImmediate) {
         */
 
         case 'diamond':
-        case 'square':
           // http://www.wolframalpha.com/input/?i=plot+r+%3D+1%2F%28cos%28mod+
           // %28t%2C+PI%2F2%29%29%2Bsin%28mod+%28t%2C+PI%2F2%29%29%29%2C+t+%3D
           // +0+..+2*PI
           settings.shape = function shapeSquare(theta) {
             var thetaPrime = theta % (2 * Math.PI / 4);
             return 1 / (Math.cos(thetaPrime) + Math.sin(thetaPrime));
+          };
+          break;
+
+        case 'square':
+          // http://www.wolframalpha.com/input/?i=plot+r+%3D+min(1%2Fabs(cos(t
+          // )),1%2Fabs(sin(t)))),+t+%3D+0+..+2*PI
+          settings.shape = function shapeSquare(theta) {
+            return Math.min(
+              1 / Math.abs(Math.cos(theta)),
+              1 / Math.abs(Math.sin(theta))
+            );
           };
           break;
 
