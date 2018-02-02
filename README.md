@@ -4,7 +4,7 @@ Create a tag cloud/[Wordle](http://www.wordle.net/) presentation on 2D canvas or
 
 This library is a spin-off project from [HTML5 Word Cloud](https://github.com/timdream/wordcloud).
 
-**Visit the [demo page](http://timdream.org/wordcloud2.js/)**
+**Visit the [demo page](https://timdream.org/wordcloud2.js/)**
 
 ## Simple usage
 
@@ -16,6 +16,10 @@ where `list` is an array that look like this: `[['foo', 12], ['bar', 6]]`.
 
 Options available, see [API documentation](./API.md) for detail.
 
+## Contact & help
+
+Please read through the API documentation and [CONTRIBUE.md](./CONTRIBUTE.md) before filing an issue or contact me via e-mail.
+
 ## Algorithm
 
 Before putting each word on the canvas, it is drawn on a separate canvas to read back the pixels to record is drawn spaces.
@@ -23,8 +27,8 @@ With the information, wordcloud.js will then try to find a place to fit the word
 
 ## Testing
 
-Tests are available with [QUnit](http://qunitjs.com/) and `grunt`.
-To setup environment for testing, run `npm install` and manually install [SlimerJS](http://slimerjs.org/) of your platform.
+Tests are available with [QUnit](https://qunitjs.com/) and `grunt`.
+To setup environment for testing, run `npm install` and manually install [SlimerJS](https://slimerjs.org/) of your platform.
 
 Use `grunt test` to ensure all options can be set without JavaScript error.
 
