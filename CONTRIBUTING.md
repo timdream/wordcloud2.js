@@ -14,6 +14,11 @@ This is a faulty design and should be corrected.
 It can be fixed by laying out the words on a boundless virtual canvas, and scale the entire virtual canvas until it fits into the visual canvas.
 The project, however, is not trivial.
 
+### Play well with modern build systems
+
+The script comes with a small UMD and it worked well back in the days, but no any more.
+It's better to figure out a way allowing the script to be imported as a module and also `<script src>`.
+
 ### Better heuristics on interaction properties
 
 This is the top asked question of the project.
