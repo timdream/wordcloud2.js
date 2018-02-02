@@ -18,7 +18,7 @@ Options available, see [API documentation](./API.md) for detail.
 
 ## Contact & help
 
-Please read through the API documentation and [CONTRIBUE.md](./CONTRIBUTE.md) before filing an issue or contact me via e-mail.
+Please read through the API documentation and [CONTRIBUTING.md](./CONTRIBUTING.md) before filing an issue or contact me via e-mail.
 
 ## Algorithm
 
