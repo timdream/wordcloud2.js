@@ -96,6 +96,19 @@ test('color can be set as a function', function() {
   WordCloud(setupTest('color-as-function'), options);
 });
 
+test('fontWeight can be set as a function', function() {
+  var options = getTestOptions();
+  options.fontWeight = function (word, weight, fontSize) {
+    if (weight > 15) {
+      return 'bold';
+    } else {
+      return 'normal'
+    }
+  };
+
+  WordCloud(setupTest('font-weight-as-function'), options);
+});
+
 test('classes can be set as a function', function() {
   var options = getTestOptions();
   options.classes = function (word, weight, fontSize, radius, theta) {

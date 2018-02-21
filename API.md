@@ -30,7 +30,7 @@ Available options as the property of the `options` object are:
 
 * `list`: List of words/text to paint on the canvas in a 2-d array, in the form of `[word, size]`, e.g. `[['foo', 12], ['bar', 6]]`.
 * `fontFamily`: font to use.
-* `fontWeight`: font weight to use, e.g. `normal`, `bold` or `600`
+* `fontWeight`: font weight to use, can be, as an example, `normal`, `bold` or `600` or a `callback(word, weight, fontSize` specifies different font-weight for each item in the list. 
 * `color`: color of the text, can be any CSS color, or a `callback(word, weight, fontSize, distance, theta)` specifies different color for each item in the list.
   You may also specify colors with built-in keywords: `random-dark` and `random-light`. If this is a DOM cloud, color can also be `null` to disable hardcoding of
   color into span elements (allowing you to customize at the class level).

@@ -373,6 +373,12 @@ if (!window.clearImmediate) {
         break;
     }
 
+    /* function for getting the font-weight of the text */
+    var getTextFontWeight;
+    if (typeof settings.fontWeight === 'function') {
+      getTextFontWeight = settings.fontWeight;
+    }
+
     /* function for getting the classes of the text */
     var getTextClasses = null;
     if (typeof settings.classes === 'function') {
@@ -527,10 +533,18 @@ if (!window.clearImmediate) {
         })();
       }
 
+      // Get fontWeight that will be used to set fctx.font
+      var fontWeight;
+      if (getTextFontWeight) {
+        fontWeight = getTextFontWeight(word, weight, fontSize);
+      } else {
+        fontWeight = settings.fontWeight;
+      }
+
       var fcanvas = document.createElement('canvas');
       var fctx = fcanvas.getContext('2d', { willReadFrequently: true });
 
-      fctx.font = settings.fontWeight + ' ' +
+      fctx.font = fontWeight + ' ' +
         (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
 
       // Estimate the dimension of the text with measureText().
@@ -583,7 +597,7 @@ if (!window.clearImmediate) {
 
       // Once the width/height is set, ctx info will be reset.
       // Set it again here.
-      fctx.font = settings.fontWeight + ' ' +
+      fctx.font = fontWeight + ' ' +
         (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
 
       // Fill the text into the fcanvas.
@@ -714,9 +728,17 @@ if (!window.clearImmediate) {
         color = settings.color;
       }
 
+      // get fontWeight that will be used to set ctx.font and font style rule
+      var fontWeight;
+      if (getTextFontWeight) {
+        fontWeight = getTextFontWeight(word, weight, fontSize);
+      } else {
+        fontWeight = settings.fontWeight;
+      }
+
       var classes;
       if (getTextClasses) {
-        classes = getTextClasses(word, weight, fontSize, distance, theta);
+        classes = getTextClasses(word, weight, fontSize);
       } else {
         classes = settings.classes;
       }
@@ -739,7 +761,7 @@ if (!window.clearImmediate) {
           ctx.save();
           ctx.scale(1 / mu, 1 / mu);
 
-          ctx.font = settings.fontWeight + ' ' +
+          ctx.font = fontWeight + ' ' +
                      (fontSize * mu).toString(10) + 'px ' + settings.fontFamily;
           ctx.fillStyle = color;
 
@@ -782,7 +804,7 @@ if (!window.clearImmediate) {
           var styleRules = {
             'position': 'absolute',
             'display': 'block',
-            'font': settings.fontWeight + ' ' +
+            'font': fontWeight + ' ' +
                     (fontSize * info.mu) + 'px ' + settings.fontFamily,
             'left': ((gx + info.gw / 2) * g + info.fillTextOffsetX) + 'px',
             'top': ((gy + info.gh / 2) * g + info.fillTextOffsetY) + 'px',
