@@ -613,7 +613,9 @@ if (!window.clearImmediate) {
 
       // Get the pixels of the text. 
       // Exclude error "IndexSizeError" in method "getImageData"
-      var imageData = fctx.getImageData(0, 0, width || 1, height || 1).data;
+      width = width || 1;
+      height = height || 1;
+      var imageData = fctx.getImageData(0, 0, width, height).data;
 
       if (exceedTime()) {
         return false;
