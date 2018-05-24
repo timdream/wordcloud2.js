@@ -611,8 +611,9 @@ if (!window.clearImmediate) {
       fctx.fillText(word, fillTextOffsetX * mu,
                     (fillTextOffsetY + fontSize * 0.5) * mu);
 
-      // Get the pixels of the text
-      var imageData = fctx.getImageData(0, 0, width, height).data;
+      // Get the pixels of the text. 
+      // Exclude error "IndexSizeError" in method "getImageData"
+      var imageData = fctx.getImageData(0, 0, width || 1, height || 1).data;
 
       if (exceedTime()) {
         return false;
@@ -1069,11 +1070,15 @@ if (!window.clearImmediate) {
         bctx.fillRect(0, 0, 1, 1);
         var bgPixel = bctx.getImageData(0, 0, 1, 1).data;
 
+        // Exclude error "IndexSizeError" in method "getImageData"
+        var width_g = (ngx * g) || 1;
+        var height_g = (ngy * g) || 1;
+        
         /* Read back the pixels of the canvas we got to tell which part of the
            canvas is empty.
            (no clearCanvas only works with a canvas, not divs) */
         var imageData =
-          canvas.getContext('2d').getImageData(0, 0, ngx * g, ngy * g).data;
+          canvas.getContext('2d').getImageData(0, 0, width_g, height_g).data;
 
         gx = ngx;
         var x, y;
