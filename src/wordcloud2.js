@@ -987,18 +987,20 @@ if (!window.clearImmediate) {
 
     /* Send DOM event to all elements. Will stop sending event and return
        if the previous one is canceled (for cancelable events). */
-    var sendEvent = function sendEvent(type, cancelable, detail) {
+    var sendEvent = function sendEvent(type, cancelable, details) {
       if (cancelable) {
         return !elements.some(function(el) {
-          var evt = document.createEvent('CustomEvent');
-          evt.initCustomEvent(type, true, cancelable, detail || {});
-          return !el.dispatchEvent(evt);
+          var event = new CustomEvent(type, {
+            detail: details || {}
+          });
+          return !el.dispatchEvent(event);
         }, this);
       } else {
         elements.forEach(function(el) {
-          var evt = document.createEvent('CustomEvent');
-          evt.initCustomEvent(type, true, cancelable, detail || {});
-          el.dispatchEvent(evt);
+          var event = new CustomEvent(type, {
+            detail: details || {}
+          });
+          el.dispatchEvent(event);
         }, this);
       }
     };
