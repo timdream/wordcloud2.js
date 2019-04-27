@@ -8,7 +8,9 @@ This library is a spin-off project from [HTML5 Word Cloud](https://github.com/ti
 
 ## Simple usage
 
-Load `wordcloud.js` script to the web page, and run:
+Download the latest `wordcloud2.js` file from the `src` folder in this repository.
+
+Load `wordcloud2.js` script to the web page, and run:
 
     WordCloud(document.getElementById('my_canvas'), { list: list } );
 

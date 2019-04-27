@@ -28,7 +28,10 @@ Available options as the property of the `options` object are:
 
 ### Presentation
 
-* `list`: List of words/text to paint on the canvas in a 2-d array, in the form of `[word, size]`, e.g. `[['foo', 12], ['bar', 6]]`.
+* `list`: List of words/text to paint on the canvas in a 2-d array, in the form of `[word, size]`.
+	* e.g. `[['foo', 12], ['bar', 6]]`
+	* Optionally, you can send additional data as array elements, in the form of `[word, size, data1, data2, ... ]` which can then be used in the callback functions of `click` and `hover` interactions.
+	* e.g. `[['foo', 12, 'http://google.com?q=foo'], ['bar', 6, 'http://google.com?q=bar']]`. 
 * `fontFamily`: font to use.
 * `fontWeight`: font weight to use, can be, as an example, `normal`, `bold` or `600` or a `callback(word, weight, fontSize` specifies different font-weight for each item in the list. 
 * `color`: color of the text, can be any CSS color, or a `callback(word, weight, fontSize, distance, theta)` specifies different color for each item in the list.
