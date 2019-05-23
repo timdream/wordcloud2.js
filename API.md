@@ -33,7 +33,7 @@ Available options as the property of the `options` object are:
 	* Optionally, you can send additional data as array elements, in the form of `[word, size, data1, data2, ... ]` which can then be used in the callback functions of `click` and `hover` interactions.
 	* e.g. `[['foo', 12, 'http://google.com?q=foo'], ['bar', 6, 'http://google.com?q=bar']]`. 
 * `fontFamily`: font to use.
-* `fontWeight`: font weight to use, can be, as an example, `normal`, `bold` or `600` or a `callback(word, weight, fontSize` specifies different font-weight for each item in the list. 
+* `fontWeight`: font weight to use, can be, as an example, `normal`, `bold` or `600` or a `callback(word, weight, fontSize)` specifies different font-weight for each item in the list. 
 * `color`: color of the text, can be any CSS color, or a `callback(word, weight, fontSize, distance, theta)` specifies different color for each item in the list.
   You may also specify colors with built-in keywords: `random-dark` and `random-light`. If this is a DOM cloud, color can also be `null` to disable hardcoding of
   color into span elements (allowing you to customize at the class level).
