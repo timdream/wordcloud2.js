@@ -6,6 +6,10 @@ This library is a spin-off project from [HTML5 Word Cloud](https://github.com/ti
 
 **Visit the [demo page](https://timdream.org/wordcloud2.js/)**
 
+## Installation
+
+    npm install wordcloud
+
 ## Simple usage
 
 Download the latest `wordcloud2.js` file from the `src` folder in this repository.
