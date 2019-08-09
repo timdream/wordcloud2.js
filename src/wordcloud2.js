@@ -156,6 +156,13 @@ if (!window.clearImmediate) {
     return arr;
   };
 
+  // Keep canvas scaling according to window resizing
+  var keepScaling = function(el, ctx, pixelRatio){
+    el.width = el.offsetWidth * pixelRatio;
+    el.height = el.offsetHeight * pixelRatio;
+    ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  }
+
   var WordCloud = function WordCloud(elements, options) {
     if (!isSupported) {
       return;
@@ -213,7 +220,9 @@ if (!window.clearImmediate) {
       classes: null,
 
       hover: null,
-      click: null
+      click: null,
+
+      pixelRatio: window.devicePixelRatio
     };
 
     if (options) {
@@ -1043,6 +1052,7 @@ if (!window.clearImmediate) {
         elements.forEach(function(el) {
           if (el.getContext) {
             var ctx = el.getContext('2d');
+            keepScaling(el, ctx, settings.pixelRatio);
             ctx.fillStyle = settings.backgroundColor;
             ctx.clearRect(0, 0, ngx * (g + 1), ngy * (g + 1));
             ctx.fillRect(0, 0, ngx * (g + 1), ngy * (g + 1));
