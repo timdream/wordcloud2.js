@@ -158,8 +158,8 @@ if (!window.clearImmediate) {
 
   // Keep canvas scaling according to window resizing
   var keepScaling = function(el, ctx, pixelRatio){
-    el.width = el.offsetWidth * pixelRatio;
-    el.height = el.offsetHeight * pixelRatio;
+    el.width = el.clientWidth * pixelRatio;
+    el.height = el.clientHeight * pixelRatio;
     ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   }
 
