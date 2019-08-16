@@ -190,6 +190,7 @@ if (!window.clearImmediate) {
 
       gridSize: 8,
       drawOutOfBound: false,
+      shrinkToFit: false,
       origin: null,
 
       drawMask: false,
@@ -980,6 +981,14 @@ if (!window.clearImmediate) {
           // leave putWord() and return true
           return true;
         }
+      }
+      if (settings.shrinkToFit) {
+        if (Array.isArray(item)) {
+          item[1] = item[1] * 3 / 4;
+        } else {
+          item.weight = item.weight * 3 / 4;
+        }
+        return putWord(item);
       }
       // we tried all distances but text won't fit, return false
       return false;
