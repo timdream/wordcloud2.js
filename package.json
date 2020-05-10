@@ -23,10 +23,13 @@
     "url": "https://github.com/timdream/wordcloud2.js"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "lint": "eslint --ext .js,.ts src"
   },
   "main": "src/wordcloud2.js",
   "devDependencies": {
+    "@arkweid/lefthook": "^0.7.1",
+    "eslint": "^7.0.0",
     "grunt": "^1.1.0",
     "grunt-cli": "^1.3.2",
     "grunt-contrib-connect": "^2.1.0",
