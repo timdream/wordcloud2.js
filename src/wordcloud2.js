@@ -928,7 +928,7 @@ if (!window.clearImmediate) {
       // If drawOutOfBound is set to false,
       // skip the loop if we have already know the bounding box of
       // word is larger than the canvas.
-      if (!settings.drawOutOfBound) {
+      if (!settings.drawOutOfBound && !settings.shrinkToFit) {
         var bounds = info.bounds;
         if ((bounds[1] - bounds[3] + 1) > ngx ||
           (bounds[2] - bounds[0] + 1) > ngy) {
