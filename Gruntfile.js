@@ -6,7 +6,6 @@ module.exports = function(grunt) {
   var TEST_URL = 'http://localhost:' + HTTPD_PORT + '/test/';
 
   var BASE_COMMIT = grunt.option('base-commit') ||
-    process.env.TRAVIS_BRANCH ||
     '';
 
   grunt.initConfig({
@@ -41,22 +40,13 @@ module.exports = function(grunt) {
           port: HTTPD_PORT
         }
       }
-    },
-    jshint: {
-      options: {
-        jshintrc: true,
-        reporterOutput: "" // Workaround jshint/jshint#2922
-      },
-      all: ['src/*.js']
     }
   });
-
-  grunt.loadNpmTasks('grunt-contrib-jshint');
 
   grunt.loadNpmTasks('grunt-shell');
   grunt.loadNpmTasks('grunt-contrib-connect');
 
-  grunt.registerTask('test', ['jshint','test-slimerjs']);
+  grunt.registerTask('test', ['test-slimerjs']);
   grunt.registerTask('compare', ['compare-slimerjs']);
 
   // Run the test suite with QUnit on SlimerJS
@@ -65,15 +55,4 @@ module.exports = function(grunt) {
   // Run the test suite with QUnit on SlimerJS
   grunt.registerTask('compare-slimerjs',
     ['connect', 'shell:compare-slimerjs']);
-
-  grunt.registerTask('travis-ci', function() {
-    if (process.env.TRAVIS_PULL_REQUEST === 'false') {
-      // Not working on pull requests -- simply run test job.
-      grunt.task.run(['test']);
-    } else {
-      // Running on pull requests -- check linting, and compare the images with
-      // the branch to merge.
-      grunt.task.run(['jshint', 'compare']);
-    }
-  });
 };
