@@ -78,7 +78,7 @@ Available options as the property of the `options` object are:
 ### Shape
 
 * `shape`: The shape of the "cloud" to draw. Can be any polar equation represented as a callback function, or a keyword present.
-Available presents are `circle` (default), `cardioid` (apple or heart shape curve, the most known polar equation), `diamond`, `square`, `triangle-forward`, `triangle`, (alias of `triangle-upright`, `pentagon`, and `star`.
+Available presents are `circle` (default), `cardioid` (apple or heart shape curve, the most known polar equation), `diamond`, `square`, `triangle-forward`, `triangle`, (alias of `triangle-upright`), `pentagon`, and `star`.
 * `ellipticity`: degree of "flatness" of the shape wordcloud2.js should draw.
 
 ### Interactive
