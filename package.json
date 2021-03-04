@@ -1,12 +1,11 @@
 {
-  "name": "wordcloud",
+  "name": "wordcloud-y",
   "version": "1.1.2",
-  "description": "Tag cloud/Wordle presentation on 2D canvas or HTML",
+  "description": "Tag cloud/Wordle presentation on 2D canvas or HTML(based on timdream's wordcloud)",
   "homepage": "http://timdream.org/wordcloud2.js/",
   "author": {
-    "name": "Timothy Guan-tin Chien",
-    "email": "timdream@gmail.com",
-    "url": "http://timdream.org/"
+    "name": "yuhongda",
+    "email": "silverage.y@gmail.com"
   },
   "keywords": [
     "cloud",
@@ -20,7 +19,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/timdream/wordcloud2.js"
+    "url": "https://github.com/yuhongda/wordcloud2.js"
   },
   "scripts": {
     "test": "grunt test",
