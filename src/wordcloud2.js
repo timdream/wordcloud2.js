@@ -878,6 +878,8 @@ if (!window.clearImmediate) {
       // necessary when size is smaller than default/computed size...
       container.style.lineHeight = '0'
       container.style.fontSize = '0px'
+      // ensure longer entries don't wrap...
+      container.style.whiteSpace = 'nowrap'
 
       inline.style.position = 'relative'
       inline.style.zIndex = '100'
@@ -902,7 +904,7 @@ if (!window.clearImmediate) {
       // a rough estimation if not already defined/TextMetrics support lacking...
       var ascent = (typeof info.fillTextAscent === 'number') ? info.fillTextAscent : block.offsetTop - inline.offsetTop
       var descent = (typeof info.fillTextDescent === 'number') ? info.fillTextDescent : inline.offsetHeight - ascent
-      
+
       if (debug) {
         ascender = document.createElement('div')
         ascender.style.position = 'absolute'
