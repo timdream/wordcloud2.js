@@ -900,9 +900,9 @@ if (!window.clearImmediate) {
       var width = inline.offsetWidth
       var height = container.offsetHeight
       // a rough estimation if not already defined/TextMetrics support lacking...
-      var ascent = info.fillTextAscent || block.offsetTop - inline.offsetTop
-      var descent = info.fillTextDescent || inline.offsetHeight - ascent
-
+      var ascent = (typeof info.fillTextAscent === 'number') ? info.fillTextAscent : block.offsetTop - inline.offsetTop
+      var descent = (typeof info.fillTextDescent === 'number') ? info.fillTextDescent : inline.offsetHeight - ascent
+      
       if (debug) {
         ascender = document.createElement('div')
         ascender.style.position = 'absolute'
