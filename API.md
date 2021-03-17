@@ -13,6 +13,23 @@ wordcloud2.js works around it by scaling the canvas, but you may be interested t
 
 	WordCloud.minFontSize
 
+## Stop the renderring
+
+Sometimes we need to stop wordcloud2.js renderring, to optimize the component renderring performance, especially in some FE libraries like 'React'.
+In this scenario, you can just call the function below
+
+  WordCloud.stop
+
+```js
+useEffect(() => {
+  ...
+  return () => {
+    // stop the renderring
+    WordCloud.stop();
+  };
+}, [deps]);
+```
+
 ## Usage
 
     WordCloud(elements, options);
