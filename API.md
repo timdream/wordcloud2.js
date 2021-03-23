@@ -47,15 +47,15 @@ Available options as the property of the `options` object are:
 
 * `list`: List of words/text to paint on the canvas in a 2-d array, in the form of `[word, size]`.
 	* e.g. `[['foo', 12], ['bar', 6]]`
-	* Optionally, you can send additional data as array elements, in the form of `[word, size, data1, data2, ... ]` which can then be used in the callback functions of `click` and `hover` interactions.
+	* Optionally, you can send additional data as array elements, in the form of `[word, size, data1, data2, ... ]` which can then be used in the callback functions of `click`, `hover` interactions and fontWeight, color and classes callbacks.
 	* e.g. `[['foo', 12, 'http://google.com?q=foo'], ['bar', 6, 'http://google.com?q=bar']]`. 
 * `fontFamily`: font to use.
-* `fontWeight`: font weight to use, can be, as an example, `normal`, `bold` or `600` or a `callback(word, weight, fontSize)` specifies different font-weight for each item in the list. 
+* `fontWeight`: font weight to use, can be, as an example, `normal`, `bold` or `600` or a `callback(word, weight, fontSize, extraData)` specifies different font-weight for each item in the list. 
 * `color`: color of the text, can be any CSS color, or a `callback(word, weight, fontSize, distance, theta)` specifies different color for each item in the list.
   You may also specify colors with built-in keywords: `random-dark` and `random-light`. If this is a DOM cloud, color can also be `null` to disable hardcoding of
   color into span elements (allowing you to customize at the class level).
 * `classes`: for DOM clouds, allows the user to define the class of the span elements. Can be a normal class string,
-  applying the same class to every span or a `callback(word, weight, fontSize, distance, theta)` for per-span class definition.
+  applying the same class to every span or a `callback(word, weight, fontSize, extraData)` for per-span class definition.
   In canvas clouds or if equals `null`, this option has no effect.
 * `minSize`: minimum font size to draw on the canvas.
 * `weightFactor`: function to call or number to multiply for `size` of each word in the list.
