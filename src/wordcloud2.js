@@ -146,6 +146,17 @@ if (!window.clearImmediate) {
     return 0
   })()
 
+  var getItemExtraData = function (item) {
+    if (Array.isArray(item)) {
+      var itemCopy = item.slice()
+      // remove data we already have (word and weight)
+      itemCopy.splice(0, 2)
+      return itemCopy
+    } else {
+      return []
+    }
+  }
+
   // Based on http://jsfromhell.com/array/shuffle
   var shuffleArray = function shuffleArray (arr) {
     for (var j, x, i = arr.length; i;) {
@@ -507,7 +518,7 @@ if (!window.clearImmediate) {
       }
     }
 
-    var getTextInfo = function getTextInfo (word, weight, rotateDeg) {
+    var getTextInfo = function getTextInfo (word, weight, rotateDeg, extraDataArray) {
       // calculate the acutal font size
       // fontSize === 0 means weightFactor function wants the text skipped,
       // and size < minSize means we cannot draw the text.
@@ -534,7 +545,7 @@ if (!window.clearImmediate) {
       // Get fontWeight that will be used to set fctx.font
       var fontWeight
       if (getTextFontWeight) {
-        fontWeight = getTextFontWeight(word, weight, fontSize)
+        fontWeight = getTextFontWeight(word, weight, fontSize, extraDataArray)
       } else {
         fontWeight = settings.fontWeight
       }
@@ -722,11 +733,11 @@ if (!window.clearImmediate) {
     }
 
     /* Actually draw the text on the grid */
-    var drawText = function drawText (gx, gy, info, word, weight, distance, theta, rotateDeg, attributes) {
+    var drawText = function drawText (gx, gy, info, word, weight, distance, theta, rotateDeg, attributes, extraDataArray) {
       var fontSize = info.fontSize
       var color
       if (getTextColor) {
-        color = getTextColor(word, weight, fontSize, distance, theta)
+        color = getTextColor(word, weight, fontSize, distance, theta, extraDataArray)
       } else {
         color = settings.color
       }
@@ -734,14 +745,14 @@ if (!window.clearImmediate) {
       // get fontWeight that will be used to set ctx.font and font style rule
       var fontWeight
       if (getTextFontWeight) {
-        fontWeight = getTextFontWeight(word, weight, fontSize)
+        fontWeight = getTextFontWeight(word, weight, fontSize, extraDataArray)
       } else {
         fontWeight = settings.fontWeight
       }
 
       var classes
       if (getTextClasses) {
-        classes = getTextClasses(word, weight, fontSize)
+        classes = getTextClasses(word, weight, fontSize, extraDataArray)
       } else {
         classes = settings.classes
       }
@@ -910,8 +921,10 @@ if (!window.clearImmediate) {
       }
       var rotateDeg = getRotateDeg()
 
+      var extraDataArray = getItemExtraData(item)
+
       // get info needed to put the text onto the canvas
-      var info = getTextInfo(word, weight, rotateDeg)
+      var info = getTextInfo(word, weight, rotateDeg, extraDataArray)
 
       // not getting the info means we shouldn't be drawing this one.
       if (!info) {
@@ -951,7 +964,7 @@ if (!window.clearImmediate) {
 
         // Actually put the text on the canvas
         drawText(gx, gy, info, word, weight,
-          (maxRadius - r), gxy[2], rotateDeg, attributes)
+          (maxRadius - r), gxy[2], rotateDeg, attributes, extraDataArray)
 
         // Mark the spaces on the grid as filled
         updateGrid(gx, gy, gw, gh, info, item)
