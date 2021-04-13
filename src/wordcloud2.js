@@ -81,9 +81,7 @@ if (!window.clearImmediate) {
     // "clearZeroTimeout" is implement on the previous block ||
     // fallback
     function clearImmediateFallback (timer) {
-      for (const timerId in timer) {
-        window.clearTimeout(timer[timerId])
-      }
+      window.clearTimeout(timer)
     }
   })()
 }
