@@ -168,11 +168,13 @@ if (!window.clearImmediate) {
     return arr
   }
 
-  var timer;
+  var timer = {};
   var WordCloud = function WordCloud (elements, options) {
     if (!isSupported) {
       return
     }
+
+    var timerId = Math.floor(Math.random() * Date.now())
 
     if (!Array.isArray(elements)) {
       elements = [elements]
@@ -1147,7 +1149,6 @@ if (!window.clearImmediate) {
 
         canvas.addEventListener('wordcloudstart', function stopInteraction () {
           canvas.removeEventListener('wordcloudstart', stopInteraction)
-
           canvas.removeEventListener('mousemove', wordcloudhover)
           canvas.removeEventListener('click', wordcloudclick)
           hovered = undefined
@@ -1178,16 +1179,16 @@ if (!window.clearImmediate) {
 
       var anotherWordCloudStart = function anotherWordCloudStart () {
         removeEventListener('wordcloudstart', anotherWordCloudStart)
-        stoppingFunction(timer)
+        stoppingFunction(timer[timerId])
       }
 
       addEventListener('wordcloudstart', anotherWordCloudStart)
-      timer = loopingFunction(function loop () {
+      timer[timerId] = loopingFunction(function loop () {
         if (i >= settings.list.length) {
-          stoppingFunction(timer)
+          stoppingFunction(timer[timerId])
           sendEvent('wordcloudstop', false)
           removeEventListener('wordcloudstart', anotherWordCloudStart)
-
+          delete timer[timerId];
           return
         }
         escapeTime = (new Date()).getTime()
@@ -1197,15 +1198,16 @@ if (!window.clearImmediate) {
           drawn: drawn
         })
         if (exceedTime() || canceled) {
-          stoppingFunction(timer)
+          stoppingFunction(timer[timerId])
           settings.abort()
           sendEvent('wordcloudabort', false)
           sendEvent('wordcloudstop', false)
           removeEventListener('wordcloudstart', anotherWordCloudStart)
+          delete timer[timerId]
           return
         }
         i++
-        timer = loopingFunction(loop, settings.wait)
+        timer[timerId] = loopingFunction(loop, settings.wait)
       }, settings.wait)
     }
 
@@ -1217,7 +1219,9 @@ if (!window.clearImmediate) {
   WordCloud.minFontSize = minFontSize
   WordCloud.stop = function stop () {
     if (timer) {
-      window.clearImmediate(timer)
+      for (const timerId in timer) {
+        window.clearImmediate(timer[timerId])
+      }
     }
   }
 
