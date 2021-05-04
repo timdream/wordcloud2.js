@@ -1219,7 +1219,7 @@ if (!window.clearImmediate) {
   WordCloud.minFontSize = minFontSize
   WordCloud.stop = function stop () {
     if (timer) {
-      for (const timerId in timer) {
+      for (var timerId in timer) {
         window.clearImmediate(timer[timerId])
       }
     }
