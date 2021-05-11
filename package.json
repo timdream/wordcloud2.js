@@ -1,6 +1,6 @@
 {
   "name": "wordcloud",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "Tag cloud/Wordle presentation on 2D canvas or HTML",
   "homepage": "http://timdream.org/wordcloud2.js/",
   "author": {
