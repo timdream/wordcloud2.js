@@ -422,6 +422,10 @@ if (!window.clearImmediate) {
 
       var x = Math.floor(eventX * ((canvas.width / rect.width) || 1) / g)
       var y = Math.floor(eventY * ((canvas.height / rect.height) || 1) / g)
+      
+      if (!infoGrid[x]) {
+        return null
+      }
 
       return infoGrid[x][y]
     }
