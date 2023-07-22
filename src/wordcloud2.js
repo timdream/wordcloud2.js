@@ -87,6 +87,8 @@ if (!window.clearImmediate) {
 }
 
 (function (global) {
+  var debug = false
+
   // Check if WordCloud can run on this browser
   var isSupported = (function isSupported () {
     var canvas = document.createElement('canvas')
@@ -104,6 +106,9 @@ if (!window.clearImmediate) {
     if (!ctx.fillText) {
       return false
     }
+    // if (!ctx.measureText('Test').actualBoundingBoxAscent) {
+    //   return false
+    // }
 
     if (!Array.prototype.some) {
       return false
@@ -528,7 +533,6 @@ if (!window.clearImmediate) {
       // calculate the acutal font size
       // fontSize === 0 means weightFactor function wants the text skipped,
       // and size < minSize means we cannot draw the text.
-      var debug = false
       var fontSize = settings.weightFactor(weight)
       if (fontSize <= settings.minSize) {
         return false
@@ -562,12 +566,26 @@ if (!window.clearImmediate) {
       fctx.font = fontWeight + ' ' +
         (fontSize * mu).toString(10) + 'px ' + settings.fontFamily
 
+      var measurements = fctx.measureText(word)
+      var fillTextAscent, fillTextDescent, htmlInfo
+
+      if (typeof measurements.actualBoundingBoxAscent === 'number') {
+        fillTextAscent = measurements.actualBoundingBoxAscent
+        fillTextDescent = measurements.actualBoundingBoxDescent
+      } else {
+        // not as accurate but seems to work ok as a fallback where browser support is lacking...
+        htmlInfo = getHtmlTextInfo(settings.fontFamily, fontSize, word);
+        fillTextAscent = htmlInfo.ascent;
+        fillTextDescent = htmlInfo.descent;
+      }
+
       // Estimate the dimension of the text with measureText().
-      var fw = fctx.measureText(word).width / mu
-      var fh = Math.max(fontSize * mu,
-        fctx.measureText('m').width,
-        fctx.measureText('\uFF37').width
-      ) / mu
+      var fw = measurements.width / mu
+      var fh = (fillTextAscent + fillTextDescent) / mu // assumed / mu necessary? fontSize is first multiplied below
+      // var fh = Math.max(fontSize * mu,
+      //   fctx.measureText('m').width,
+      //   fctx.measureText('\uFF37').width
+      // ) / mu
 
       // Create a boundary box that is larger than our estimates,
       // so text don't get cut of (it sill might)
@@ -583,10 +601,9 @@ if (!window.clearImmediate) {
 
       // This is simply half of the width.
       var fillTextOffsetX = -fw / 2
-      // Instead of moving the box to the exact middle of the preferred
-      // position, for Y-offset we move 0.4 instead, so Latin alphabets look
-      // vertical centered.
-      var fillTextOffsetY = -fh * 0.4
+
+      // This is the distance from the baseline to the centre of the text.
+      var fillTextOffsetY = (fillTextAscent - fillTextDescent) / mu / 2 // again, assumed / mu necessary? 
 
       // Calculate the actual dimension of the canvas, considering the rotation.
       var cgh = Math.ceil((boxWidth * Math.abs(Math.sin(rotateDeg)) +
@@ -620,13 +637,11 @@ if (!window.clearImmediate) {
       // XXX: We cannot because textBaseline = 'top' here because
       // Firefox and Chrome uses different default line-height for canvas.
       // Please read https://bugzil.la/737852#c6.
-      // Here, we use textBaseline = 'middle' and draw the text at exactly
-      // 0.5 * fontSize lower.
       fctx.fillStyle = '#000'
-      fctx.textBaseline = 'middle'
+      fctx.textBaseline = 'alphabetic' // i.e. text baseline (default)
       fctx.fillText(
         word, fillTextOffsetX * mu,
-        (fillTextOffsetY + fontSize * 0.5) * mu
+        fillTextOffsetY * mu
       )
 
       // Get the pixels of the text
@@ -640,8 +655,19 @@ if (!window.clearImmediate) {
         // Draw the box of the original estimation
         fctx.strokeRect(
           fillTextOffsetX * mu,
-          fillTextOffsetY, fw * mu, fh * mu
+          fillTextOffsetY - fillTextAscent, fw * mu, fh * mu
         )
+
+        // Draw the effective point of rotation, i.e. (hopefully) centre of canvas and text
+        fctx.beginPath()
+        fctx.arc(0, 0, 4, 0, 2 * Math.PI)
+        fctx.fillStyle = 'red'
+        fctx.fill()
+        fctx.beginPath()
+        fctx.arc(0, 0, 8, 0, 2 * Math.PI)
+        fctx.strokeStyle = 'red'
+        fctx.stroke()
+
         fctx.restore()
       }
 
@@ -711,7 +737,10 @@ if (!window.clearImmediate) {
         fillTextOffsetY: fillTextOffsetY,
         fillTextWidth: fw,
         fillTextHeight: fh,
-        fontSize: fontSize
+        fillTextAscent: fillTextAscent,
+        fillTextDescent: fillTextDescent,
+        fontSize: fontSize,
+        htmlInfo: htmlInfo
       }
     }
 
@@ -792,17 +821,17 @@ if (!window.clearImmediate) {
           // XXX: We cannot because textBaseline = 'top' here because
           // Firefox and Chrome uses different default line-height for canvas.
           // Please read https://bugzil.la/737852#c6.
-          // Here, we use textBaseline = 'middle' and draw the text at exactly
-          // 0.5 * fontSize lower.
-          ctx.textBaseline = 'middle'
+          ctx.textBaseline = 'alphabetic' // default (text baseline)
           ctx.fillText(
             word, info.fillTextOffsetX * mu,
-            (info.fillTextOffsetY + fontSize * 0.5) * mu
+            info.fillTextOffsetY * mu
           )
 
-          // The below box is always matches how <span>s are positioned
-          /* ctx.strokeRect(info.fillTextOffsetX, info.fillTextOffsetY,
-            info.fillTextWidth, info.fillTextHeight) */
+          if (debug) {
+            // The below box is always matches how <span>s are positioned
+            ctx.strokeRect(info.fillTextOffsetX, info.fillTextOffsetY - info.fillTextAscent,
+                info.fillTextWidth, info.fillTextHeight)
+          }
 
           // Restore the state.
           ctx.restore()
@@ -810,29 +839,27 @@ if (!window.clearImmediate) {
           // drawText on DIV element
           var span = document.createElement('span')
           var transformRule = ''
+          var htmlInfo = info.htmlInfo || getHtmlTextInfo(settings.fontFamily, fontSize, word, info)
           transformRule = 'rotate(' + (-rotateDeg / Math.PI * 180) + 'deg) '
           if (info.mu !== 1) {
             transformRule +=
               'translateX(-' + (info.fillTextWidth / 4) + 'px) ' +
               'scale(' + (1 / info.mu) + ')'
           }
+          var transformOriginY = ((htmlInfo.baseline - info.fillTextOffsetY) / htmlInfo.height * 100).toString() + '%'
           var styleRules = {
             position: 'absolute',
-            display: 'block',
             font: fontWeight + ' ' +
               (fontSize * info.mu) + 'px ' + settings.fontFamily,
             left: ((gx + info.gw / 2) * g + info.fillTextOffsetX) + 'px',
-            top: ((gy + info.gh / 2) * g + info.fillTextOffsetY) + 'px',
-            width: info.fillTextWidth + 'px',
-            height: info.fillTextHeight + 'px',
-            lineHeight: fontSize + 'px',
+            top: ((gy + info.gh / 2) * g + info.fillTextOffsetY - htmlInfo.baseline) + 'px',
             whiteSpace: 'nowrap',
             transform: transformRule,
             webkitTransform: transformRule,
             msTransform: transformRule,
-            transformOrigin: '50% 40%',
-            webkitTransformOrigin: '50% 40%',
-            msTransformOrigin: '50% 40%'
+            transformOrigin: '50% ' + transformOriginY,
+            webkitTransformOrigin: '50% ' + transformOriginY,
+            msTransformOrigin: '50% ' + transformOriginY,
           }
           if (color) {
             styleRules.color = color
@@ -852,6 +879,82 @@ if (!window.clearImmediate) {
           el.appendChild(span)
         }
       })
+    }
+
+    var getHtmlTextInfo = function getTextHeight(font, size, text, info) {
+      info = info || {};
+
+      var container = document.createElement('div')
+      var inline = document.createElement('span')
+      var block = document.createElement('div')
+      var ascender, descender
+
+      container.style.position = 'relative'
+      // make it look a little prettier if debugging...
+      container.style.marginTop = '0.8rem'
+      container.style.marginBottom = '1rem'
+      // necessary when size is smaller than default/computed size...
+      container.style.lineHeight = '0'
+      container.style.fontSize = '0px'
+      // ensure longer entries don't wrap...
+      container.style.whiteSpace = 'nowrap'
+
+      inline.style.position = 'relative'
+      inline.style.zIndex = '100'
+      inline.textContent = text
+      inline.style.fontFamily = font
+      inline.style.fontSize = size + 'px'
+      inline.style.lineHeight = 'normal' // equivlent to wordcloud
+
+      block.style.display = 'inline-block'
+      block.style.width = '1px'
+      block.style.height = '0px'
+      block.style.verticalAlign = 'baseline'
+
+      container.appendChild(inline)
+      container.appendChild(block)
+ 
+      document.body.appendChild(container)
+      
+      var baseline = block.offsetTop
+      var width = inline.offsetWidth
+      var height = container.offsetHeight
+      // a rough estimation if not already defined/TextMetrics support lacking...
+      var ascent = (typeof info.fillTextAscent === 'number') ? info.fillTextAscent : block.offsetTop - inline.offsetTop
+      var descent = (typeof info.fillTextDescent === 'number') ? info.fillTextDescent : inline.offsetHeight - ascent
+
+      if (debug) {
+        ascender = document.createElement('div')
+        ascender.style.position = 'absolute'
+        ascender.style.left = '0'
+        ascender.style.width = '100%'
+        ascender.style.top = baseline - ascent + 'px'
+        ascender.style.height = ascent + 'px'
+        ascender.style.backgroundColor = 'rgba(0, 255, 0, 0.5)'
+
+        descender = document.createElement('div')
+        descender.style.position = 'absolute'
+        descender.style.left = '0'
+        descender.style.width = '100%'
+        descender.style.top = baseline + 'px'
+        descender.style.height = descent + 'px'
+        descender.style.backgroundColor = 'rgba(255, 0, 0, 0.5)'
+
+        container.style.backgroundColor = 'rgba(0, 0, 255, 0.5)'
+
+        container.appendChild(ascender)
+        container.appendChild(descender)
+      } else {
+        document.body.removeChild(container)
+      }
+
+      return {
+        baseline: baseline,
+        width: width,
+        height: height,
+        ascent: ascent,
+        descent: descent
+      }
     }
 
     /* Help function to updateGrid */
